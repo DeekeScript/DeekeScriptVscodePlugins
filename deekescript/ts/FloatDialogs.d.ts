@@ -1,0 +1,1 @@
+declare const FloatDialogs: FloatDialogsClass;
