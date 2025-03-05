@@ -19,6 +19,6 @@ const log = {
         setting.getLogWindows().error(str, ...params);
         vscode.window.showErrorMessage(str);
     },
-}
+};
 
 export default log;

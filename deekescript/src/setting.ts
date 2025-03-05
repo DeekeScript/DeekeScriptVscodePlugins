@@ -6,11 +6,11 @@ let context!: vscode.ExtensionContext;
 
 const setting = {
     init(context: vscode.ExtensionContext) {
-        this.setExtention(context.extension);
+        this.setExtension(context.extension);
         this.setLogWindows(context.extension);
         this.setContext(context);
     },
-    setExtention(iExtension: vscode.Extension<any>) {
+    setExtension(iExtension: vscode.Extension<any>) {
         extension = iExtension;
     },
     getExtension() {
@@ -32,6 +32,6 @@ const setting = {
         let dir = setting.getContext().asAbsolutePath("");
         return vscode.FileSystemError.FileExists(dir + "/deekeScript.json");//is or not the project is deeke project
     }
-}
+};
 
 export default setting;

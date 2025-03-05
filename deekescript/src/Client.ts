@@ -2,8 +2,11 @@ import * as fs from "fs";
 import { MessageEvent, WebSocket } from 'ws';
 import log from './unit/log';
 import setting from "./setting";
+// const { mapErrorToTSStack } = require('./TypeScriptError');
+import { mapErrorToTSStack } from './TypeScriptError';
+import * as vscode from 'vscode';
 
-export default class Cilent {
+export default class Client {
     socket: WebSocket | undefined = undefined;
     socketIp: string | null = null;
     socketPort: number | null = null;
@@ -36,7 +39,7 @@ export default class Cilent {
             };
             this.socket.onmessage = (event: MessageEvent) => {
                 this.message(event);
-            }
+            };
         });
     }
 
@@ -47,7 +50,7 @@ export default class Cilent {
             }
         }
 
-        if (this.projectSyncFiles.length == 0) {
+        if (this.projectSyncFiles.length === 0) {
             log.modelInfo("同步成功");
         }
     }
@@ -55,19 +58,42 @@ export default class Cilent {
     message(event: MessageEvent) {
         let res = JSON.parse(event.data.toString());
         if (res['code'] === 0) {
-            if (res['command'] == 'fileAsyncCommand') {
-                return res['file'] && this.projectSyncFilesRemove(res['file']);
+            try {
+                //{"code":1,"message":"{\"sourceName\":\"/test3.js\",\"lineNumber\":4,\"columnNumber\":20,\"detail\":\"syntax error\"}"}
+                let info = JSON.parse(res['msg']);//这里是Json
+                if (info.code === 0) {
+                    return log.info(info['message']);
+                }
+                //代码错误
+                let err = info['message'];
+                log.info('错误内容：' + err.message + "\n文件：" + err.sourceName + "\n行数：" + err.lineNumber + "\n" + "第几个字符：" + err.columnNumber);
+                if (vscode.window?.activeTextEditor?.document && vscode.workspace.workspaceFolders) {
+                    mapErrorToTSStack(vscode.workspace.workspaceFolders[0].uri.fsPath, err.sourceName, err.lineNumber, err.columnNumber, err.message).then((tsStack: any) => {
+                        console.log('Converted TypeScript Stack Trace:');
+                        console.log(tsStack);
+                    });
+                }
+            } catch (e) {
+                log.info(res['msg']);
             }
-            return log.modelInfo(res['msg']);
+            return;
         }
         return log.modelError(res['msg']);
     }
 
     connect() {
         if (this.socket) {
-            this.socket.close()
+            this.socket.close();
         }
+
+        // if (vscode.window?.activeTextEditor?.document && vscode.workspace.workspaceFolders) {
+        //     mapErrorToTSStack(vscode.workspace.workspaceFolders[0].uri.fsPath, "/script/task/test.js", 5, 21, "具体错误").then((tsStack: any) => {
+        //         console.log('Converted TypeScript Stack Trace:');
+        //         console.log(tsStack);
+        //     });
+        // }
         log.info("正在连接到手机：" + `ws://${this.socketIp}:${this.socketPort}`);
+
         return new WebSocket(`ws://${this.socketIp}:${this.socketPort}`);
     }
 
@@ -76,24 +102,25 @@ export default class Cilent {
     }
 
     state() {
-        return this.socket && this.socket.readyState == this.socket.OPEN;
+        return this.socket && this.socket.readyState === this.socket.OPEN;
     }
 
-    fileSync(file: string, isDir: boolean = false) {
+    fileSync(baseDir: string, file: string, isDir: boolean = false) {
         try {
             let data = {
-                command: 'fileAsyncCommand',
-                file: file,
+                status: 1001,
+                file: file.substring(baseDir.length),
                 isDir: isDir,
-                content: fs.readFileSync(file, 'utf8'),
-            }
+                body: isDir ? '' : fs.readFileSync(file).toString('base64'),//这里主要不能直接转为utf8传输，否则图片等文件会丢失数据，导致问题
+            };
+            log.info((isDir ? '即将同步文件夹：' : "即将同步文件：") + file.substring(baseDir.length));
             this.socket?.send(JSON.stringify(data));
         } catch (e: any) {
             log.modelError(e.message.toString());
         }
     }
 
-    projectSync() {
+    projectSync(baseDir: string, file: string) {
         if (!setting.isProject()) {
             return log.modelError("非DeekeScript项目");
         }
@@ -103,10 +130,9 @@ export default class Cilent {
         }
 
         this.projectSyncing = true;
-        let baseDir = setting.getContext().asAbsolutePath("");
         this.projectSyncFiles = [];//重置发送的文件
         try {
-            this.projectSyncDetail(baseDir);
+            this.projectSyncDetail(baseDir, baseDir, true);
         } catch (e: any) {
             log.info(e.message.toString());
         }
@@ -115,8 +141,8 @@ export default class Cilent {
         return true;
     }
 
-    projectSyncDetail(baseDir: string) {
-        this.fileSync(baseDir, false);
+    projectSyncDetail(absolutePath: string, baseDir: string, isDir: boolean) {
+        this.fileSync(absolutePath, baseDir, isDir);
         this.projectSyncFiles?.push(baseDir);
         let files = fs.readdirSync(baseDir);
         for (let f of files) {
@@ -125,39 +151,43 @@ export default class Cilent {
             }
 
             if (fs.statSync(baseDir + '/' + f).isDirectory()) {
-                this.projectSyncDetail(baseDir + '/' + f);
+                //排除node_modules文件夹
+                if (f === 'node_modules') {
+                    continue;
+                }
+                this.projectSyncDetail(absolutePath, baseDir + '/' + f, true);
                 continue;
             }
 
-            this.fileSync(baseDir + '/' + f, true);
+            this.fileSync(absolutePath, baseDir + '/' + f, false);
             this.projectSyncFiles?.push(baseDir + '/' + f);
         }
     }
 
-    fileRunCommand(obj: { file: string }) {
+    fileRunCommand(obj: { absolutePath: string, file: string }) {
         let data = {
-            "command": "fileRunCommand",
-            "file": obj.file,
-            "content": fs.readFileSync(obj.file),
-        }
-        this.commnad(data);
+            "status": 1,
+            "body": fs.readFileSync(obj.file).toString('utf8'),
+            "file": obj.file.substring(obj.absolutePath.length),
+        };
+        this.command(data);
     }
 
     stopCommand() {
         let data = {
-            "command": "stopCommand"
-        }
-        this.commnad(data);
+            "status": 0
+        };
+        this.command(data);
     }
 
     projectRunCommand() {
         let data = {
             "command": "projectRunCommand"
-        }
-        return this.commnad(data);
+        };
+        return this.command(data);
     }
 
-    commnad(data: Object) {
+    command(data: Object) {
         if (!this.socket) {
             return false;
         }
@@ -165,6 +195,7 @@ export default class Cilent {
             "compress": true,//压缩
         }, (err) => {
             if (err) {
+                log.info("错误消息");
                 return log.modelError(err?.message.toString());
             }
         });

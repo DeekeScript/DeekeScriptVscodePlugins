@@ -1,24 +1,24 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import Cilent from './Cilent';
+import Client from './Client';
 import setting from './setting';
-import log from './unit/log';
 import { loadingModel } from './unit/loadingModel';
+import log from './unit/log';
 import { Workspace } from './Workspace';
 
 export function activate(context: vscode.ExtensionContext) {
 	setting.init(context);//创建日志窗口， 设置extension变量
 
-	log.modelInfo("~_~ 欢迎使用" + context.extension.packageJSON.displayName + "~")
-	let client: Cilent | undefined = undefined;
+	log.modelInfo("~_~ 欢迎使用" + context.extension.packageJSON.displayName + "~");
+	let client: Client | undefined = undefined;
 	let workspace: Workspace = new Workspace();
 	workspace.init();//监听工作区文件变化
 
-	context.subscriptions.push(vscode.commands.registerCommand('deekescript.serverRun', () => {
+	context.subscriptions.push(vscode.commands.registerCommand('deekeScript.serverRun', () => {
 		//输入手机地址
 		const input = vscode.window.createInputBox();
-		input.title = '请输入手机连接地址（格式为：192.168.XXX.XXX:3353）';
+		input.title = '请输入手机连接地址（格式为：192.168.xxx.xxx:8088）';
 		input.show();
 
 		input.onDidAccept(() => {
@@ -28,43 +28,46 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 
 			input.hide();
-			client = new Cilent(params[0], params[1]);
+			client = new Client(params[0], params[1]);
 			loadingModel(client.createSocket());
 			return true;
 		});
 	}));
 
 	let errorMsg = "未连接手机或连接中断（请执行“连接手机”命令）";
-	context.subscriptions.push(vscode.commands.registerCommand('deekescript.projectSync', () => {
+	context.subscriptions.push(vscode.commands.registerCommand('deekeScript.projectSync', () => {
 		if (!client?.state()) {
 			return log.modelError(errorMsg);
 		}
-		client?.projectSync();
+		if (vscode.window?.activeTextEditor?.document && vscode.workspace.workspaceFolders) {
+			client?.projectSync(vscode.workspace.workspaceFolders[0].uri.fsPath, vscode.window?.activeTextEditor?.document?.fileName);
+		}
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('deekescript.fileSync', () => {
+	context.subscriptions.push(vscode.commands.registerCommand('deekeScript.fileSync', () => {
 		if (!client?.state()) {
 			return log.modelError(errorMsg);
 		}
-		if (vscode.window?.activeTextEditor?.document) {
-			client.fileSync(vscode.window?.activeTextEditor?.document?.fileName);
+		if (vscode.window?.activeTextEditor?.document && vscode.workspace.workspaceFolders) {
+			client.fileSync(vscode.workspace.workspaceFolders[0].uri.fsPath, vscode.window?.activeTextEditor?.document?.fileName);
 		}
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('deekescript.run', () => {
+	context.subscriptions.push(vscode.commands.registerCommand('deekeScript.run', () => {
 		//file  run
 		if (!client?.state()) {
 			return log.modelError(errorMsg);
 		}
 
-		if (vscode.window?.activeTextEditor?.document) {
+		if (vscode.window?.activeTextEditor?.document && vscode.workspace.workspaceFolders) {
 			client.fileRunCommand({
+				absolutePath: vscode.workspace.workspaceFolders[0].uri.fsPath,
 				file: vscode.window?.activeTextEditor?.document?.fileName,
 			});
 		}
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('deekescript.projectRun', () => {
+	context.subscriptions.push(vscode.commands.registerCommand('deekeScript.projectRun', () => {
 		//Project  run
 		if (!client?.state()) {
 			return log.modelError(errorMsg);
@@ -72,7 +75,7 @@ export function activate(context: vscode.ExtensionContext) {
 		client.projectRunCommand();
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('deekescript.stopAll', () => {
+	context.subscriptions.push(vscode.commands.registerCommand('deekeScript.stopAll', () => {
 		//stop  all script
 		if (!client?.state()) {
 			return log.modelError(errorMsg);
@@ -80,13 +83,13 @@ export function activate(context: vscode.ExtensionContext) {
 		client.stopCommand();
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('deekescript.serverClose', () => {
+	context.subscriptions.push(vscode.commands.registerCommand('deekeScript.serverClose', () => {
 		if (client?.state()) {
 			client.close();
 			workspace.setStop(true);//stop workspace listening
-			log.modelInfo("连接关闭成功")
+			log.modelInfo("连接关闭成功");
 		} else {
-			log.modelError("连接未开启")
+			log.modelError("连接未开启");
 		}
 	}));
 }

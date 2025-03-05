@@ -19,7 +19,7 @@ export class Workspace {
             return false;
         }
 
-        log.info(JSON.stringify(vscode.workspace.workspaceFolders));
+        //log.info(JSON.stringify(vscode.workspace.workspaceFolders));
         if (!setting.isProject()) {
             log.info("失败了~");
             return false;
@@ -50,7 +50,7 @@ export class Workspace {
             if (!this.canEdit(e.document.fileName) || !e.document.isDirty) {
                 return false;
             }
-            log.info("文件变更：" + e.document.fileName);
+            //log.info("文件变更：" + e.document.fileName);
         });
 
         // vscode.workspace.onDidChangeWorkspaceFolders((e: WorkspaceFoldersChangeEvent) => {
@@ -78,7 +78,7 @@ export class Workspace {
                 }
                 log.info(e.files[i].path);
             }
-            return
+            return false;
         });
 
         vscode.workspace.onDidDeleteFiles((e: FileDeleteEvent) => {

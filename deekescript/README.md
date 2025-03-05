@@ -1,22 +1,28 @@
-# DeekeScript插件
+## 插件介绍
 
-DeekeScript插件是DeekeScript移动端APP的开发插件。
-
-## Android手机安装DeekeScript软件
-
-请先使用Android手机安装DeekeScript软件，然后开启开发模式。
-
-> 注意：请保证手机和电脑在同一个局域网，否则电脑无法与手机进行连接
-
-## 问题解决
-
-> 1.无法连接？请确保手机开启网络，并且和电脑在同一局域网
-> 2.脚本无法执行？请更新最新版本的DeekeScript软件
-> 3.电脑同步到手机的文件在哪？在DeekeScript文件夹的外部文件夹下
+DeekeScript插件是DeekeScript移动端APP开发的辅助神器，通过该插件能够十分便利地调试与开发引流获客App以及其他RPA相关应用
 
 
+#### DeekeScript的优势如下：
 
-## 其他信息
+- 😄 可快速开发商业化的Android模拟点击类产品
+- 🕊 小巧，易上手，开发出来的应用稳定性强
+- 🐂 采用简单配置实现美观大气界面[ Deeke引流获客App](https://github.com/DeekeScript/ad-deeke)
+- 🦆 对应个人开发者完全免费
+- 🏡 为企业提供打包支持、后台卡密（贴牌）系统等
+- ☝🏻 支持私有化部署
+
+## 注意事项
+
+安装前请阅读官方文档
+
+## 官方文档
 
 * [DeekeScript开发文档](https://doc.deeke.top)
-* [DeekeScript开放平台](https://open.deeke.top)
+* [DeekeScript平台【待上线】](https://mp.deeke.top)
+
+
+## 技术支持
+> 邮箱：miniphper@gmail.com
+
+> <img src="https://jiangqiao-1252432685.cos.ap-shanghai.myqcloud.com/DeekeScript/weixin.png" width="268px">

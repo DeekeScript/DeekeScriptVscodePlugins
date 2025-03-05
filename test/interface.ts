@@ -1,6 +1,2 @@
-class DeekeScript{
-    name:string = "sdfds";
-    public getName():string{
-        return this.name;
-    }
-}
+let a = bbb.clickable();
+let b = dddd.clickable();
