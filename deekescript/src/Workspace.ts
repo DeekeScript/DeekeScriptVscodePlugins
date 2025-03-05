@@ -10,7 +10,7 @@ export class Workspace {
     }
 
     init() {
-        this.listenning();
+        this.listening();
         log.info("正在监听工作区文件变化");
     }
 
@@ -31,7 +31,7 @@ export class Workspace {
         return true;
     }
 
-    listenning() {
+    listening() {
         vscode.workspace.onDidChangeConfiguration((e: ConfigurationChangeEvent) => {
             if (!this.canEdit(undefined)) {
                 return false;
