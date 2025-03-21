@@ -151,6 +151,7 @@
     "@types/node": "18.x",
     "@types/source-map": "^0.5.7",
     "@types/vscode": "^1.96.0",
+    "@types/ws": "^8.18.0",
     "@typescript-eslint/eslint-plugin": "^6.15.0",
     "@typescript-eslint/parser": "^6.15.0",
     "@vscode/test-cli": "^0.0.4",
