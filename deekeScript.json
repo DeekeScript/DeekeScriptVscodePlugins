@@ -1,10 +1,3 @@
 {
-    "name": "DeekeScript",
-    "version": "1.0.0",
-    "author": {
-        "name": "DeekeScript",
-        "email": "1062241667@qq.com"
-    },
-    "stable": true,
-    "config": {}
+    "name": "deekescript"
 }
