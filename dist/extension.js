@@ -141,6 +141,7 @@ function activate(context) {
             log_1.default.modelInfo("连接关闭成功");
         }
         else {
+            client?.close();
             log_1.default.modelError("连接未开启");
         }
     }));
@@ -320,6 +321,21 @@ class Client {
     state() {
         return Client.socket && Client.socket.readyState === Client.socket.OPEN;
     }
+    fileDelete(baseDir, file, isDir = false) {
+        try {
+            let data = {
+                status: 1003,
+                file: file.substring(baseDir.length),
+                isDir: isDir,
+                body: ""
+            };
+            log_1.default.info((isDir ? '即将同步删除文件夹：' : "即将同步删除文件：") + file.substring(baseDir.length));
+            Client.socket?.send(JSON.stringify(data));
+        }
+        catch (e) {
+            log_1.default.modelError(e.message.toString());
+        }
+    }
     fileSync(baseDir, file, isDir = false) {
         try {
             let data = {
@@ -356,7 +372,7 @@ class Client {
             return true;
         }
         this.projectSyncing = true;
-        this.projectSyncFiles = [[0, baseDir]]; //重置发送的文件
+        this.projectSyncFiles = []; //重置发送的文件
         try {
             this.projectSyncDetail(baseDir, baseDir, true);
         }
@@ -370,7 +386,7 @@ class Client {
     }
     projectSyncDetail(absolutePath, baseDir, isDir) {
         this.fileSync(absolutePath, baseDir, isDir);
-        this.projectSyncFiles?.push([isDir ? 0 : 1, baseDir.substring(absolutePath.length)]);
+        this.projectSyncFiles?.push([isDir, baseDir.substring(absolutePath.length)]);
         let files = fs.readdirSync(baseDir);
         for (let f of files) {
             if (f.indexOf('.') === 0) {
@@ -385,7 +401,7 @@ class Client {
                 continue;
             }
             this.fileSync(absolutePath, baseDir + '/' + f, false);
-            this.projectSyncFiles?.push([isDir ? 0 : 1, (baseDir + '/' + f).substring(absolutePath.length)]);
+            this.projectSyncFiles?.push([false, (baseDir + '/' + f).substring(absolutePath.length)]);
         }
     }
     fileRunCommand(obj) {
@@ -5738,7 +5754,7 @@ class Workspace {
         //         return log.info("目录变更：" + e.added[i].uri.path);
         //     }
         // });
-        vscode.workspace.onDidCreateFiles((e) => {
+        vscode.workspace.onDidCreateFiles(async (e) => {
             if (!e.files) {
                 return false;
             }
@@ -5748,6 +5764,15 @@ class Workspace {
                     continue;
                 }
                 log_1.default.info(e.files[i].path);
+                if (this.client) {
+                    const workspaceFolder = vscode.workspace.getWorkspaceFolder(e.files[i]);
+                    if (!workspaceFolder) {
+                        return log_1.default.modelError("当前文件不属于任何工作区");
+                    }
+                    const stats = await vscode.workspace.fs.stat(e.files[i]);
+                    const isDir = stats.type == vscode.FileType.File ? false : true;
+                    this.client.fileSync(workspaceFolder.uri.fsPath, e.files[i].path, isDir);
+                }
             }
             return false;
         });
@@ -5759,10 +5784,18 @@ class Workspace {
                 log_1.default.info("文件移除：");
                 for (let i in e.files) {
                     log_1.default.info(e.files[i].path);
+                    if (this.client) {
+                        const workspaceFolder = vscode.workspace.getWorkspaceFolder(e.files[i]);
+                        if (!workspaceFolder) {
+                            return log_1.default.modelError("当前文件不属于任何工作区");
+                        }
+                        //文件其实不需要传类型，文件和文件夹不会重名，Android端直接能判断 【这里因为文件已经被删了，所以判断不了类型】
+                        this.client.fileDelete(workspaceFolder.uri.fsPath, e.files[i].path, false);
+                    }
                 }
             }
         });
-        vscode.workspace.onDidRenameFiles((e) => {
+        vscode.workspace.onDidRenameFiles(async (e) => {
             if (!e.files) {
                 return false;
             }
@@ -5770,7 +5803,17 @@ class Workspace {
                 if (!this.canEdit(e.files[i].newUri.path)) {
                     continue;
                 }
-                return log_1.default.info("文件重命名：" + e.files[i].newUri.path + "变更为" + e.files[i].newUri.path);
+                log_1.default.info("文件重命名：" + e.files[i].newUri.path + "变更为" + e.files[i].newUri.path);
+                if (this.client) {
+                    const stats = await vscode.workspace.fs.stat(e.files[i].newUri);
+                    const isDir = stats.type == vscode.FileType.File ? false : true;
+                    const workspaceFolder = vscode.workspace.getWorkspaceFolder(e.files[i].newUri);
+                    if (!workspaceFolder) {
+                        return log_1.default.modelError("当前文件不属于任何工作区");
+                    }
+                    this.client.fileDelete(workspaceFolder.uri.fsPath, e.files[i].oldUri.path, isDir);
+                    this.client.fileSync(workspaceFolder.uri.fsPath, e.files[i].newUri.path, isDir);
+                }
             }
         });
     }

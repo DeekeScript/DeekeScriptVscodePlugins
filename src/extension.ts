@@ -109,6 +109,7 @@ export function activate(context: vscode.ExtensionContext) {
 			workspace.setStop(true);//stop workspace listening
 			log.modelInfo("连接关闭成功");
 		} else {
+			client?.close();
 			log.modelError("连接未开启");
 		}
 	}));

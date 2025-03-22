@@ -113,7 +113,7 @@ export class Workspace {
             return false;
         });
 
-        vscode.workspace.onDidDeleteFiles(async (e: FileDeleteEvent) => {
+        vscode.workspace.onDidDeleteFiles((e: FileDeleteEvent) => {
             if (!e.files) {
                 return false;
             }
@@ -124,13 +124,12 @@ export class Workspace {
                     log.info(e.files[i].path);
                     if (this.client) {
                         const workspaceFolder = vscode.workspace.getWorkspaceFolder(e.files[i]);
-                        const stats = await vscode.workspace.fs.stat(e.files[i]);
-                        const isDir = stats.type == vscode.FileType.File ? false : true;
                         if (!workspaceFolder) {
                             return log.modelError("当前文件不属于任何工作区");
                         }
 
-                        this.client.fileDelete(workspaceFolder.uri.fsPath, e.files[i].path, isDir);
+                        //文件其实不需要传类型，文件和文件夹不会重名，Android端直接能判断 【这里因为文件已经被删了，所以判断不了类型】
+                        this.client.fileDelete(workspaceFolder.uri.fsPath, e.files[i].path, false);
                     }
                 }
             }

@@ -13,7 +13,7 @@ export default class Client {
     isMunualClose: boolean = false;
     retryOpen: boolean = false;
     projectSyncing: boolean = false;//项目正在同步吗？
-    projectSyncFiles: [number, string][] = [];
+    projectSyncFiles: [boolean, string][] = [];
     reconnectTimer: NodeJS.Timeout | null = null;
     constructor(socketIp: string) {
         this.socketIp = socketIp;
@@ -167,7 +167,7 @@ export default class Client {
     }
 
     //初始化手机APP中项目文件
-    initAppProject(files: Array<[number, string]>) {
+    initAppProject(files: Array<[boolean, string]>) {
         try {
             let data = {
                 status: 1002,
@@ -189,7 +189,7 @@ export default class Client {
         }
 
         this.projectSyncing = true;
-        this.projectSyncFiles = [[0, baseDir]];//重置发送的文件
+        this.projectSyncFiles = [];//重置发送的文件
         try {
             this.projectSyncDetail(baseDir, baseDir, true);
         } catch (e: any) {
@@ -204,7 +204,7 @@ export default class Client {
 
     projectSyncDetail(absolutePath: string, baseDir: string, isDir: boolean) {
         this.fileSync(absolutePath, baseDir, isDir);
-        this.projectSyncFiles?.push([isDir ? 0 : 1, baseDir.substring(absolutePath.length)]);
+        this.projectSyncFiles?.push([isDir, baseDir.substring(absolutePath.length)]);
         let files = fs.readdirSync(baseDir);
         for (let f of files) {
             if (f.indexOf('.') === 0) {
@@ -222,7 +222,7 @@ export default class Client {
             }
 
             this.fileSync(absolutePath, baseDir + '/' + f, false);
-            this.projectSyncFiles?.push([isDir ? 0 : 1, (baseDir + '/' + f).substring(absolutePath.length)]);
+            this.projectSyncFiles?.push([false, (baseDir + '/' + f).substring(absolutePath.length)]);
         }
     }
 
