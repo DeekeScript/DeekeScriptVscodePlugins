@@ -87,9 +87,19 @@
       "properties": {
         "server.port": {
           "type": "number",
-          "default": 3353,
+          "default": 8088,
           "scope": "window",
           "description": "websocket服务端的端口号"
+        },
+        "server.wsMaxRetries": {
+          "type": "number",
+          "default": 30,
+          "description": "最大重试次数"
+        },
+        "server.wsBaseDelay": {
+          "type": "number",
+          "default": 10,
+          "description": "初始重试延迟(ms)"
         }
       }
     },

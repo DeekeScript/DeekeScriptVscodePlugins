@@ -14,21 +14,29 @@ export function activate(context: vscode.ExtensionContext) {
 	let client: Client | undefined = undefined;
 	let workspace: Workspace = new Workspace();
 	workspace.init();//监听工作区文件变化
+	// 全局状态（跨工作区持久化）
+	const globalState = context.globalState;
 
 	context.subscriptions.push(vscode.commands.registerCommand('deekeScript.serverRun', () => {
 		//输入手机地址
 		const input = vscode.window.createInputBox();
-		input.title = '请输入手机连接地址（格式为：192.168.xxx.xxx:8088）';
+		let ip: string | undefined = globalState.get('ip');
+		if (ip) {
+			input.value = ip;
+		}
+
+		input.title = '请输入手机Ip（格式为：192.168.xxx.xxx）';
 		input.show();
 
 		input.onDidAccept(() => {
-			const params: any[] = input.value.split(':');
-			if (params.length !== 2 || !/([\d]{1,3}\.){3}[\d]{1,3}/.test(params[0]) || params[1] * 1 <= 1024 || params[1] * 1 > 65535) {
+			const param: string = input.value;
+			if (!/([\d]{1,3}\.){3}[\d]{1,3}/.test(param)) {
 				return log.model("手机连接地址有误~");
 			}
 
+			globalState.update('ip', param);
 			input.hide();
-			client = new Client(params[0], params[1]);
+			client = new Client(param);
 			loadingModel(client.createSocket());
 			return true;
 		});
@@ -40,7 +48,7 @@ export function activate(context: vscode.ExtensionContext) {
 			return log.modelError(errorMsg);
 		}
 		if (vscode.window?.activeTextEditor?.document && vscode.workspace.workspaceFolders) {
-			client?.projectSync(vscode.workspace.workspaceFolders[0].uri.fsPath, vscode.window?.activeTextEditor?.document?.fileName);
+			client?.projectSync(vscode.workspace.workspaceFolders[0].uri.fsPath);
 		}
 	}));
 
@@ -49,7 +57,7 @@ export function activate(context: vscode.ExtensionContext) {
 			return log.modelError(errorMsg);
 		}
 		if (vscode.window?.activeTextEditor?.document && vscode.workspace.workspaceFolders) {
-			client.fileSync(vscode.workspace.workspaceFolders[0].uri.fsPath, vscode.window?.activeTextEditor?.document?.fileName);
+			client.fileSync(vscode.workspace.workspaceFolders[0].uri.fsPath, vscode.window?.activeTextEditor?.document?.fileName, false);
 		}
 	}));
 

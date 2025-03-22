@@ -2,57 +2,76 @@ import * as fs from "fs";
 import { MessageEvent, WebSocket } from 'ws';
 import log from './unit/log';
 import setting from "./setting";
-// const { mapErrorToTSStack } = require('./TypeScriptError');
-import { mapErrorToTSStack } from './TypeScriptError';
-import * as vscode from 'vscode';
+import { workspace } from "vscode";
 
 export default class Client {
-    socket: WebSocket | undefined = undefined;
-    socketIp: string | null = null;
-    socketPort: number | null = null;
+    static socket: WebSocket | undefined = undefined;
+    socketIp: string | undefined = undefined;
+    socketPort: number | undefined = undefined;
+    wsMaxRetries: number = 0;
+    wsBaseDelay: number = 1000;
+    isMunualClose: boolean = false;
+    retryOpen: boolean = false;
     projectSyncing: boolean = false;//项目正在同步吗？
-    projectSyncFiles: string[] = [];
-    constructor(socketIp: string, socketPort: number) {
+    projectSyncFiles: [number, string][] = [];
+    reconnectTimer: NodeJS.Timeout | null = null;
+    constructor(socketIp: string) {
         this.socketIp = socketIp;
-        this.socketPort = socketPort;
+        const config = workspace.getConfiguration('server');
+        this.socketPort = config.get('port');
+        this.wsMaxRetries = config.get('wsMaxRetries') || this.wsMaxRetries;
+        this.wsBaseDelay = config.get('wsBaseDelay') || this.wsBaseDelay;
+        this.isMunualClose = false;
+        this.retryOpen = false;
+    }
+
+    // 指数退避重连策略
+    scheduleReconnect() {
+        if (this.isMunualClose || !this.retryOpen) {
+            return;
+        }
+
+        const config = workspace.getConfiguration('server');
+        if (this.wsMaxRetries-- > 0) {
+            log.info(`超过最大重试次数 (${config.get('wsMaxRetries')})`);
+            return;
+        }
+
+        this.reconnectTimer = setTimeout(() => {
+            log.info(`尝试重连...`);
+            this.connect();
+        }, this.wsBaseDelay);
     }
 
     createSocket() {
         return new Promise((resolve, rejects) => {
-            this.socket = this.connect();
+            this.connect();
             let _this = this;
+            if (!Client.socket) {
+                return;
+            }
 
-            this.socket.onerror = function () {
+            Client.socket.onerror = function () {
                 log.modelError('连接失败');
+                _this.scheduleReconnect();
                 resolve("");
             };
 
-            this.socket.onopen = function () {
+            Client.socket.onopen = function () {
                 log.modelInfo('连接成功');
+                _this.retryOpen = true;//连接成功之后才能支持重试
                 resolve("");
             };
 
-            this.socket.onclose = function () {
+            Client.socket.onclose = function () {
                 log.modelInfo('连接已关闭');
-                _this.socket = undefined;
+                _this.scheduleReconnect();
                 resolve("");
             };
-            this.socket.onmessage = (event: MessageEvent) => {
+            Client.socket.onmessage = (event: MessageEvent) => {
                 this.message(event);
             };
         });
-    }
-
-    projectSyncFilesRemove(file: string) {
-        for (let i in this.projectSyncFiles) {
-            if (this.projectSyncFiles[i]) {
-                this.projectSyncFiles.splice(Number(i), 1);
-            }
-        }
-
-        if (this.projectSyncFiles.length === 0) {
-            log.modelInfo("同步成功");
-        }
     }
 
     message(event: MessageEvent) {
@@ -66,13 +85,7 @@ export default class Client {
                 }
                 //代码错误
                 let err = info['message'];
-                log.info('错误内容：' + err.message + "\n文件：" + err.sourceName + "\n行数：" + err.lineNumber + "\n" + "第几个字符：" + err.columnNumber);
-                if (vscode.window?.activeTextEditor?.document && vscode.workspace.workspaceFolders) {
-                    mapErrorToTSStack(vscode.workspace.workspaceFolders[0].uri.fsPath, err.sourceName, err.lineNumber, err.columnNumber, err.message).then((tsStack: any) => {
-                        console.log('Converted TypeScript Stack Trace:');
-                        console.log(tsStack);
-                    });
-                }
+                log.info('错误内容：' + err.message + "\n文件：" + err.sourceName + "\n行数：" + err.lineNumber + "\n" + "列号：" + err.columnNumber);
             } catch (e) {
                 log.info(res['msg']);
             }
@@ -82,27 +95,33 @@ export default class Client {
     }
 
     connect() {
-        if (this.socket) {
-            this.socket.close();
+        if (this.state()) {
+            return;
         }
 
-        // if (vscode.window?.activeTextEditor?.document && vscode.workspace.workspaceFolders) {
-        //     mapErrorToTSStack(vscode.workspace.workspaceFolders[0].uri.fsPath, "/script/task/test.js", 5, 21, "具体错误").then((tsStack: any) => {
-        //         console.log('Converted TypeScript Stack Trace:');
-        //         console.log(tsStack);
-        //     });
-        // }
-        log.info("正在连接到手机：" + `ws://${this.socketIp}:${this.socketPort}`);
+        if (this.reconnectTimer) {
+            clearTimeout(this.reconnectTimer);
+        }
 
-        return new WebSocket(`ws://${this.socketIp}:${this.socketPort}`);
+        log.info("正在连接到手机：" + `ws://${this.socketIp}:${this.socketPort}`);
+        try {
+            Client.socket = new WebSocket(`ws://${this.socketIp}:${this.socketPort}`);
+        } catch (e: any) {
+            log.info(e.message);
+        }
     }
 
     close() {
-        this.socket?.close();
+        if (this.reconnectTimer) {
+            clearTimeout(this.reconnectTimer);
+        }
+        this.isMunualClose = true;
+        Client.socket?.close();
+        Client.socket = undefined;
     }
 
     state() {
-        return this.socket && this.socket.readyState === this.socket.OPEN;
+        return Client.socket && Client.socket.readyState === Client.socket.OPEN;
     }
 
     fileSync(baseDir: string, file: string, isDir: boolean = false) {
@@ -114,13 +133,26 @@ export default class Client {
                 body: isDir ? '' : fs.readFileSync(file).toString('base64'),//这里主要不能直接转为utf8传输，否则图片等文件会丢失数据，导致问题
             };
             log.info((isDir ? '即将同步文件夹：' : "即将同步文件：") + file.substring(baseDir.length));
-            this.socket?.send(JSON.stringify(data));
+            Client.socket?.send(JSON.stringify(data));
         } catch (e: any) {
             log.modelError(e.message.toString());
         }
     }
 
-    projectSync(baseDir: string, file: string) {
+    //初始化手机APP中项目文件
+    initAppProject(files: Array<[number, string]>) {
+        try {
+            let data = {
+                status: 1002,
+                body: files,//这里主要不能直接转为utf8传输，否则图片等文件会丢失数据，导致问题
+            };
+            Client.socket?.send(JSON.stringify(data));
+        } catch (e: any) {
+            log.modelError(e.message.toString());
+        }
+    }
+
+    projectSync(baseDir: string) {
         if (!setting.isProject()) {
             return log.modelError("非DeekeScript项目");
         }
@@ -130,7 +162,7 @@ export default class Client {
         }
 
         this.projectSyncing = true;
-        this.projectSyncFiles = [];//重置发送的文件
+        this.projectSyncFiles = [[0, baseDir]];//重置发送的文件
         try {
             this.projectSyncDetail(baseDir, baseDir, true);
         } catch (e: any) {
@@ -138,12 +170,14 @@ export default class Client {
         }
 
         this.projectSyncing = false;
+        this.initAppProject(this.projectSyncFiles);
+        log.info("同步完成");
         return true;
     }
 
     projectSyncDetail(absolutePath: string, baseDir: string, isDir: boolean) {
         this.fileSync(absolutePath, baseDir, isDir);
-        this.projectSyncFiles?.push(baseDir);
+        this.projectSyncFiles?.push([isDir ? 0 : 1, baseDir]);
         let files = fs.readdirSync(baseDir);
         for (let f of files) {
             if (f.indexOf('.') === 0) {
@@ -155,12 +189,13 @@ export default class Client {
                 if (f === 'node_modules') {
                     continue;
                 }
+
                 this.projectSyncDetail(absolutePath, baseDir + '/' + f, true);
                 continue;
             }
 
             this.fileSync(absolutePath, baseDir + '/' + f, false);
-            this.projectSyncFiles?.push(baseDir + '/' + f);
+            this.projectSyncFiles?.push([isDir ? 0 : 1, baseDir + '/' + f]);
         }
     }
 
@@ -188,10 +223,11 @@ export default class Client {
     }
 
     command(data: Object) {
-        if (!this.socket) {
+        if (!Client.socket) {
             return false;
         }
-        this.socket.send(JSON.stringify(data), {
+
+        Client.socket.send(JSON.stringify(data), {
             "compress": true,//压缩
         }, (err) => {
             if (err) {
