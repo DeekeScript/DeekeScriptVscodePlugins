@@ -93,12 +93,12 @@
         },
         "server.wsMaxRetries": {
           "type": "number",
-          "default": 30,
+          "default": 59,
           "description": "最大重试次数"
         },
         "server.wsBaseDelay": {
           "type": "number",
-          "default": 10,
+          "default": 1000,
           "description": "初始重试延迟(ms)"
         }
       }

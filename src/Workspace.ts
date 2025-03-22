@@ -2,11 +2,17 @@ import { ConfigurationChangeEvent, FileCreateEvent, FileDeleteEvent, NotebookDoc
 import log from "./unit/log";
 import * as vscode from 'vscode';
 import setting from "./setting";
+import Client from "./Client";
 
 export class Workspace {
     stop: boolean = false;
+    client: Client | undefined = undefined;
     setStop(stop: boolean) {
         this.stop = stop;
+    }
+
+    setClient(client: Client) {
+        this.client = client;
     }
 
     init() {
@@ -36,21 +42,38 @@ export class Workspace {
             if (!this.canEdit(undefined)) {
                 return false;
             }
-            log.info("配置变化了");
         });
 
         vscode.workspace.onDidChangeNotebookDocument((e: NotebookDocumentChangeEvent) => {
             if (!this.canEdit(e.notebook.uri.path) || !e.notebook.isDirty) {
                 return false;
             }
+
             log.info("内容变更：" + e.notebook.uri.path);
+
+            if (this.client) {
+                const workspaceFolder = vscode.workspace.getWorkspaceFolder(e.notebook.uri);
+                if (!workspaceFolder) {
+                    return log.modelError("当前文件不属于任何工作区");
+                }
+
+                this.client.fileSync(workspaceFolder.uri.fsPath, e.notebook.uri.path, false);
+            }
         });
 
         vscode.workspace.onDidChangeTextDocument((e: TextDocumentChangeEvent) => {
             if (!this.canEdit(e.document.fileName) || !e.document.isDirty) {
                 return false;
             }
-            //log.info("文件变更：" + e.document.fileName);
+            log.info("文件变更：" + e.document.fileName);
+            if (this.client) {
+                const workspaceFolder = vscode.workspace.getWorkspaceFolder(e.document.uri);
+                if (!workspaceFolder) {
+                    return log.modelError("当前文件不属于任何工作区");
+                }
+
+                this.client.fileSync(workspaceFolder.uri.fsPath, e.document.fileName, false);
+            }
         });
 
         // vscode.workspace.onDidChangeWorkspaceFolders((e: WorkspaceFoldersChangeEvent) => {
@@ -66,7 +89,7 @@ export class Workspace {
         //     }
         // });
 
-        vscode.workspace.onDidCreateFiles((e: FileCreateEvent) => {
+        vscode.workspace.onDidCreateFiles(async (e: FileCreateEvent) => {
             if (!e.files) {
                 return false;
             }
@@ -77,11 +100,20 @@ export class Workspace {
                     continue;
                 }
                 log.info(e.files[i].path);
+                if (this.client) {
+                    const workspaceFolder = vscode.workspace.getWorkspaceFolder(e.files[i]);
+                    if (!workspaceFolder) {
+                        return log.modelError("当前文件不属于任何工作区");
+                    }
+                    const stats = await vscode.workspace.fs.stat(e.files[i]);
+                    const isDir = stats.type == vscode.FileType.File ? false : true;
+                    this.client.fileSync(workspaceFolder.uri.fsPath, e.files[i].path, isDir);
+                }
             }
             return false;
         });
 
-        vscode.workspace.onDidDeleteFiles((e: FileDeleteEvent) => {
+        vscode.workspace.onDidDeleteFiles(async (e: FileDeleteEvent) => {
             if (!e.files) {
                 return false;
             }
@@ -90,11 +122,21 @@ export class Workspace {
                 log.info("文件移除：");
                 for (let i in e.files) {
                     log.info(e.files[i].path);
+                    if (this.client) {
+                        const workspaceFolder = vscode.workspace.getWorkspaceFolder(e.files[i]);
+                        const stats = await vscode.workspace.fs.stat(e.files[i]);
+                        const isDir = stats.type == vscode.FileType.File ? false : true;
+                        if (!workspaceFolder) {
+                            return log.modelError("当前文件不属于任何工作区");
+                        }
+
+                        this.client.fileDelete(workspaceFolder.uri.fsPath, e.files[i].path, isDir);
+                    }
                 }
             }
         });
 
-        vscode.workspace.onDidRenameFiles((e: vscode.FileRenameEvent) => {
+        vscode.workspace.onDidRenameFiles(async (e: vscode.FileRenameEvent) => {
             if (!e.files) {
                 return false;
             }
@@ -103,7 +145,18 @@ export class Workspace {
                 if (!this.canEdit(e.files[i].newUri.path)) {
                     continue;
                 }
-                return log.info("文件重命名：" + e.files[i].newUri.path + "变更为" + e.files[i].newUri.path);
+                log.info("文件重命名：" + e.files[i].newUri.path + "变更为" + e.files[i].newUri.path);
+                if (this.client) {
+                    const stats = await vscode.workspace.fs.stat(e.files[i].newUri);
+                    const isDir = stats.type == vscode.FileType.File ? false : true;
+                    const workspaceFolder = vscode.workspace.getWorkspaceFolder(e.files[i].newUri);
+                    if (!workspaceFolder) {
+                        return log.modelError("当前文件不属于任何工作区");
+                    }
+
+                    this.client.fileDelete(workspaceFolder.uri.fsPath, e.files[i].oldUri.path, isDir);
+                    this.client.fileSync(workspaceFolder.uri.fsPath, e.files[i].newUri.path, isDir);
+                }
             }
         });
     }

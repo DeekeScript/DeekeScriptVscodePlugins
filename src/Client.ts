@@ -19,10 +19,15 @@ export default class Client {
         this.socketIp = socketIp;
         const config = workspace.getConfiguration('server');
         this.socketPort = config.get('port');
-        this.wsMaxRetries = config.get('wsMaxRetries') || this.wsMaxRetries;
-        this.wsBaseDelay = config.get('wsBaseDelay') || this.wsBaseDelay;
         this.isMunualClose = false;
         this.retryOpen = false;
+        this.init();
+    }
+
+    init() {
+        const config = workspace.getConfiguration('server');
+        this.wsMaxRetries = config.get('wsMaxRetries') || this.wsMaxRetries;
+        this.wsBaseDelay = config.get('wsBaseDelay') || this.wsBaseDelay;
     }
 
     // 指数退避重连策略
@@ -32,15 +37,16 @@ export default class Client {
         }
 
         const config = workspace.getConfiguration('server');
-        if (this.wsMaxRetries-- > 0) {
-            log.info(`超过最大重试次数 (${config.get('wsMaxRetries')})`);
+        const maxRetries: number = config.get('wsMaxRetries') || this.wsMaxRetries;
+        if (this.wsMaxRetries-- <= 0) {
+            log.info(`超过最大重试次数 (${maxRetries})`);
             return;
         }
 
+        log.info(`${maxRetries - this.wsMaxRetries + 1}秒后尝试重连...`);
         this.reconnectTimer = setTimeout(() => {
-            log.info(`尝试重连...`);
-            this.connect();
-        }, this.wsBaseDelay);
+            this.createSocket();
+        }, this.wsBaseDelay * (maxRetries - this.wsMaxRetries + 1));
     }
 
     createSocket() {
@@ -52,19 +58,25 @@ export default class Client {
             }
 
             Client.socket.onerror = function () {
-                log.modelError('连接失败');
-                _this.scheduleReconnect();
+                if (!_this.retryOpen) {
+                    log.modelError('连接失败');//重试的时候不输出错误消息
+                }
+
                 resolve("");
             };
 
             Client.socket.onopen = function () {
                 log.modelInfo('连接成功');
                 _this.retryOpen = true;//连接成功之后才能支持重试
+                _this.init();//连接成功之后，将重试数据初始化
                 resolve("");
             };
 
             Client.socket.onclose = function () {
-                log.modelInfo('连接已关闭');
+                const config = workspace.getConfiguration('server');
+                if (config.get('wsMaxRetries') == _this.wsMaxRetries) {
+                    log.modelInfo('连接已关闭');//未重试，则提示关闭连接
+                }
                 _this.scheduleReconnect();
                 resolve("");
             };
@@ -124,6 +136,21 @@ export default class Client {
         return Client.socket && Client.socket.readyState === Client.socket.OPEN;
     }
 
+    fileDelete(baseDir: string, file: string, isDir: boolean = false) {
+        try {
+            let data = {
+                status: 1003,
+                file: file.substring(baseDir.length),
+                isDir: isDir,
+                body: ""
+            };
+            log.info((isDir ? '即将同步删除文件夹：' : "即将同步删除文件：") + file.substring(baseDir.length));
+            Client.socket?.send(JSON.stringify(data));
+        } catch (e: any) {
+            log.modelError(e.message.toString());
+        }
+    }
+
     fileSync(baseDir: string, file: string, isDir: boolean = false) {
         try {
             let data = {
@@ -144,7 +171,7 @@ export default class Client {
         try {
             let data = {
                 status: 1002,
-                body: files,//这里主要不能直接转为utf8传输，否则图片等文件会丢失数据，导致问题
+                body: JSON.stringify(files),//这里主要不能直接转为utf8传输，否则图片等文件会丢失数据，导致问题
             };
             Client.socket?.send(JSON.stringify(data));
         } catch (e: any) {
@@ -171,13 +198,13 @@ export default class Client {
 
         this.projectSyncing = false;
         this.initAppProject(this.projectSyncFiles);
-        log.info("同步完成");
+        log.info("所有文件都已发送到APP端");
         return true;
     }
 
     projectSyncDetail(absolutePath: string, baseDir: string, isDir: boolean) {
         this.fileSync(absolutePath, baseDir, isDir);
-        this.projectSyncFiles?.push([isDir ? 0 : 1, baseDir]);
+        this.projectSyncFiles?.push([isDir ? 0 : 1, baseDir.substring(absolutePath.length)]);
         let files = fs.readdirSync(baseDir);
         for (let f of files) {
             if (f.indexOf('.') === 0) {
@@ -195,7 +222,7 @@ export default class Client {
             }
 
             this.fileSync(absolutePath, baseDir + '/' + f, false);
-            this.projectSyncFiles?.push([isDir ? 0 : 1, baseDir + '/' + f]);
+            this.projectSyncFiles?.push([isDir ? 0 : 1, (baseDir + '/' + f).substring(absolutePath.length)]);
         }
     }
 

@@ -38,6 +38,7 @@ export function activate(context: vscode.ExtensionContext) {
 			input.hide();
 			client = new Client(param);
 			loadingModel(client.createSocket());
+			workspace.setClient(client);
 			return true;
 		});
 	}));
@@ -47,8 +48,12 @@ export function activate(context: vscode.ExtensionContext) {
 		if (!client?.state()) {
 			return log.modelError(errorMsg);
 		}
-		if (vscode.window?.activeTextEditor?.document && vscode.workspace.workspaceFolders) {
-			client?.projectSync(vscode.workspace.workspaceFolders[0].uri.fsPath);
+		if (vscode.window?.activeTextEditor?.document) {
+			const workspaceFolder = vscode.workspace.getWorkspaceFolder(vscode.window.activeTextEditor.document.uri);
+			if (!workspaceFolder) {
+				return log.modelError("当前文件不属于任何工作区");
+			}
+			client?.projectSync(workspaceFolder.uri.fsPath);
 		}
 	}));
 
@@ -56,27 +61,35 @@ export function activate(context: vscode.ExtensionContext) {
 		if (!client?.state()) {
 			return log.modelError(errorMsg);
 		}
-		if (vscode.window?.activeTextEditor?.document && vscode.workspace.workspaceFolders) {
-			client.fileSync(vscode.workspace.workspaceFolders[0].uri.fsPath, vscode.window?.activeTextEditor?.document?.fileName, false);
+		if (vscode.window?.activeTextEditor?.document) {
+			const workspaceFolder = vscode.workspace.getWorkspaceFolder(vscode.window.activeTextEditor.document.uri);
+			if (!workspaceFolder) {
+				return log.modelError("当前文件不属于任何工作区");
+			}
+
+			client.fileSync(workspaceFolder.uri.fsPath, vscode.window?.activeTextEditor?.document?.fileName, false);
 		}
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('deekeScript.run', () => {
-		//file  run
 		if (!client?.state()) {
 			return log.modelError(errorMsg);
 		}
 
-		if (vscode.window?.activeTextEditor?.document && vscode.workspace.workspaceFolders) {
+		if (vscode.window?.activeTextEditor?.document) {
+			const workspaceFolder = vscode.workspace.getWorkspaceFolder(vscode.window.activeTextEditor.document.uri);
+			if (!workspaceFolder) {
+				return log.modelError("当前文件不属于任何工作区");
+			}
+
 			client.fileRunCommand({
-				absolutePath: vscode.workspace.workspaceFolders[0].uri.fsPath,
+				absolutePath: workspaceFolder.uri.fsPath,
 				file: vscode.window?.activeTextEditor?.document?.fileName,
 			});
 		}
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('deekeScript.projectRun', () => {
-		//Project  run
 		if (!client?.state()) {
 			return log.modelError(errorMsg);
 		}
@@ -84,7 +97,6 @@ export function activate(context: vscode.ExtensionContext) {
 	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand('deekeScript.stopAll', () => {
-		//stop  all script
 		if (!client?.state()) {
 			return log.modelError(errorMsg);
 		}

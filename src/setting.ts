@@ -24,6 +24,7 @@ const setting = {
     },
     setLogWindows(extension: vscode.Extension<any>) {
         logg = vscode.window.createOutputChannel(extension.packageJSON.displayName, { log: true });
+        logg.show(true);
     },
     getLogWindows() {
         return logg;
