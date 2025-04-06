@@ -8,6 +8,9 @@ const log = {
     info(str: string, params: any = []) {
         setting.getLogWindows().info(str, ...params);
     },
+    error(str: string, params: any = []) {
+        setting.getLogWindows().error(str, ...params);
+    },
     model(str: string) {
         vscode.window.showInformationMessage(str);
     },

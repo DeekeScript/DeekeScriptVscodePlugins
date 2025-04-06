@@ -54,6 +54,8 @@ export default class Client {
             this.connect();
             let _this = this;
             if (!Client.socket) {
+                log.modelError('连接失败');//重试的时候不输出错误消息
+                resolve("");
                 return;
             }
 
@@ -97,9 +99,9 @@ export default class Client {
                 }
                 //代码错误
                 let err = info['message'];
-                log.info('错误内容：' + err.message + "\n文件：" + err.sourceName + "\n行数：" + err.lineNumber + "\n" + "列号：" + err.columnNumber);
+                log.error(err.message + "\n文件：" + err.sourceName + "\n行数：" + err.lineNumber + "\n" + "列号：" + err.columnNumber);
             } catch (e) {
-                log.info(res['msg']);
+                log.error(res['msg']);
             }
             return;
         }

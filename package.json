@@ -2,7 +2,7 @@
   "name": "deekescript",
   "displayName": "DeekeScript",
   "description": "DeekeScript扩展，协助用户开发",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "icon": "resources/logo.png",
   "publisher": "DeekeScript",
   "engines": {
@@ -153,8 +153,8 @@
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "vscode-test",
-    "vsce package": "vsce package",
-    "vsce publish": "vsce publish"
+    "vscode:package": "vsce package",
+    "vscode:publish": "vsce publish"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.6",
@@ -179,6 +179,7 @@
   },
   "dependencies": {
     "@vscode/vsce": "^3.2.1",
+    "vsce": "^2.15.0",
     "vscode-languageclient": "^9.0.1",
     "vscode-languageserver": "^9.0.1",
     "vscode-languageserver-protocol": "^3.17.5",

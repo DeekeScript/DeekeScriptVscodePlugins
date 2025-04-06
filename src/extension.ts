@@ -37,7 +37,12 @@ export function activate(context: vscode.ExtensionContext) {
 			globalState.update('ip', param);
 			input.hide();
 			client = new Client(param);
+			if (client.state()) {
+				log.modelError('已经连接，无需重复连接');//重试的时候不输出错误消息
+				return false;
+			}
 			loadingModel(client.createSocket());
+
 			workspace.setClient(client);
 			return true;
 		});
