@@ -101,7 +101,7 @@ export default class Client {
                 let err = info['message'];
                 log.error(err.message + "\n文件：" + err.sourceName + "\n行数：" + err.lineNumber + "\n" + "列号：" + err.columnNumber);
             } catch (e) {
-                log.error(res['msg']);
+                log.info(res['msg']);
             }
             return;
         }
