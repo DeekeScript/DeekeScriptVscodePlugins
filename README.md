@@ -18,8 +18,8 @@ DeekeScript插件是DeekeScript移动端APP开发的辅助神器，通过该插�
 
 ## 官方文档
 
-* [DeekeScript开发文档](https://doc.deeke.top)
-* [DeekeScript平台【待上线】](https://mp.deeke.top)
+* [DeekeScript开发文档](https://doc.deeke.cn)
+* [DeekeScript平台](https://mp.deeke.cn)
 
 
 ## 技术支持
