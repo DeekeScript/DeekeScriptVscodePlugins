@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import * as vscode from 'vscode';
 import { MessageEvent, WebSocket } from 'ws';
 import log from './unit/log';
 import setting from "./setting";
@@ -54,18 +55,20 @@ export default class Client {
             this.connect();
             let _this = this;
             if (!Client.socket) {
+                log.info("正在连接到手机：" + `ws://${this.socketIp}:${this.socketPort}`);
                 log.modelError('连接失败');//重试的时候不输出错误消息
                 resolve("");
                 return;
             }
 
-            Client.socket.onerror = function () {
+            Client.socket.on("error", function (e) {
                 if (!_this.retryOpen) {
-                    log.modelError('连接失败');//重试的时候不输出错误消息
+                    log.modelError('连接失败：' + e.message);//重试的时候不输出错误消息
+                    vscode.window.showErrorMessage(e.stack || '错误');
                 }
 
                 resolve("");
-            };
+            });
 
             Client.socket.onopen = function () {
                 log.modelInfo('连接成功');
@@ -157,7 +160,7 @@ export default class Client {
         try {
             let data = {
                 status: 1001,
-                file: file.substring(baseDir.length),
+                file: file.replace(/\\/g, '/').substring(baseDir.length),
                 isDir: isDir,
                 body: isDir ? '' : fs.readFileSync(file).toString('base64'),//这里主要不能直接转为utf8传输，否则图片等文件会丢失数据，导致问题
             };
