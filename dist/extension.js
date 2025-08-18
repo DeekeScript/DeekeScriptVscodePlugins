@@ -91,7 +91,6 @@ function activate(context) {
                 }
                 await client.createSocket();
                 workspace.setClient(client);
-                log_1.default.showInfo('连接成功');
             }
             catch (error) {
                 log_1.default.showError(`连接失败：${error instanceof Error ? error.message : '未知错误'}`);

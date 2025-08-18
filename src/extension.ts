@@ -56,7 +56,6 @@ export function activate(context: vscode.ExtensionContext) {
 				
 				await client.createSocket();
 				workspace.setClient(client);
-				log.showInfo('连接成功');
 			} catch (error) {
 				log.showError(`连接失败：${error instanceof Error ? error.message : '未知错误'}`);
 			}
