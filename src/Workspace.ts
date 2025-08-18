@@ -3,10 +3,24 @@ import log from "./unit/log";
 import * as vscode from 'vscode';
 import setting from "./setting";
 import Client from "./Client";
+import { debounce } from "./utils";
 
 export class Workspace {
-    stop: boolean = false;
-    client: Client | undefined = undefined;
+    private stop: boolean = false;
+    private client: Client | undefined = undefined;
+    private debouncedFileSync: (baseDir: string, filePath: string, isDir: boolean) => void;
+
+    constructor() {
+        // 创建防抖的文件同步函数，延迟500ms
+        this.debouncedFileSync = debounce((baseDir: string, filePath: string, isDir: boolean) => {
+            if (this.client) {
+                this.client.fileSync(baseDir, filePath, isDir).catch((error: unknown) => {
+                    log.error(`防抖同步文件失败：${error instanceof Error ? error.message : '未知错误'}`);
+                });
+            }
+        }, 500);
+    }
+
     setStop(stop: boolean) {
         this.stop = stop;
     }
@@ -20,20 +34,17 @@ export class Workspace {
         log.info("正在监听工作区文件变化");
     }
 
-    canEdit(file: string | undefined) {
+    private canEdit(file: string | undefined): boolean {
         if (this.stop) {
             return false;
         }
 
-        //log.info(JSON.stringify(vscode.workspace.workspaceFolders));
         if (!setting.isProject()) {
-            log.info("失败了~");
+            log.debug("非DeekeScript项目，跳过文件监听");
             return false;
         }
 
-        if (file && !vscode.FileSystemError.FileExists(file)) {
-            return false;
-        }
+        // 简化文件存在检查，避免异步操作
         return true;
     }
 
@@ -65,14 +76,16 @@ export class Workspace {
             if (!this.canEdit(e.document.fileName) || !e.document.isDirty) {
                 return false;
             }
-            log.info("文件变更：" + e.document.fileName);
+            log.debug("文件变更：" + e.document.fileName);
             if (this.client) {
                 const workspaceFolder = vscode.workspace.getWorkspaceFolder(e.document.uri);
                 if (!workspaceFolder) {
-                    return log.modelError("当前文件不属于任何工作区");
+                    log.showError("当前文件不属于任何工作区");
+                    return;
                 }
 
-                this.client.fileSync(workspaceFolder.uri.fsPath, e.document.fileName, false);
+                // 使用防抖的文件同步
+                this.debouncedFileSync(workspaceFolder.uri.fsPath, e.document.fileName, false);
             }
         });
 

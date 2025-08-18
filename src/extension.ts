@@ -17,7 +17,16 @@ export function activate(context: vscode.ExtensionContext) {
 	// 全局状态（跨工作区持久化）
 	const globalState = context.globalState;
 
-	context.subscriptions.push(vscode.commands.registerCommand('deekeScript.serverRun', () => {
+	// 验证客户端连接的通用函数
+	const validateClientConnection = (): boolean => {
+		if (!client?.state()) {
+			log.showError("未连接手机或连接中断（请执行连接手机命令）");
+			return false;
+		}
+		return true;
+	};
+
+	context.subscriptions.push(vscode.commands.registerCommand('deekeScript.serverRun', async () => {
 		//输入手机地址
 		const input = vscode.window.createInputBox();
 		let ip: string | undefined = globalState.get('ip');
@@ -28,23 +37,29 @@ export function activate(context: vscode.ExtensionContext) {
 		input.title = '请输入手机Ip（格式为：192.168.xxx.xxx）';
 		input.show();
 
-		input.onDidAccept(() => {
+		input.onDidAccept(async () => {
 			const param: string = input.value;
 			if (!/([\d]{1,3}\.){3}[\d]{1,3}/.test(param)) {
-				return log.model("手机连接地址有误~");
+				log.showError("手机连接地址有误~");
+				return;
 			}
 
-			globalState.update('ip', param);
-			input.hide();
-			client = new Client(param);
-			if (client.state()) {
-				log.modelError('已经连接，无需重复连接');//重试的时候不输出错误消息
-				return false;
+			try {
+				globalState.update('ip', param);
+				input.hide();
+				
+				client = new Client(param);
+				if (client.state()) {
+					log.showError('已经连接，无需重复连接');
+					return;
+				}
+				
+				await loadingModel(client.createSocket());
+				workspace.setClient(client);
+				log.showInfo('连接成功');
+			} catch (error) {
+				log.showError(`连接失败：${error instanceof Error ? error.message : '未知错误'}`);
 			}
-			loadingModel(client.createSocket());
-
-			workspace.setClient(client);
-			return true;
 		});
 	}));
 
@@ -112,10 +127,20 @@ export function activate(context: vscode.ExtensionContext) {
 		if (client?.state()) {
 			client.close();
 			workspace.setStop(true);//stop workspace listening
-			log.modelInfo("连接关闭成功");
+			log.showInfo("连接关闭成功");
 		} else {
 			client?.close();
-			log.modelError("连接未开启");
+			log.showError("连接未开启");
+		}
+	}));
+
+	// 添加重置重连状态的命令
+	context.subscriptions.push(vscode.commands.registerCommand('deekeScript.resetRetry', () => {
+		if (client) {
+			client.resetRetryState();
+			log.showInfo("重连状态已重置");
+		} else {
+			log.showError("客户端未初始化");
 		}
 	}));
 }
