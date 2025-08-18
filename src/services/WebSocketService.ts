@@ -2,7 +2,7 @@ import { WebSocket, MessageEvent } from 'ws';
 import * as vscode from 'vscode';
 import { ConnectionState, WebSocketMessage, ErrorInfo } from '../types';
 import log from '../unit/log';
-import { retry, delay } from '../utils';
+
 
 export class WebSocketService {
   private socket: WebSocket | undefined = undefined;
@@ -43,12 +43,12 @@ export class WebSocketService {
   // 连接WebSocket
   async connect(): Promise<void> {
     if (this.isConnected) {
-      log.warn('WebSocket已经连接');
+      log.formatWarning('WebSocket已经连接');
       return;
     }
 
     this.connectionState = ConnectionState.CONNECTING;
-    log.info(`正在连接到手机：ws://${this.socketIp}:${this.socketPort}`);
+    log.logConnectionStatus('connecting', `ws://${this.socketIp}:${this.socketPort}`);
 
     try {
       await this.createConnection();
@@ -57,7 +57,7 @@ export class WebSocketService {
       this.hasConnectedOnce = true;
     } catch (error) {
       this.connectionState = ConnectionState.DISCONNECTED;
-      log.error(`连接失败：${error instanceof Error ? error.message : '未知错误'}`);
+      log.formatError(`连接失败：${error instanceof Error ? error.message : '未知错误'}`);
       throw error;
     }
   }
@@ -71,17 +71,17 @@ export class WebSocketService {
           this.connectionState = ConnectionState.CONNECTED;
           this.retryOpen = true;
           this.hasConnectedOnce = true; // 标记曾经连接成功过
-          log.showInfo('连接成功');
+          log.logConnectionStatus('connected');
           resolve();
         };
 
         this.socket.onclose = () => {
           this.connectionState = ConnectionState.DISCONNECTED;
           if (this.retryOpen && !this.isManualClose) {
-            log.info('连接已关闭，准备重连...');
+            log.logConnectionStatus('disconnected', '准备重连...');
             this.scheduleReconnect();
           } else {
-            log.info('连接已关闭');
+            log.logConnectionStatus('disconnected');
           }
           resolve();
         };
@@ -144,7 +144,7 @@ export class WebSocketService {
 
     // 检查重连次数限制
     if (this.currentRetryCount >= this.wsMaxRetries) {
-      log.error(`超过最大重连次数 (${this.wsMaxRetries})，停止重连`);
+      log.formatError(`超过最大重连次数 (${this.wsMaxRetries})，停止重连`);
       this.retryOpen = false;
       return;
     }
@@ -167,14 +167,14 @@ export class WebSocketService {
       delayTime = this.wsBaseDelay * Math.pow(2, this.currentRetryCount - 1);
     }
 
-    log.info(`第${this.currentRetryCount}次重连，${delayTime}ms后尝试...`);
+    log.logConnectionStatus('reconnecting', `第${this.currentRetryCount}次重连，${delayTime}ms后尝试...`);
     
     this.reconnectTimer = setTimeout(() => {
       this.createConnection().then(() => {
         // 重连成功，重置计数
         this.currentRetryCount = 0;
         this.connectionState = ConnectionState.CONNECTED;
-        log.showInfo('重连成功');
+        log.formatSuccess('重连成功');
       }).catch(() => {
         // 重连失败，继续重试
         this.scheduleReconnect();

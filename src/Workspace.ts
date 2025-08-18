@@ -1,4 +1,4 @@
-import { ConfigurationChangeEvent, FileCreateEvent, FileDeleteEvent, NotebookDocumentChangeEvent, TextDocumentChangeEvent, WorkspaceFoldersChangeEvent, workspace } from "vscode";
+import { ConfigurationChangeEvent, FileCreateEvent, FileDeleteEvent, NotebookDocumentChangeEvent, TextDocumentChangeEvent } from "vscode";
 import log from "./unit/log";
 import * as vscode from 'vscode';
 import setting from "./setting";
@@ -34,7 +34,7 @@ export class Workspace {
         log.info("正在监听工作区文件变化");
     }
 
-    private canEdit(file: string | undefined): boolean {
+    private canEdit(): boolean {
         if (this.stop) {
             return false;
         }
@@ -49,15 +49,15 @@ export class Workspace {
     }
 
     listening() {
-        vscode.workspace.onDidChangeConfiguration((e: ConfigurationChangeEvent) => {
-            if (!this.canEdit(undefined)) {
-                return false;
+        vscode.workspace.onDidChangeConfiguration((_e: ConfigurationChangeEvent) => {
+            if (!this.canEdit()) {
+                return;
             }
         });
 
         vscode.workspace.onDidChangeNotebookDocument((e: NotebookDocumentChangeEvent) => {
-            if (!this.canEdit(e.notebook.uri.path) || !e.notebook.isDirty) {
-                return false;
+            if (!this.canEdit() || !e.notebook.isDirty) {
+                return;
             }
 
             log.info("内容变更：" + e.notebook.uri.path);
@@ -65,7 +65,8 @@ export class Workspace {
             if (this.client) {
                 const workspaceFolder = vscode.workspace.getWorkspaceFolder(e.notebook.uri);
                 if (!workspaceFolder) {
-                    return log.modelError("当前文件不属于任何工作区");
+                    log.showError("当前文件不属于任何工作区");
+                    return;
                 }
 
                 this.client.fileSync(workspaceFolder.uri.fsPath, e.notebook.uri.path, false);
@@ -73,8 +74,8 @@ export class Workspace {
         });
 
         vscode.workspace.onDidChangeTextDocument((e: TextDocumentChangeEvent) => {
-            if (!this.canEdit(e.document.fileName) || !e.document.isDirty) {
-                return false;
+            if (!this.canEdit() || !e.document.isDirty) {
+                return;
             }
             log.debug("文件变更：" + e.document.fileName);
             if (this.client) {
@@ -104,31 +105,31 @@ export class Workspace {
 
         vscode.workspace.onDidCreateFiles(async (e: FileCreateEvent) => {
             if (!e.files) {
-                return false;
+                return;
             }
 
             log.info("文件新增：");
             for (let i in e.files) {
-                if (!this.canEdit(e.files[i].path)) {
+                if (!this.canEdit()) {
                     continue;
                 }
                 log.info(e.files[i].path);
                 if (this.client) {
                     const workspaceFolder = vscode.workspace.getWorkspaceFolder(e.files[i]);
                     if (!workspaceFolder) {
-                        return log.modelError("当前文件不属于任何工作区");
+                        log.showError("当前文件不属于任何工作区");
+                        return;
                     }
                     const stats = await vscode.workspace.fs.stat(e.files[i]);
                     const isDir = stats.type == vscode.FileType.File ? false : true;
                     this.client.fileSync(workspaceFolder.uri.fsPath, e.files[i].path, isDir);
                 }
             }
-            return false;
         });
 
         vscode.workspace.onDidDeleteFiles((e: FileDeleteEvent) => {
             if (!e.files) {
-                return false;
+                return;
             }
 
             if (e.files && e.files.length > 0) {
@@ -138,7 +139,8 @@ export class Workspace {
                     if (this.client) {
                         const workspaceFolder = vscode.workspace.getWorkspaceFolder(e.files[i]);
                         if (!workspaceFolder) {
-                            return log.modelError("当前文件不属于任何工作区");
+                            log.showError("当前文件不属于任何工作区");
+                            return;
                         }
 
                         //文件其实不需要传类型，文件和文件夹不会重名，Android端直接能判断 【这里因为文件已经被删了，所以判断不了类型】
@@ -150,11 +152,11 @@ export class Workspace {
 
         vscode.workspace.onDidRenameFiles(async (e: vscode.FileRenameEvent) => {
             if (!e.files) {
-                return false;
+                return;
             }
 
             for (let i in e.files) {
-                if (!this.canEdit(e.files[i].newUri.path)) {
+                if (!this.canEdit()) {
                     continue;
                 }
                 log.info("文件重命名：" + e.files[i].newUri.path + "变更为" + e.files[i].newUri.path);
@@ -163,7 +165,8 @@ export class Workspace {
                     const isDir = stats.type == vscode.FileType.File ? false : true;
                     const workspaceFolder = vscode.workspace.getWorkspaceFolder(e.files[i].newUri);
                     if (!workspaceFolder) {
-                        return log.modelError("当前文件不属于任何工作区");
+                        log.showError("当前文件不属于任何工作区");
+                        return;
                     }
 
                     this.client.fileDelete(workspaceFolder.uri.fsPath, e.files[i].oldUri.path, isDir);

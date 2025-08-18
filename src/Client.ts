@@ -1,5 +1,4 @@
 import * as fs from "fs";
-import * as vscode from 'vscode';
 import { workspace } from "vscode";
 import { WebSocketService } from './services/WebSocketService';
 import { FileSyncService } from './services/FileSyncService';
@@ -7,11 +6,11 @@ import { FileRunData, StopData, ProjectRunData, ClientConfig } from './types';
 import log from './unit/log';
 import setting from "./setting";
 import { isValidIPAddress, getRelativePath } from './utils';
+import { showConnectionProgress } from './utils/progress';
 
 export default class Client {
     private wsService: WebSocketService;
     private fileSyncService: FileSyncService;
-    private socketIp: string;
     private config: ClientConfig;
 
     constructor(socketIp: string) {
@@ -19,7 +18,6 @@ export default class Client {
             throw new Error('无效的IP地址格式');
         }
 
-        this.socketIp = socketIp;
         this.config = this.loadConfig();
         
         this.wsService = new WebSocketService(socketIp, this.config);
@@ -44,7 +42,9 @@ export default class Client {
     // 连接WebSocket
     async createSocket(): Promise<void> {
         try {
-            await this.wsService.connect();
+            await showConnectionProgress(async () => {
+                await this.wsService.connect();
+            });
         } catch (error) {
             log.error(`连接失败：${error instanceof Error ? error.message : '未知错误'}`);
             throw error;

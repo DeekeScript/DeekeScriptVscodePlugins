@@ -2,7 +2,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { FileSyncData, FileDeleteData, ProjectInitData, FileOperationResult, ProjectSyncState } from '../types';
 import { WebSocketService } from './WebSocketService';
-import { normalizePath, getRelativePath } from '../utils';
+import { getRelativePath } from '../utils';
+import { showFileSyncProgress } from '../utils/progress';
 import log from '../unit/log';
 
 export class FileSyncService {
@@ -39,7 +40,7 @@ export class FileSyncService {
 
       await this.wsService.send(data);
       
-      log.info(`${isDir ? '同步文件夹：' : '同步文件：'}${relativePath}`);
+      log.formatSuccess(`${isDir ? '同步文件夹：' : '同步文件：'}${relativePath}`);
       
       return {
         success: true,
@@ -47,7 +48,7 @@ export class FileSyncService {
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : '未知错误';
-      log.error(`同步文件失败：${errorMessage}`);
+      log.formatError(`同步文件失败：${errorMessage}`);
       
       return {
         success: false,
@@ -74,7 +75,7 @@ export class FileSyncService {
 
       await this.wsService.send(data);
       
-      log.info(`${isDir ? '删除文件夹：' : '删除文件：'}${relativePath}`);
+      log.formatWarning(`${isDir ? '删除文件夹：' : '删除文件：'}${relativePath}`);
       
       return {
         success: true,
@@ -82,7 +83,7 @@ export class FileSyncService {
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : '未知错误';
-      log.error(`删除文件失败：${errorMessage}`);
+      log.formatError(`删除文件失败：${errorMessage}`);
       
       return {
         success: false,
@@ -112,29 +113,54 @@ export class FileSyncService {
       const files = await this.scanProjectFiles(baseDir);
       this.syncState.totalFiles = files.length;
 
-      // 同步所有文件
-      for (const file of files) {
-        try {
-          const result = await this.syncFile(baseDir, file.path, file.isDir);
-          if (result.success) {
-            this.syncState.syncedFiles++;
-          } else {
-            this.syncState.errors.push(result.message);
-          }
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : '未知错误';
-          this.syncState.errors.push(errorMessage);
-        }
+      if (files.length === 0) {
+        log.formatWarning('没有找到需要同步的文件');
+        return {
+          success: true,
+          message: '没有找到需要同步的文件'
+        };
       }
 
-      // 初始化项目文件列表
-      await this.initProjectFiles(files);
+      // 使用进度条显示同步进度
+      await showFileSyncProgress(files.length, async (progressCallback) => {
+        let currentFile = 0;
+
+        // 同步所有文件
+        for (const file of files) {
+          currentFile++;
+          const relativePath = getRelativePath(baseDir, file.path);
+          const fileType = file.isDir ? '文件夹' : '文件';
+          
+          progressCallback(currentFile, `同步${fileType}: ${relativePath}`);
+
+          try {
+            const result = await this.syncFile(baseDir, file.path, file.isDir);
+            if (result.success) {
+              this.syncState.syncedFiles++;
+            } else {
+              this.syncState.errors.push(result.message);
+            }
+            
+            // 添加小延迟，让用户能看到进度变化
+            if (currentFile < files.length) {
+              await new Promise(resolve => setTimeout(resolve, 50));
+            }
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : '未知错误';
+            this.syncState.errors.push(errorMessage);
+          }
+        }
+
+        // 初始化项目文件列表
+        progressCallback(files.length, '初始化项目文件列表...');
+        await this.initProjectFiles(files, baseDir);
+      });
 
       const successMessage = `项目同步完成，共${this.syncState.syncedFiles}/${this.syncState.totalFiles}个文件`;
       if (this.syncState.errors.length > 0) {
-        log.warn(`${successMessage}，${this.syncState.errors.length}个文件同步失败`);
+        log.formatWarning(`${successMessage}，${this.syncState.errors.length}个文件同步失败`);
       } else {
-        log.info(successMessage);
+        log.formatSuccess(successMessage);
       }
 
       return {
@@ -144,7 +170,7 @@ export class FileSyncService {
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : '未知错误';
-      log.error(`项目同步失败：${errorMessage}`);
+      log.formatError(`项目同步失败：${errorMessage}`);
       
       return {
         success: false,
@@ -189,11 +215,11 @@ export class FileSyncService {
   }
 
   // 初始化项目文件列表
-  private async initProjectFiles(files: Array<{ path: string; isDir: boolean }>): Promise<void> {
+  private async initProjectFiles(files: Array<{ path: string; isDir: boolean }>, baseDir: string): Promise<void> {
     try {
       const fileList = files.map(file => [
         file.isDir,
-        getRelativePath(files[0].path.split(path.sep).slice(0, -1).join(path.sep), file.path)
+        getRelativePath(baseDir, file.path)
       ]);
 
       const data: ProjectInitData = {

@@ -3,12 +3,19 @@
 import * as vscode from 'vscode';
 import Client from './Client';
 import setting from './setting';
-import { loadingModel } from './unit/loadingModel';
-import log from './unit/log';
+import log, { LogLevel } from './unit/log';
 import { Workspace } from './Workspace';
 
 export function activate(context: vscode.ExtensionContext) {
 	setting.init(context);//创建日志窗口， 设置extension变量
+
+	// 初始化日志配置，确保在Windows PowerShell等环境中禁用颜色
+	log.setConfig({
+		level: LogLevel.INFO,
+		showNotifications: true,
+		enableFileLogging: true,
+		enableColors: false // 在VSCode扩展中禁用颜色以避免乱码
+	});
 
 	log.modelInfo("~_~ 欢迎使用" + context.extension.packageJSON.displayName + "~");
 	let client: Client | undefined = undefined;
@@ -17,14 +24,7 @@ export function activate(context: vscode.ExtensionContext) {
 	// 全局状态（跨工作区持久化）
 	const globalState = context.globalState;
 
-	// 验证客户端连接的通用函数
-	const validateClientConnection = (): boolean => {
-		if (!client?.state()) {
-			log.showError("未连接手机或连接中断（请执行连接手机命令）");
-			return false;
-		}
-		return true;
-	};
+
 
 	context.subscriptions.push(vscode.commands.registerCommand('deekeScript.serverRun', async () => {
 		//输入手机地址
@@ -54,7 +54,7 @@ export function activate(context: vscode.ExtensionContext) {
 					return;
 				}
 				
-				await loadingModel(client.createSocket());
+				await client.createSocket();
 				workspace.setClient(client);
 				log.showInfo('连接成功');
 			} catch (error) {
@@ -139,6 +139,27 @@ export function activate(context: vscode.ExtensionContext) {
 		if (client) {
 			client.resetRetryState();
 			log.showInfo("重连状态已重置");
+		} else {
+			log.showError("客户端未初始化");
+		}
+	}));
+
+	// 添加显示状态的命令
+	context.subscriptions.push(vscode.commands.registerCommand('deekeScript.showStatus', () => {
+		if (client) {
+			const retryInfo = client.getRetryInfo();
+			const syncState = client.getSyncState();
+			
+			const statusMessage = [
+				`连接状态: ${client.state() ? '已连接' : '未连接'}`,
+				`重连次数: ${retryInfo.currentRetryCount}/${retryInfo.maxRetries}`,
+				`曾经连接: ${retryInfo.hasConnectedOnce ? '是' : '否'}`,
+				`同步状态: ${syncState.isSyncing ? '同步中' : '空闲'}`,
+				`已同步文件: ${syncState.syncedFiles}/${syncState.totalFiles}`,
+				`同步错误: ${syncState.errors.length}个`
+			].join('\n');
+			
+			log.showInfo(`当前状态:\n${statusMessage}`);
 		} else {
 			log.showError("客户端未初始化");
 		}

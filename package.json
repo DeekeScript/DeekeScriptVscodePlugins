@@ -79,27 +79,71 @@
         "command": "deekeScript.serverClose",
         "title": "DeekeScript：关闭连接",
         "icon": "$(debug-disconnect)"
+      },
+      {
+        "command": "deekeScript.resetRetry",
+        "title": "DeekeScript：重置重连状态",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "deekeScript.showStatus",
+        "title": "DeekeScript：显示状态",
+        "icon": "$(info)"
       }
     ],
     "configuration": {
       "type": "object",
-      "title": "相关配置",
+      "title": "DeekeScript配置",
       "properties": {
         "server.port": {
           "type": "number",
           "default": 8088,
           "scope": "window",
-          "description": "websocket服务端的端口号"
+          "description": "WebSocket服务端的端口号"
         },
         "server.wsMaxRetries": {
           "type": "number",
           "default": 59,
-          "description": "最大重试次数"
+          "description": "最大重连次数"
         },
         "server.wsBaseDelay": {
           "type": "number",
           "default": 1000,
-          "description": "初始重试延迟(ms)"
+          "description": "基础重连延迟(ms)"
+        },
+        "logging.level": {
+          "type": "string",
+          "enum": ["debug", "info", "warn", "error"],
+          "default": "info",
+          "description": "日志输出级别"
+        },
+        "logging.enableColors": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否启用彩色日志输出"
+        },
+        "logging.showNotifications": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否显示通知消息"
+        },
+        "sync.debounceDelay": {
+          "type": "number",
+          "default": 500,
+          "description": "文件同步防抖延迟(ms)"
+        },
+        "sync.autoSync": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否自动同步文件变更"
+        },
+        "sync.excludePatterns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": ["node_modules", ".git", ".vscode"],
+          "description": "文件同步排除模式"
         }
       }
     },

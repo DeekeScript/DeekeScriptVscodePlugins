@@ -5,7 +5,7 @@ export function loadingModel(p: Promise<any>, title: string = '正在连接...')
         cancellable: true,
         location: vscode.ProgressLocation.Notification,
         title: title
-    }, (progress, token) => {
+    }, (_progress, token) => {
         token.onCancellationRequested(() => {
             vscode.window.showInformationMessage("取消成功!");
         });
