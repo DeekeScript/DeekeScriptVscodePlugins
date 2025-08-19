@@ -5819,11 +5819,10 @@ class Logger {
         }
     }
     formatMessage(level, message, ...params) {
-        const timestamp = new Date().toISOString();
         const formattedParams = params.length > 0 ? ` ${JSON.stringify(params)}` : '';
         const color = this.getColorForLevel(level);
         const resetColor = this.config.enableColors ? Colors.RESET : '';
-        return `${color}[${timestamp}] [${level}]${resetColor} ${message}${formattedParams}`;
+        return `${color}${message}${formattedParams}${resetColor}`;
     }
     debug(message, ...params) {
         if (this.shouldLog(LogLevel.DEBUG)) {
@@ -6174,7 +6173,7 @@ class FileSyncService {
                         }
                         // 添加小延迟，让用户能看到进度变化
                         if (currentFile < files.length) {
-                            await new Promise(resolve => setTimeout(resolve, 50));
+                            await new Promise(resolve => setTimeout(resolve, 5));
                         }
                     }
                     catch (error) {

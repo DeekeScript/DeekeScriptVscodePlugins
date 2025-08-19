@@ -102,12 +102,11 @@ class Logger {
   }
 
   private formatMessage(level: string, message: string, ...params: any[]): string {
-    const timestamp = new Date().toISOString();
     const formattedParams = params.length > 0 ? ` ${JSON.stringify(params)}` : '';
     const color = this.getColorForLevel(level);
     const resetColor = this.config.enableColors ? Colors.RESET : '';
     
-    return `${color}[${timestamp}] [${level}]${resetColor} ${message}${formattedParams}`;
+    return `${color}${message}${formattedParams}${resetColor}`;
   }
 
   debug(message: string, ...params: any[]): void {
