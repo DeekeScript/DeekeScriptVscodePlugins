@@ -100,7 +100,7 @@ export default class Client {
     // 运行文件
     async fileRunCommand(obj: { absolutePath: string, file: string }): Promise<void> {
         try {
-            const data: FileRunData = {
+            const data: Omit<FileRunData, 'key'> = {
                 status: 1,
                 body: fs.readFileSync(obj.file).toString('utf8'),
                 file: getRelativePath(obj.absolutePath, obj.file)
@@ -115,7 +115,7 @@ export default class Client {
     // 停止所有脚本
     async stopCommand(): Promise<void> {
         try {
-            const data: StopData = { status: 0 };
+            const data: Omit<StopData, 'key'> = { status: 0 };
             await this.wsService.send(data);
         } catch (error) {
             log.error(`停止脚本失败：${error instanceof Error ? error.message : '未知错误'}`);
@@ -126,7 +126,10 @@ export default class Client {
     // 运行项目
     async projectRunCommand(): Promise<void> {
         try {
-            const data: ProjectRunData = { command: "projectRunCommand" };
+            const data: Omit<ProjectRunData, 'key'> = { 
+                status: 1,
+                command: "projectRunCommand" 
+            };
             await this.wsService.send(data);
         } catch (error) {
             log.error(`运行项目失败：${error instanceof Error ? error.message : '未知错误'}`);

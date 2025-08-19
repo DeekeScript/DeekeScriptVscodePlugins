@@ -12,37 +12,46 @@ export interface ErrorInfo {
   message: string;
 }
 
-export interface FileSyncData {
+// 基础消息接口
+export interface BaseMessage {
+  key: string;
   status: number;
+}
+
+export interface FileSyncData extends BaseMessage {
   file: string;
   isDir: boolean;
   body: string;
 }
 
-export interface FileDeleteData {
-  status: number;
+export interface FileDeleteData extends BaseMessage {
   file: string;
   isDir: boolean;
   body: string;
 }
 
-export interface ProjectInitData {
-  status: number;
+export interface ProjectInitData extends BaseMessage {
   body: string;
 }
 
-export interface FileRunData {
-  status: number;
+export interface FileRunData extends BaseMessage {
   body: string;
   file: string;
 }
 
-export interface StopData {
-  status: number;
+export interface StopData extends BaseMessage {
 }
 
-export interface ProjectRunData {
+export interface ProjectRunData extends BaseMessage {
   command: string;
+}
+
+// 服务端响应消息
+export interface ServerResponse {
+  key: string;
+  code: number;
+  msg: string;
+  success: boolean;
 }
 
 // 客户端配置接口

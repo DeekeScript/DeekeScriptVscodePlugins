@@ -24,8 +24,6 @@ export function activate(context: vscode.ExtensionContext) {
 	// 全局状态（跨工作区持久化）
 	const globalState = context.globalState;
 
-
-
 	context.subscriptions.push(vscode.commands.registerCommand('deekeScript.serverRun', async () => {
 		//输入手机地址
 		const input = vscode.window.createInputBox();

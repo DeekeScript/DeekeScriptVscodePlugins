@@ -31,15 +31,17 @@ export class FileSyncService {
       }
 
       const relativePath = getRelativePath(baseDir, filePath);
-      const data: FileSyncData = {
+      const data: Omit<FileSyncData, 'key'> = {
         status: 1001,
         file: relativePath,
         isDir: isDir,
         body: isDir ? '' : fs.readFileSync(filePath).toString('base64')
       };
 
-      await this.wsService.send(data);
+      // 发送消息并等待服务端确认
+      await this.wsService.sendWithResponse(data);
       
+      // 收到服务端确认后再打印日志
       log.formatSuccess(`${isDir ? '同步文件夹：' : '同步文件：'}${relativePath}`);
       
       return {
@@ -66,15 +68,17 @@ export class FileSyncService {
       }
 
       const relativePath = getRelativePath(baseDir, filePath);
-      const data: FileDeleteData = {
+      const data: Omit<FileDeleteData, 'key'> = {
         status: 1003,
         file: relativePath,
         isDir: isDir,
         body: ''
       };
 
-      await this.wsService.send(data);
+      // 发送消息并等待服务端确认
+      await this.wsService.sendWithResponse(data);
       
+      // 收到服务端确认后再打印日志
       log.formatWarning(`${isDir ? '删除文件夹：' : '删除文件：'}${relativePath}`);
       
       return {
@@ -222,12 +226,13 @@ export class FileSyncService {
         getRelativePath(baseDir, file.path)
       ]);
 
-      const data: ProjectInitData = {
+      const data: Omit<ProjectInitData, 'key'> = {
         status: 1002,
         body: JSON.stringify(fileList)
       };
 
-      await this.wsService.send(data);
+      // 发送消息并等待服务端确认
+      await this.wsService.sendWithResponse(data);
       log.info('项目文件列表已发送到APP端');
     } catch (error) {
       log.error(`初始化项目文件列表失败：${error instanceof Error ? error.message : '未知错误'}`);

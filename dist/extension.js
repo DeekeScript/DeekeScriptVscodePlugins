@@ -359,7 +359,10 @@ class Client {
     // 运行项目
     async projectRunCommand() {
         try {
-            const data = { command: "projectRunCommand" };
+            const data = {
+                status: 1,
+                command: "projectRunCommand"
+            };
             await this.wsService.send(data);
         }
         catch (error) {
@@ -441,12 +444,14 @@ class WebSocketService {
     socketIp;
     socketPort;
     wsMaxRetries;
-    wsBaseDelay;
     isManualClose = false;
     retryOpen = false;
     reconnectTimer = null;
     connectionState = types_1.ConnectionState.DISCONNECTED;
     messageHandlers = new Map();
+    // 消息key管理
+    pendingRequests = new Map();
+    requestTimeout = 10000; // 10秒超时
     // 重连相关状态
     currentRetryCount = 0;
     hasConnectedOnce = false; // 标记是否曾经连接成功过
@@ -454,7 +459,6 @@ class WebSocketService {
         this.socketIp = socketIp;
         this.socketPort = config.port;
         this.wsMaxRetries = config.wsMaxRetries;
-        this.wsBaseDelay = config.wsBaseDelay;
     }
     get state() {
         return this.connectionState;
@@ -476,9 +480,7 @@ class WebSocketService {
         log_1.default.logConnectionStatus('connecting', `ws://${this.socketIp}:${this.socketPort}`);
         try {
             await this.createConnection();
-            // 连接成功，重置重连计数
-            this.currentRetryCount = 0;
-            this.hasConnectedOnce = true;
+            // 连接成功处理已在onopen事件中完成
         }
         catch (error) {
             this.connectionState = types_1.ConnectionState.DISCONNECTED;
@@ -494,13 +496,13 @@ class WebSocketService {
                     this.connectionState = types_1.ConnectionState.CONNECTED;
                     this.retryOpen = true;
                     this.hasConnectedOnce = true; // 标记曾经连接成功过
+                    this.currentRetryCount = 0; // 连接成功后重置重连计数器
                     log_1.default.logConnectionStatus('connected');
                     resolve();
                 };
                 this.socket.onclose = () => {
                     this.connectionState = types_1.ConnectionState.DISCONNECTED;
                     if (this.retryOpen && !this.isManualClose) {
-                        log_1.default.logConnectionStatus('disconnected', '准备重连...');
                         this.scheduleReconnect();
                     }
                     else {
@@ -526,16 +528,60 @@ class WebSocketService {
     }
     handleMessage(event) {
         try {
-            const message = JSON.parse(event.data.toString());
+            const data = JSON.parse(event.data.toString());
+            // 检查是否是服务端响应消息（新格式）
+            if (data.key && this.pendingRequests.has(data.key)) {
+                this.handleServerResponse(data);
+                return;
+            }
+            // 处理旧格式的消息
+            const message = data;
             if (message.code === 0) {
                 this.handleSuccessMessage(message.msg);
+                // 如果有待处理的请求，假设这个成功消息是对它们的响应
+                this.resolveAllPendingRequests();
             }
             else {
                 log_1.default.showError(message.msg);
+                // 如果有待处理的请求，假设这个错误消息是对它们的响应
+                this.rejectAllPendingRequests(new Error(message.msg));
             }
         }
         catch (error) {
             log_1.default.error(`消息解析失败：${error instanceof Error ? error.message : '未知错误'}`);
+            // 解析失败时，拒绝所有待处理的请求
+            this.rejectAllPendingRequests(new Error('消息解析失败'));
+        }
+    }
+    // 解析所有待处理的请求（用于旧格式消息）
+    resolveAllPendingRequests() {
+        for (const [, request] of this.pendingRequests.entries()) {
+            clearTimeout(request.timeout);
+            request.resolve({ success: true, code: 0, msg: '操作成功' });
+        }
+        this.pendingRequests.clear();
+    }
+    // 拒绝所有待处理的请求（用于旧格式消息）
+    rejectAllPendingRequests(error) {
+        for (const [, request] of this.pendingRequests.entries()) {
+            clearTimeout(request.timeout);
+            request.reject(error);
+        }
+        this.pendingRequests.clear();
+    }
+    handleServerResponse(response) {
+        const pendingRequest = this.pendingRequests.get(response.key);
+        if (!pendingRequest) {
+            return;
+        }
+        // 清除超时定时器
+        clearTimeout(pendingRequest.timeout);
+        this.pendingRequests.delete(response.key);
+        if (response.code == 0) {
+            pendingRequest.resolve(response);
+        }
+        else {
+            pendingRequest.reject(new Error(response.msg));
         }
     }
     handleSuccessMessage(msg) {
@@ -561,6 +607,7 @@ class WebSocketService {
         if (this.currentRetryCount >= this.wsMaxRetries) {
             log_1.default.formatError(`超过最大重连次数 (${this.wsMaxRetries})，停止重连`);
             this.retryOpen = false;
+            this.connectionState = types_1.ConnectionState.DISCONNECTED;
             return;
         }
         if (this.reconnectTimer) {
@@ -568,30 +615,61 @@ class WebSocketService {
         }
         this.currentRetryCount++;
         this.connectionState = types_1.ConnectionState.RECONNECTING;
-        // 计算重连延迟时间
-        let delayTime;
-        if (this.hasConnectedOnce) {
-            // 如果之前连接成功过，说明网络是通的，使用较短的重连间隔
-            delayTime = this.wsBaseDelay;
-        }
-        else {
-            // 如果从未连接成功过，使用指数退避策略
-            delayTime = this.wsBaseDelay * Math.pow(2, this.currentRetryCount - 1);
-        }
-        log_1.default.logConnectionStatus('reconnecting', `第${this.currentRetryCount}次重连，${delayTime}ms后尝试...`);
+        // 计算重连延迟时间 - 逐步增加1秒
+        const delayTime = this.currentRetryCount * 1000; // 1s, 2s, 3s, 4s...
+        log_1.default.logConnectionStatus('reconnecting', `第${this.currentRetryCount}次重连，${this.currentRetryCount}s后尝试...`);
         this.reconnectTimer = setTimeout(() => {
             this.createConnection().then(() => {
                 // 重连成功，重置计数
                 this.currentRetryCount = 0;
                 this.connectionState = types_1.ConnectionState.CONNECTED;
-                log_1.default.formatSuccess('重连成功');
+                // 重连成功的日志已在onopen事件中处理
             }).catch(() => {
-                // 重连失败，继续重试
-                this.scheduleReconnect();
             });
         }, delayTime);
     }
-    // 发送消息
+    // 生成唯一消息key
+    generateMessageKey() {
+        return `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    }
+    // 发送消息并等待响应
+    sendWithResponse(data) {
+        return new Promise((resolve, reject) => {
+            if (!this.socket || this.socket.readyState !== ws_1.WebSocket.OPEN) {
+                reject(new Error('WebSocket未连接'));
+                return;
+            }
+            // 生成唯一key
+            const messageKey = this.generateMessageKey();
+            const messageWithKey = { ...data, key: messageKey };
+            // 设置超时定时器
+            const timeout = setTimeout(() => {
+                this.pendingRequests.delete(messageKey);
+                reject(new Error(`请求超时 (${this.requestTimeout}ms)`));
+            }, this.requestTimeout);
+            // 保存待处理的请求
+            this.pendingRequests.set(messageKey, { resolve, reject, timeout });
+            try {
+                const message = JSON.stringify(messageWithKey);
+                this.socket.send(message, { compress: true }, (error) => {
+                    if (error) {
+                        // 发送失败，清理待处理请求
+                        this.pendingRequests.delete(messageKey);
+                        clearTimeout(timeout);
+                        log_1.default.error(`发送消息失败：${error.message}`);
+                        reject(error);
+                    }
+                });
+            }
+            catch (error) {
+                // 序列化失败，清理待处理请求
+                this.pendingRequests.delete(messageKey);
+                clearTimeout(timeout);
+                reject(error);
+            }
+        });
+    }
+    // 发送消息（不等待响应，兼容旧接口）
     send(data) {
         return new Promise((resolve, reject) => {
             if (!this.socket || this.socket.readyState !== ws_1.WebSocket.OPEN) {
@@ -638,8 +716,7 @@ class WebSocketService {
             this.socketPort = config.port;
         if (config.wsMaxRetries !== undefined)
             this.wsMaxRetries = config.wsMaxRetries;
-        if (config.wsBaseDelay !== undefined)
-            this.wsBaseDelay = config.wsBaseDelay;
+        // wsBaseDelay 不再使用，忽略该配置
     }
     // 重置重连状态
     resetRetryState() {
@@ -6083,7 +6160,9 @@ class FileSyncService {
                 isDir: isDir,
                 body: isDir ? '' : fs.readFileSync(filePath).toString('base64')
             };
-            await this.wsService.send(data);
+            // 发送消息并等待服务端确认
+            await this.wsService.sendWithResponse(data);
+            // 收到服务端确认后再打印日志
             log_1.default.formatSuccess(`${isDir ? '同步文件夹：' : '同步文件：'}${relativePath}`);
             return {
                 success: true,
@@ -6113,7 +6192,9 @@ class FileSyncService {
                 isDir: isDir,
                 body: ''
             };
-            await this.wsService.send(data);
+            // 发送消息并等待服务端确认
+            await this.wsService.sendWithResponse(data);
+            // 收到服务端确认后再打印日志
             log_1.default.formatWarning(`${isDir ? '删除文件夹：' : '删除文件：'}${relativePath}`);
             return {
                 success: true,
@@ -6247,7 +6328,8 @@ class FileSyncService {
                 status: 1002,
                 body: JSON.stringify(fileList)
             };
-            await this.wsService.send(data);
+            // 发送消息并等待服务端确认
+            await this.wsService.sendWithResponse(data);
             log_1.default.info('项目文件列表已发送到APP端');
         }
         catch (error) {
