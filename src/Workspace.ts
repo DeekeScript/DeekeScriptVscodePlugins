@@ -48,6 +48,36 @@ export class Workspace {
         return true;
     }
 
+    // 递归同步文件夹内的所有文件
+    private async syncDirectoryRecursively(baseDir: string, dirPath: string): Promise<void> {
+        if (!this.client) return;
+
+        try {
+            // 首先同步文件夹本身
+            await this.client.fileSync(baseDir, dirPath, true);
+            //log.info(`同步文件夹：${dirPath}`);
+
+            // 读取文件夹内容
+            const entries = await vscode.workspace.fs.readDirectory(vscode.Uri.file(dirPath));
+            
+            for (const entry of entries) {
+                const fullPath = dirPath + '/' + entry[0];
+                const isDir = entry[1] === vscode.FileType.Directory;
+                
+                if (isDir) {
+                    // 递归处理子文件夹
+                    await this.syncDirectoryRecursively(baseDir, fullPath);
+                } else {
+                    // 同步文件
+                    await this.client.fileSync(baseDir, fullPath, false);
+                    //log.info(`同步文件：${fullPath}`);
+                }
+            }
+        } catch (error) {
+            log.error(`递归同步文件夹失败：${dirPath} - ${error instanceof Error ? error.message : '未知错误'}`);
+        }
+    }
+
     listening() {
         vscode.workspace.onDidChangeConfiguration((_e: ConfigurationChangeEvent) => {
             if (!this.canEdit()) {
@@ -113,7 +143,7 @@ export class Workspace {
                 if (!this.canEdit()) {
                     continue;
                 }
-                log.info(e.files[i].path);
+                log.info(e.files[i].fsPath);
                 if (this.client) {
                     const workspaceFolder = vscode.workspace.getWorkspaceFolder(e.files[i]);
                     if (!workspaceFolder) {
@@ -122,7 +152,14 @@ export class Workspace {
                     }
                     const stats = await vscode.workspace.fs.stat(e.files[i]);
                     const isDir = stats.type == vscode.FileType.File ? false : true;
-                    this.client.fileSync(workspaceFolder.uri.fsPath, e.files[i].path, isDir);
+                    
+                    if (isDir) {
+                        // 如果是文件夹，递归同步文件夹内的所有文件
+                        await this.syncDirectoryRecursively(workspaceFolder.uri.fsPath, e.files[i].fsPath);
+                    } else {
+                        // 如果是文件，直接同步
+                        this.client.fileSync(workspaceFolder.uri.fsPath, e.files[i].fsPath, isDir);
+                    }
                 }
             }
         });
@@ -135,7 +172,7 @@ export class Workspace {
             if (e.files && e.files.length > 0) {
                 log.info("文件移除：");
                 for (let i in e.files) {
-                    log.info(e.files[i].path);
+                    log.info(e.files[i].fsPath);
                     if (this.client) {
                         const workspaceFolder = vscode.workspace.getWorkspaceFolder(e.files[i]);
                         if (!workspaceFolder) {
@@ -144,7 +181,7 @@ export class Workspace {
                         }
 
                         //文件其实不需要传类型，文件和文件夹不会重名，Android端直接能判断 【这里因为文件已经被删了，所以判断不了类型】
-                        this.client.fileDelete(workspaceFolder.uri.fsPath, e.files[i].path, false);
+                        this.client.fileDelete(workspaceFolder.uri.fsPath, e.files[i].fsPath, false);
                     }
                 }
             }
@@ -159,7 +196,7 @@ export class Workspace {
                 if (!this.canEdit()) {
                     continue;
                 }
-                log.info("文件重命名：" + e.files[i].newUri.path + "变更为" + e.files[i].newUri.path);
+                log.info("文件重命名：" + e.files[i].oldUri.fsPath + "变更为" + e.files[i].newUri.fsPath);
                 if (this.client) {
                     const stats = await vscode.workspace.fs.stat(e.files[i].newUri);
                     const isDir = stats.type == vscode.FileType.File ? false : true;
@@ -169,8 +206,16 @@ export class Workspace {
                         return;
                     }
 
-                    this.client.fileDelete(workspaceFolder.uri.fsPath, e.files[i].oldUri.path, isDir);
-                    this.client.fileSync(workspaceFolder.uri.fsPath, e.files[i].newUri.path, isDir);
+                    // 删除旧文件/文件夹
+                    this.client.fileDelete(workspaceFolder.uri.fsPath, e.files[i].oldUri.fsPath, isDir);
+                    
+                    if (isDir) {
+                        // 如果是文件夹，递归同步文件夹内的所有文件
+                        await this.syncDirectoryRecursively(workspaceFolder.uri.fsPath, e.files[i].newUri.fsPath);
+                    } else {
+                        // 如果是文件，直接同步
+                        this.client.fileSync(workspaceFolder.uri.fsPath, e.files[i].newUri.fsPath, isDir);
+                    }
                 }
             }
         });

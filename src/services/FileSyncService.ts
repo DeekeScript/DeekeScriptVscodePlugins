@@ -79,7 +79,7 @@ export class FileSyncService {
       await this.wsService.sendWithResponse(data);
       
       // 收到服务端确认后再打印日志
-      log.formatWarning(`${isDir ? '删除文件夹：' : '删除文件：'}${relativePath}`);
+      log.formatSuccess(`${isDir ? '删除文件夹：' : '删除文件：'}${relativePath}`);
       
       return {
         success: true,
