@@ -12,12 +12,14 @@ export default class Client {
     private wsService: WebSocketService;
     private fileSyncService: FileSyncService;
     private config: ClientConfig;
+    private socketIp: string;
 
     constructor(socketIp: string) {
         if (!isValidIPAddress(socketIp)) {
             throw new Error('无效的IP地址格式');
         }
 
+        this.socketIp = socketIp;
         this.config = this.loadConfig();
         
         this.wsService = new WebSocketService(socketIp, this.config);
@@ -54,6 +56,11 @@ export default class Client {
     // 检查连接状态
     state(): boolean {
         return this.wsService.isConnected;
+    }
+
+    // 获取连接的IP地址
+    getSocketIp(): string {
+        return this.socketIp;
     }
 
     // 关闭连接

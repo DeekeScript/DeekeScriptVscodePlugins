@@ -45,7 +45,7 @@ export class WebSocketService {
   // 连接WebSocket
   async connect(): Promise<void> {
     if (this.isConnected) {
-      log.formatWarning('WebSocket已经连接');
+      log.formatWarning('WebSocket已经连接，无需再次连接');
       return;
     }
 

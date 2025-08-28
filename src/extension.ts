@@ -45,13 +45,21 @@ export function activate(context: vscode.ExtensionContext) {
 			try {
 				globalState.update('ip', param);
 				input.hide();
-				
-				client = new Client(param);
-				if (client.state()) {
-					log.showError('已经连接，无需重复连接');
-					return;
+				// 检查是否已经有连接且IP地址相同
+				if (client && client.state()) {
+					const currentIp = client.getSocketIp();
+					if (currentIp === param) {
+						log.showError('已经连接成功，无需再次连接');
+						return;
+					}
 				}
-				
+
+				// 如果IP地址不同或没有连接，先关闭旧连接
+				if (client) {
+					client.close();
+				}
+
+				client = new Client(param);
 				await client.createSocket();
 				workspace.setClient(client);
 			} catch (error) {
@@ -146,7 +154,7 @@ export function activate(context: vscode.ExtensionContext) {
 		if (client) {
 			const retryInfo = client.getRetryInfo();
 			const syncState = client.getSyncState();
-			
+
 			const statusMessage = [
 				`连接状态: ${client.state() ? '已连接' : '未连接'}`,
 				`重连次数: ${retryInfo.currentRetryCount}/${retryInfo.maxRetries}`,
@@ -155,7 +163,7 @@ export function activate(context: vscode.ExtensionContext) {
 				`已同步文件: ${syncState.syncedFiles}/${syncState.totalFiles}`,
 				`同步错误: ${syncState.errors.length}个`
 			].join('\n');
-			
+
 			log.showInfo(`当前状态:\n${statusMessage}`);
 		} else {
 			log.showError("客户端未初始化");
