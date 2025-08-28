@@ -2,7 +2,7 @@
   "name": "deekescript",
   "displayName": "DeekeScript",
   "description": "DeekeScript扩展，协助用户开发",
-  "version": "1.1.6",
+  "version": "1.1.7",
   "icon": "resources/logo.png",
   "publisher": "DeekeScript",
   "engines": {
@@ -13,22 +13,22 @@
   ],
   "keywords": [
     "Deeke",
-    "Deeke.top",
-    "Deeke Script",
+    "Deeke.cn",
+    "DeekeScript",
     "Automation scripts",
     "DeekeScript Development Tools"
   ],
   "author": {
     "name": "DeekeScript"
   },
-  "homepage": "https://github.com/miniphper/vscode-deeke-script/README.md",
+  "homepage": "https://github.com/DeekeScript/DeekeScriptVscodePlugins",
   "bugs": {
-    "url": "https://github.com/miniphper",
+    "url": "https://github.com/DeekeScript",
     "email": "miniphper@gmail.com"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/miniphper/vscode-deeke-script.git"
+    "url": "https://github.com/DeekeScript/DeekeScriptVscodePlugins.git"
   },
   "pricing": "Free",
   "activationEvents": [
