@@ -152,7 +152,9 @@ export class FileSyncService {
           progressCallback(currentFile, `同步${fileType}: ${relativePath}`);
 
           try {
-            const result = await this.syncFile(baseDir, file.path, file.isDir);
+            // 尝试获取文档对象以获取最新内容
+            const document = vscode.workspace.textDocuments.find(doc => doc.fileName === file.path);
+            const result = await this.syncFile(baseDir, file.path, file.isDir, document);
             if (result.success) {
               this.syncState.syncedFiles++;
             } else {

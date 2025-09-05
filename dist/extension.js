@@ -6144,6 +6144,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.FileSyncService = void 0;
 const fs = __importStar(__webpack_require__(3));
 const path = __importStar(__webpack_require__(35));
+const vscode = __importStar(__webpack_require__(1));
 const utils_1 = __webpack_require__(36);
 const progress_1 = __webpack_require__(37);
 const log_1 = __importDefault(__webpack_require__(32));
@@ -6271,7 +6272,9 @@ class FileSyncService {
                     const fileType = file.isDir ? '文件夹' : '文件';
                     progressCallback(currentFile, `同步${fileType}: ${relativePath}`);
                     try {
-                        const result = await this.syncFile(baseDir, file.path, file.isDir);
+                        // 尝试获取文档对象以获取最新内容
+                        const document = vscode.workspace.textDocuments.find(doc => doc.fileName === file.path);
+                        const result = await this.syncFile(baseDir, file.path, file.isDir, document);
                         if (result.success) {
                             this.syncState.syncedFiles++;
                         }
