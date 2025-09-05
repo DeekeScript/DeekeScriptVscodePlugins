@@ -73,7 +73,7 @@
       {
         "command": "deekeScript.projectSync",
         "title": "DeekeScript：项目同步",
-        "icon": "$(sync)"
+        "icon": "$(cloud-upload)"
       },
       {
         "command": "deekeScript.serverClose",
@@ -150,18 +150,8 @@
     "menus": {
       "editor/title": [
         {
-          "when": "editorLangId == 'javascript'",
+          "when": "editorTextFocus",
           "command": "deekeScript.fileSync",
-          "group": "navigation"
-        },
-        {
-          "when": "editorLangId == 'javascript'",
-          "command": "deekeScript.stopAll",
-          "group": "navigation"
-        },
-        {
-          "when": "editorLangId == 'javascript'",
-          "command": "deekeScript.run",
           "group": "navigation"
         },
         {
@@ -176,12 +166,17 @@
         },
         {
           "when": "resourceFilename == 'deekeScript.json'",
-          "command": "deekeScript.stopAll",
+          "command": "deekeScript.serverClose",
           "group": "navigation"
         },
         {
-          "when": "resourceFilename == 'deekeScript.json'",
-          "command": "deekeScript.serverClose",
+          "when": "editorLangId == 'javascript'",
+          "command": "deekeScript.run",
+          "group": "navigation"
+        },
+        {
+          "when": "editorTextFocus",
+          "command": "deekeScript.stopAll",
           "group": "navigation"
         }
       ]

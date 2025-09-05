@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import * as vscode from "vscode";
 import { workspace } from "vscode";
 import { WebSocketService } from './services/WebSocketService';
 import { FileSyncService } from './services/FileSyncService';
@@ -79,9 +80,9 @@ export default class Client {
     }
 
     // 同步文件
-    async fileSync(baseDir: string, file: string, isDir: boolean = false): Promise<void> {
+    async fileSync(baseDir: string, file: string, isDir: boolean = false, document?: vscode.TextDocument): Promise<void> {
         try {
-            await this.fileSyncService.syncFile(baseDir, file, isDir);
+            await this.fileSyncService.syncFile(baseDir, file, isDir, document);
         } catch (error) {
             log.error(`同步文件失败：${error instanceof Error ? error.message : '未知错误'}`);
             throw error;

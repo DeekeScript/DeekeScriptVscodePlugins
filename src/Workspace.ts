@@ -8,13 +8,17 @@ import { debounce } from "./utils";
 export class Workspace {
     private stop: boolean = false;
     private client: Client | undefined = undefined;
-    private debouncedFileSync: (baseDir: string, filePath: string, isDir: boolean) => void;
+    private debouncedFileSync: (baseDir: string, filePath: string, isDir: boolean, document?: vscode.TextDocument) => void;
 
     constructor() {
         // 创建防抖的文件同步函数，延迟500ms
-        this.debouncedFileSync = debounce((baseDir: string, filePath: string, isDir: boolean) => {
+        this.debouncedFileSync = debounce((baseDir: string, filePath: string, isDir: boolean, document?: vscode.TextDocument) => {
             if (this.client) {
-                this.client.fileSync(baseDir, filePath, isDir).catch((error: unknown) => {
+                // 在执行时重新获取最新的文档对象，确保获取到最新的内容
+                const latestDocument = vscode.workspace.textDocuments.find(doc => doc.fileName === filePath);
+                const documentToUse = latestDocument || document;
+                
+                this.client.fileSync(baseDir, filePath, isDir, documentToUse).catch((error: unknown) => {
                     log.error(`防抖同步文件失败：${error instanceof Error ? error.message : '未知错误'}`);
                 });
             }
@@ -68,8 +72,9 @@ export class Workspace {
                     // 递归处理子文件夹
                     await this.syncDirectoryRecursively(baseDir, fullPath);
                 } else {
-                    // 同步文件
-                    await this.client.fileSync(baseDir, fullPath, false);
+                    // 同步文件 - 尝试获取文档对象
+                    const document = vscode.workspace.textDocuments.find(doc => doc.fileName === fullPath);
+                    await this.client.fileSync(baseDir, fullPath, false, document);
                     //log.info(`同步文件：${fullPath}`);
                 }
             }
@@ -99,6 +104,7 @@ export class Workspace {
                     return;
                 }
 
+                // 对于notebook，我们无法直接获取文本内容，所以不传递文档对象
                 this.client.fileSync(workspaceFolder.uri.fsPath, e.notebook.uri.path, false);
             }
         });
@@ -115,8 +121,8 @@ export class Workspace {
                     return;
                 }
 
-                // 使用防抖的文件同步
-                this.debouncedFileSync(workspaceFolder.uri.fsPath, e.document.fileName, false);
+                // 使用防抖的文件同步，传递文档对象以获取实时内容
+                this.debouncedFileSync(workspaceFolder.uri.fsPath, e.document.fileName, false, e.document);
             }
         });
 
@@ -157,8 +163,9 @@ export class Workspace {
                         // 如果是文件夹，递归同步文件夹内的所有文件
                         await this.syncDirectoryRecursively(workspaceFolder.uri.fsPath, e.files[i].fsPath);
                     } else {
-                        // 如果是文件，直接同步
-                        this.client.fileSync(workspaceFolder.uri.fsPath, e.files[i].fsPath, isDir);
+                        // 如果是文件，直接同步 - 尝试获取文档对象
+                        const document = vscode.workspace.textDocuments.find(doc => doc.fileName === e.files[i].fsPath);
+                        this.client.fileSync(workspaceFolder.uri.fsPath, e.files[i].fsPath, isDir, document);
                     }
                 }
             }
@@ -213,8 +220,9 @@ export class Workspace {
                         // 如果是文件夹，递归同步文件夹内的所有文件
                         await this.syncDirectoryRecursively(workspaceFolder.uri.fsPath, e.files[i].newUri.fsPath);
                     } else {
-                        // 如果是文件，直接同步
-                        this.client.fileSync(workspaceFolder.uri.fsPath, e.files[i].newUri.fsPath, isDir);
+                        // 如果是文件，直接同步 - 尝试获取文档对象
+                        const document = vscode.workspace.textDocuments.find(doc => doc.fileName === e.files[i].newUri.fsPath);
+                        this.client.fileSync(workspaceFolder.uri.fsPath, e.files[i].newUri.fsPath, isDir, document);
                     }
                 }
             }

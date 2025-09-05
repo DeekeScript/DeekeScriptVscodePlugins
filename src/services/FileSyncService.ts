@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import * as vscode from 'vscode';
 import { FileSyncData, FileDeleteData, ProjectInitData, FileOperationResult, ProjectSyncState } from '../types';
 import { WebSocketService } from './WebSocketService';
 import { getRelativePath } from '../utils';
@@ -24,18 +25,31 @@ export class FileSyncService {
   }
 
   // 同步单个文件
-  async syncFile(baseDir: string, filePath: string, isDir: boolean = false): Promise<FileOperationResult> {
+  async syncFile(baseDir: string, filePath: string, isDir: boolean = false, document?: vscode.TextDocument): Promise<FileOperationResult> {
     try {
       if (!this.wsService.isConnected) {
         throw new Error('WebSocket未连接');
       }
 
       const relativePath = getRelativePath(baseDir, filePath);
+      
+      // 获取文件内容：优先使用文档对象中的实时内容，否则从磁盘读取
+      let fileContent = '';
+      if (!isDir) {
+        if (document) {
+          // 使用文档对象中的实时内容
+          fileContent = document.getText();
+        } else {
+          // 回退到从磁盘读取
+          fileContent = fs.readFileSync(filePath).toString();
+        }
+      }
+
       const data: Omit<FileSyncData, 'key'> = {
         status: 1001,
         file: relativePath,
         isDir: isDir,
-        body: isDir ? '' : fs.readFileSync(filePath).toString('base64')
+        body: isDir ? '' : Buffer.from(fileContent, 'utf8').toString('base64')
       };
 
       // 发送消息并等待服务端确认
