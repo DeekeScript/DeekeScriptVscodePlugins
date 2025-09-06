@@ -37,11 +37,12 @@ export class FileSyncService {
       let fileContent = '';
       if (!isDir) {
         if (document) {
-          // 使用文档对象中的实时内容
-          fileContent = document.getText();
+          // 使用文档对象中的实时内容，转换为base64
+          fileContent = Buffer.from(document.getText(), 'utf8').toString('base64');
         } else {
-          // 回退到从磁盘读取
-          fileContent = fs.readFileSync(filePath).toString();
+          // 从磁盘读取文件，直接转换为base64
+          const fileBuffer = fs.readFileSync(filePath);
+          fileContent = fileBuffer.toString('base64');
         }
       }
 
@@ -49,7 +50,7 @@ export class FileSyncService {
         status: 1001,
         file: relativePath,
         isDir: isDir,
-        body: isDir ? '' : Buffer.from(fileContent, 'utf8').toString('base64')
+        body: fileContent
       };
 
       // 发送消息并等待服务端确认
@@ -264,4 +265,5 @@ export class FileSyncService {
       errors: []
     };
   }
+
 } 

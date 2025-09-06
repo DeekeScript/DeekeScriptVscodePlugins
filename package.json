@@ -2,7 +2,7 @@
   "name": "deekescript",
   "displayName": "DeekeScript",
   "description": "DeekeScript扩展，协助用户开发",
-  "version": "1.1.9",
+  "version": "1.2.0",
   "icon": "resources/logo.png",
   "publisher": "DeekeScript",
   "engines": {
@@ -150,7 +150,7 @@
     "menus": {
       "editor/title": [
         {
-          "when": "editorTextFocus",
+          "when": "editorFocus",
           "command": "deekeScript.fileSync",
           "group": "navigation"
         },
