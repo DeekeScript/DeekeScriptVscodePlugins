@@ -164,7 +164,7 @@ export class FileSyncService {
             
             // 添加小延迟，让用户能看到进度变化
             if (currentFile < files.length) {
-              await new Promise(resolve => setTimeout(resolve, 5));
+              await new Promise(resolve => setTimeout(resolve, 2));
             }
           } catch (error) {
             const errorMessage = error instanceof Error ? error.message : '未知错误';
