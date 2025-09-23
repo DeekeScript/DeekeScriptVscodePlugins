@@ -49,7 +49,7 @@ export default class Client {
                 await this.wsService.connect();
             });
         } catch (error) {
-            log.error(`连接失败：${error instanceof Error ? error.message : '未知错误'}`);
+            //log.error(`连接失败：${error instanceof Error ? error.message : '未知错误'}`);
             throw error;
         }
     }

@@ -56,7 +56,7 @@ export class WebSocketService {
       // 连接成功处理已在onopen事件中完成
     } catch (error) {
       this.connectionState = ConnectionState.DISCONNECTED;
-      log.formatError(`连接失败：${error instanceof Error ? error.message : '未知错误'}`);
+      //log.formatError(`连接失败：${error instanceof Error ? error.message : '未知错误'}`);
       throw error;
     }
   }
