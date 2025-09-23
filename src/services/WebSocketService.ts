@@ -1,5 +1,4 @@
 import { WebSocket, MessageEvent } from 'ws';
-import * as vscode from 'vscode';
 import { ConnectionState, WebSocketMessage, ErrorInfo, ServerResponse } from '../types';
 import log from '../unit/log';
 
@@ -89,7 +88,7 @@ export class WebSocketService {
         this.socket.onerror = (error) => {
           if (!this.retryOpen) {
             log.showError(`连接失败：${error.message}`);
-            vscode.window.showErrorMessage('连接错误');
+            //vscode.window.showErrorMessage('连接错误');
           }
           reject(error);
         };
@@ -97,6 +96,15 @@ export class WebSocketService {
         this.socket.onmessage = (event: MessageEvent) => {
           this.handleMessage(event);
         };
+
+        this.socket.on('unexpected-response', (_req, res) => {
+          if (res.statusCode == 101) {
+            log.showError(`连接失败（请关闭电脑的vpn代理，重启vscode；连接成功后，再开启vpn即可！）`);
+            return;
+          }
+          log.showError(`连接失败，状态码: ${res.statusCode}`);
+          //vscode.window.showErrorMessage(`连接错误，状态码: ${res.statusCode}`);
+        });
 
       } catch (error) {
         reject(error);
@@ -216,7 +224,7 @@ export class WebSocketService {
         this.connectionState = ConnectionState.CONNECTED;
         // 重连成功的日志已在onopen事件中处理
       }).catch(() => {
-        
+
       });
     }, delayTime);
   }
