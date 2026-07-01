@@ -28,6 +28,7 @@ export interface GlobalDef {
     constructorParams: ParamDef[];
     funcParams: ParamDef[];
     funcReturns: string;
+    typeOnly?: boolean;
 }
 
 export const apiData: Record<string, GlobalDef> = {
@@ -481,6 +482,298 @@ export const apiData: Record<string, GlobalDef> = {
         funcParams: [
         ],
         funcReturns: '',
+    },
+    'Console': {
+        kind: 'object',
+        description: '',
+        methods: [
+            {
+                name: 'log',
+                description: '记录普通日志信息\n@param message 要记录的消息',
+                params: [
+                    { name: 'message', type: 'any[]', rest: true },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'warn',
+                description: '记录警告信息\n@param message 要记录的警告消息',
+                params: [
+                    { name: 'message', type: 'any[]', rest: true },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'error',
+                description: '记录错误信息\n@param message 要记录的错误消息',
+                params: [
+                    { name: 'message', type: 'any[]', rest: true },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'info',
+                description: '记录信息，通常用于调试目的\n@param message 要记录的信息',
+                params: [
+                    { name: 'message', type: 'any[]', rest: true },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'debug',
+                description: '记录调试信息\n@param message 要记录的调试信息',
+                params: [
+                    { name: 'message', type: 'any[]', rest: true },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'trace',
+                description: '打印堆栈追踪\n@param message 堆栈追踪信息',
+                params: [
+                    { name: 'message', type: 'any[]', rest: true },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'show',
+                description: '显示日志窗口',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'hide',
+                description: '隐藏日志窗口',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'setWindowSize',
+                description: '设置日志窗口的大小\n@param width 窗口宽度（像素）\n@param height 窗口高度（像素）',
+                params: [
+                    { name: 'width', type: 'number' },
+                    { name: 'height', type: 'number' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'setWindowPosition',
+                description: '设置日志窗口的位置\n@param x 窗口左上角X坐标（像素）\n@param y 窗口左上角Y坐标（像素）',
+                params: [
+                    { name: 'x', type: 'number' },
+                    { name: 'y', type: 'number' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'setBackgroundColor',
+                description: '设置日志窗口的背景颜色\n@param color 颜色值（ARGB格式，如 0xFF000000 表示黑色）',
+                params: [
+                    { name: 'color', type: 'number' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'setTextColor',
+                description: '设置日志文本的颜色\n@param color 颜色值（ARGB格式，如 0xFFFFFFFF 表示白色）',
+                params: [
+                    { name: 'color', type: 'number' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'setTextSize',
+                description: '设置日志文本的字体大小\n@param size 字体大小（像素）',
+                params: [
+                    { name: 'size', type: 'number' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'setLineHeight',
+                description: '设置日志文本的行高\n@param lineHeight 行高（像素）',
+                params: [
+                    { name: 'lineHeight', type: 'number' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'setButtonColors',
+                description: '一次性设置两个按钮的颜色（关闭按钮、调整大小按钮）\n@param closeColor 关闭按钮颜色（ARGB格式）\n@param resizeColor 调整大小按钮颜色（ARGB格式）',
+                params: [
+                    { name: 'closeColor', type: 'number' },
+                    { name: 'resizeColor', type: 'number' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'setTitleTextColor',
+                description: '设置标题栏文字的颜色\n@param color 颜色值（ARGB格式，如 0xFFFFFFFF 表示白色）',
+                params: [
+                    { name: 'color', type: 'number' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'setTitleTextSize',
+                description: '设置标题栏文字的字体大小\n@param size 字体大小（sp）',
+                params: [
+                    { name: 'size', type: 'number' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'setTitleText',
+                description: '设置标题栏的文字内容\n@param text 标题文字内容。如果传入 null 或空字符串，将使用应用名称作为默认标题',
+                params: [
+                    { name: 'text', type: 'string | null' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'setTitleBarColor',
+                description: '设置标题栏的背景颜色\n@param color 颜色值（ARGB格式，-1表示自动计算，比背景色深20%）',
+                params: [
+                    { name: 'color', type: 'number' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'setAllowMoveToTop',
+                description: '设置是否允许窗口移动到顶部\n@param allow 是否允许移动到顶部',
+                params: [
+                    { name: 'allow', type: 'boolean' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'setAllowMoveToBottom',
+                description: '设置是否允许窗口移动到底部\n@param allow 是否允许移动到底部',
+                params: [
+                    { name: 'allow', type: 'boolean' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'setClickable',
+                description: '设置日志窗口是否可点击（穿透）\n@param clickable 是否可点击',
+                params: [
+                    { name: 'clickable', type: 'boolean' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'isClickable',
+                description: '检查日志窗口是否可点击\n@returns 是否可点击',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'clearLogs',
+                description: '清空日志窗口中的所有日志',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'setMaxLogLines',
+                description: '设置日志窗口显示的最大行数。超过此数量的旧日志会被自动删除。\n@param maxLines 最大行数',
+                params: [
+                    { name: 'maxLines', type: 'number' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'getMaxLogLines',
+                description: '获取日志窗口显示的最大行数\n@returns 最大行数',
+                params: [
+                ],
+                returns: 'number',
+            },
+            {
+                name: 'setAutoScroll',
+                description: '设置是否自动滚动到底部（当有新日志时）\n@param autoScroll 是否自动滚动',
+                params: [
+                    { name: 'autoScroll', type: 'boolean' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'setWindowStyle',
+                description: '一次性设置日志窗口的多个样式属性\n@param config 配置对象',
+                params: [
+                    { name: 'config', type: '{\n        width?: number;\n        height?: number;\n        x?: number;\n        y?: number;\n        backgroundColor?: number;\n        textColor?: number;\n        textSize?: number;\n        lineHeight?: number;\n        closeButtonColor?: number;\n        resizeButtonColor?: number;\n        titleTextColor?: number;\n        titleTextSize?: number;\n        titleText?: string | null;\n        titleBarColor?: number;\n        allowMoveToTop?: boolean;\n        allowMoveToBottom?: boolean;\n        clickable?: boolean;\n    }' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'getWindowStyle',
+                description: '获取当前日志窗口的样式配置\n@returns 包含所有样式配置的对象',
+                params: [
+                ],
+                returns: '{\n        width: number;\n        height: number;\n        x: number;\n        y: number;\n        backgroundColor: number;\n        textColor: number;\n        textSize: number;\n        lineHeight: number;\n        closeButtonColor: number;\n        resizeButtonColor: number;\n        titleTextColor: number;\n        titleTextSize: number;\n        titleText: string;\n        titleBarColor: number;\n        allowMoveToTop: boolean;\n        allowMoveToBottom: boolean;\n        clickable: boolean;\n    }',
+            },
+        ],
+        properties: [
+            { name: 'width', type: 'number', description: '' },
+            { name: 'height', type: 'number', description: '' },
+            { name: 'x', type: 'number', description: '' },
+            { name: 'y', type: 'number', description: '' },
+            { name: 'backgroundColor', type: 'number', description: '' },
+            { name: 'textColor', type: 'number', description: '' },
+            { name: 'textSize', type: 'number', description: '' },
+            { name: 'lineHeight', type: 'number', description: '' },
+            { name: 'closeButtonColor', type: 'number', description: '' },
+            { name: 'resizeButtonColor', type: 'number', description: '' },
+            { name: 'titleTextColor', type: 'number', description: '' },
+            { name: 'titleTextSize', type: 'number', description: '' },
+            { name: 'titleText', type: 'string', description: '' },
+            { name: 'titleBarColor', type: 'number', description: '' },
+            { name: 'allowMoveToTop', type: 'boolean', description: '' },
+            { name: 'allowMoveToBottom', type: 'boolean', description: '' },
+            { name: 'clickable', type: 'boolean', description: '' },
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+        typeOnly: true,
+    },
+    'DeekeBounds': {
+        kind: 'object',
+        description: '',
+        methods: [
+        ],
+        properties: [
+            { name: 'left', type: 'number', description: '' },
+            { name: 'top', type: 'number', description: '' },
+            { name: 'width', type: 'number', description: '' },
+            { name: 'height', type: 'number', description: '' },
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+        typeOnly: true,
+    },
+    'DeekeNodeInfo': {
+        kind: 'object',
+        description: '',
+        methods: [
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+        typeOnly: true,
     },
     'DeekeScript': {
         kind: 'object',
@@ -1101,7 +1394,7 @@ export const apiData: Record<string, GlobalDef> = {
                 params: [
                     { name: 'title', type: 'string' },
                     { name: 'content', type: 'string' },
-                    { name: 'callback', type: '(result: boolean)' },
+                    { name: 'callback', type: '(result: boolean) => void' },
                 ],
                 returns: 'void',
             },
@@ -1597,6 +1890,28 @@ export const apiData: Record<string, GlobalDef> = {
         ],
         funcReturns: '',
     },
+    'FloatDialog': {
+        kind: 'object',
+        description: '',
+        methods: [
+            {
+                name: 'setContent',
+                description: '设置对话框内容\n@param content 对话框内容',
+                params: [
+                    { name: 'content', type: 'string' },
+                ],
+                returns: 'void',
+            },
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+        typeOnly: true,
+    },
     'FloatDialogs': {
         kind: 'object',
         description: '',
@@ -1665,7 +1980,7 @@ export const apiData: Record<string, GlobalDef> = {
                     { name: 'content', type: 'string' },
                     { name: 'confirmText', type: 'string' },
                     { name: 'cancelText', type: 'string' },
-                    { name: 'callback', type: '(dialog: FloatDialog)' },
+                    { name: 'callback', type: '(dialog: FloatDialog) => boolean | void' },
                 ],
                 returns: 'boolean',
             },
@@ -2220,7 +2535,7 @@ export const apiData: Record<string, GlobalDef> = {
                     { name: 'files', type: 'string[]' },
                     { name: 'params', type: 'object' },
                     { name: 'httpCallback', type: '{\n        success: (response: any) => void' },
-                    { name: 'fail', type: '(response: any)' },
+                    { name: 'fail', type: '(response: any) => void\n    }' },
                 ],
                 returns: 'void',
             },
@@ -2283,7 +2598,7 @@ export const apiData: Record<string, GlobalDef> = {
                     { name: 'url', type: 'string' },
                     { name: 'json', type: 'object' },
                     { name: 'headers', type: 'object' },
-                    { name: 'onData', type: '(data: string)' },
+                    { name: 'onData', type: '(data: string) => void, onError: (error: string) => void' },
                 ],
                 returns: 'void',
             },
@@ -2293,7 +2608,7 @@ export const apiData: Record<string, GlobalDef> = {
                 params: [
                     { name: 'url', type: 'string' },
                     { name: 'json', type: 'object' },
-                    { name: 'onData', type: '(data: string)' },
+                    { name: 'onData', type: '(data: string) => void, onError: (error: string) => void' },
                 ],
                 returns: 'void',
             },
@@ -2581,6 +2896,20 @@ export const apiData: Record<string, GlobalDef> = {
         ],
         funcReturns: '',
     },
+    'Mat': {
+        kind: 'object',
+        description: '',
+        methods: [
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+        typeOnly: true,
+    },
     'MediaStore': {
         kind: 'object',
         description: '',
@@ -2747,7 +3076,7 @@ export const apiData: Record<string, GlobalDef> = {
                 name: 'startListening',
                 description: '监听通知\n@param onNotification 通知发起后执行 @argument packageName 包名 @argument title 标题 @argument text 内容\n@param onNotificationRemoved 通知移除后执行 @argument packageName 包名 @argument title 标题 @argument text 内容',
                 params: [
-                    { name: 'onNotification', type: '(packageName: string, title: string, text: string)' },
+                    { name: 'onNotification', type: '(packageName: string, title: string, text: string) => void,\n        onNotificationRemoved: (packageName: string' },
                     { name: 'title', type: 'string' },
                     { name: 'text', type: 'string) => void' },
                 ],
@@ -2781,6 +3110,22 @@ export const apiData: Record<string, GlobalDef> = {
         funcParams: [
         ],
         funcReturns: 'any',
+    },
+    'Point': {
+        kind: 'object',
+        description: '',
+        methods: [
+        ],
+        properties: [
+            { name: 'x', type: 'number', description: '' },
+            { name: 'y', type: 'number', description: '' },
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+        typeOnly: true,
     },
     'Rect': {
         kind: 'class',
@@ -2837,13 +3182,13 @@ export const apiData: Record<string, GlobalDef> = {
         methods: [
             {
                 name: 'getInstance',
-                description: '获取socketIOClient实例\n@param serverUrl  socketIOServer地址\n@param reconnect  是否自动重连（默认为true）\n@param timeout  重连超时时间（毫秒）（默认为5000毫秒）',
+                description: '获取socketIoClient实例\n@param serverUrl  socketIOServer地址\n@param reconnect  是否自动重连（默认为true）\n@param timeout  重连超时时间（毫秒）（默认为5000毫秒）',
                 params: [
                     { name: 'serverUrl', type: 'string' },
                     { name: 'reconnect', type: 'boolean' },
                     { name: 'timeout', type: 'number' },
                 ],
-                returns: 'socketIOClient',
+                returns: 'socketIoClient',
             },
             {
                 name: 'connect',
@@ -2890,7 +3235,7 @@ export const apiData: Record<string, GlobalDef> = {
                 description: '监听事件\n@param eventName \n@param callback',
                 params: [
                     { name: 'eventName', type: 'string' },
-                    { name: 'callback', type: '(data: string)' },
+                    { name: 'callback', type: '(data: string) => void' },
                 ],
                 returns: 'void',
             },
@@ -2899,7 +3244,7 @@ export const apiData: Record<string, GlobalDef> = {
                 description: '移除事件监听器\n@param eventName \n@param callback',
                 params: [
                     { name: 'eventName', type: 'string' },
-                    { name: 'callback', type: '(data: string)' },
+                    { name: 'callback', type: '(data: string) => void' },
                 ],
                 returns: 'void',
             },
@@ -3271,6 +3616,116 @@ export const apiData: Record<string, GlobalDef> = {
         ],
         funcReturns: '',
     },
+    'TextAndRegion': {
+        kind: 'object',
+        description: '',
+        methods: [
+        ],
+        properties: [
+            { name: 'text', type: 'string', description: '' },
+            { name: 'rect', type: 'Rect', description: '' },
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+        typeOnly: true,
+    },
+    'ThreadWrapper': {
+        kind: 'object',
+        description: '',
+        methods: [
+            {
+                name: 'start',
+                description: '启动线程',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'join',
+                description: '等待线程任务完成\n@throws InterruptedException 如果等待过程中线程被中断',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'join',
+                description: '等待线程任务完成，最多等待指定的毫秒数\n@param millis 最多等待的毫秒数\n@throws InterruptedException 如果等待过程中线程被中断',
+                params: [
+                    { name: 'millis', type: 'number' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'interrupt',
+                description: '中断线程',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'isAlive',
+                description: '检查线程是否存活\n@returns 如果线程正在运行返回true，否则返回false',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'isInterrupted',
+                description: '检查线程是否被中断\n@returns 如果线程被中断返回true，否则返回false',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'setName',
+                description: '设置线程名称\n@param name 线程名称',
+                params: [
+                    { name: 'name', type: 'string' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'getName',
+                description: '获取线程名称\n@returns 线程名称',
+                params: [
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'setPriority',
+                description: '设置线程优先级\n@param priority 线程优先级（1-10），数字越大优先级越高',
+                params: [
+                    { name: 'priority', type: 'number' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'getPriority',
+                description: '获取线程优先级\n@returns 线程优先级（1-10）',
+                params: [
+                ],
+                returns: 'number',
+            },
+            {
+                name: 'getThread',
+                description: '获取底层的Java Thread对象（通常不需要使用）\n@returns Java Thread对象',
+                params: [
+                ],
+                returns: 'any',
+            },
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+        typeOnly: true,
+    },
     'Threads': {
         kind: 'object',
         description: '',
@@ -3279,7 +3734,7 @@ export const apiData: Record<string, GlobalDef> = {
                 name: 'create',
                 description: '创建一个新线程并执行指定的任务\n@param runnable 要执行的任务，可以是函数或包含run方法的对象\n@returns 返回ThreadWrapper对象，用于管理创建的线程',
                 params: [
-                    { name: 'runnable', type: '(() => void) | { run: ()' },
+                    { name: 'runnable', type: '(() => void) | { run: () => void }' },
                 ],
                 returns: 'ThreadWrapper',
             },
@@ -3313,6 +3768,285 @@ export const apiData: Record<string, GlobalDef> = {
         funcParams: [
         ],
         funcReturns: '',
+    },
+    'UiObject': {
+        kind: 'object',
+        description: '',
+        methods: [
+            {
+                name: 'click',
+                description: '点击控件',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'longClick',
+                description: '长按控件',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'scrollForward',
+                description: '向前滚动控件（手指向下或者向右移动）',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'scrollBackward',
+                description: '向后滚动控件（手指往上或者往左移动）',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'setSelection',
+                description: '选中文本\n@param start 起始位置 \n@param end  结束位置',
+                params: [
+                    { name: 'start', type: 'number' },
+                    { name: 'end', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'copy',
+                description: '复制控制内容，结合setSelection使用',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'cut',
+                description: '剪切控件内容，结合setSelection使用',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'paste',
+                description: '粘贴内容到文本框',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'focus',
+                description: '让控件获取焦点',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'setText',
+                description: '给文本框输入内容\n@param text 文本内容',
+                params: [
+                    { name: 'text', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'find',
+                description: '在当前控件或者所有子控件中查找某些控件\n如果使用了children() 方法，则只搜索子控件\n@param obj 搜索条件',
+                params: [
+                    { name: 'obj', type: 'UiSelector' },
+                ],
+                returns: 'UiObject[]',
+            },
+            {
+                name: 'findOne',
+                description: '在当前控件或者所有子控件中查找某个控件\n如果使用了children() 方法，则只搜索子控件\n@param obj 搜索条件',
+                params: [
+                    { name: 'obj', type: 'UiSelector' },
+                ],
+                returns: 'UiObject',
+            },
+            {
+                name: 'bounds',
+                description: '获取控件的位置',
+                params: [
+                ],
+                returns: 'Rect',
+            },
+            {
+                name: 'text',
+                description: '获取控件的文本内容',
+                params: [
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'desc',
+                description: '获取控件的描述内容',
+                params: [
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'id',
+                description: '获取控件的id',
+                params: [
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'children',
+                description: '获取当前控件的子控件',
+                params: [
+                ],
+                returns: 'this',
+            },
+            {
+                name: 'length',
+                description: '获取当前控件的子控件数量，必须在children() 方法之后调用',
+                params: [
+                ],
+                returns: 'number',
+            },
+            {
+                name: 'getChildCount',
+                description: '获取子控件数量',
+                params: [
+                ],
+                returns: 'number',
+            },
+            {
+                name: 'getChildren',
+                description: '获取子控件',
+                params: [
+                    { name: 'index', type: 'any' },
+                ],
+                returns: 'UiObject',
+            },
+            {
+                name: 'parent',
+                description: '获取父控件',
+                params: [
+                ],
+                returns: 'UiObject',
+            },
+            {
+                name: 'getDrawingOrder',
+                description: '获取控件的绘制顺序',
+                params: [
+                ],
+                returns: 'number',
+            },
+            {
+                name: 'isSelected',
+                description: '判断控件是否被选中',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'isClickable',
+                description: '判断控件是否可以点击',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'isLongClickable',
+                description: '判断控件是否可以长按',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'isCheckable',
+                description: '判断控件是否可以选中',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'isChecked',
+                description: '判断控件是否被选中',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'isEnabled',
+                description: '判断控件是否可用',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'isFocusable',
+                description: '判断控件是否获得焦点',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'isFocused',
+                description: '获取控件是否获得焦点',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'isScrollable',
+                description: '判断控件是否可以滚动',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'isVisibleToUser',
+                description: '判断控件是否对用户可见',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'isEditable',
+                description: '判断控件是否可以编辑',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'isPassword',
+                description: '判断控件是否是密码控件',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'className',
+                description: '获取控件的className',
+                params: [
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'getPackageName',
+                description: '获取控件的包名',
+                params: [
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'getHintText',
+                description: '获取控件的提示文本',
+                params: [
+                ],
+                returns: 'string',
+            },
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+        typeOnly: true,
     },
     'UiSelector': {
         kind: 'class',
@@ -3478,10 +4212,10 @@ export const apiData: Record<string, GlobalDef> = {
                 name: 'bounds',
                 description: '@param left 左边距 整数\n@param top  上边距  整数\n@param right 右边距  整数\n@param bottom 下边距  整数',
                 params: [
-                    { name: 'left', type: 'Number' },
-                    { name: 'top', type: 'Number' },
-                    { name: 'right', type: 'Number' },
-                    { name: 'bottom', type: 'Number' },
+                    { name: 'left', type: 'number' },
+                    { name: 'top', type: 'number' },
+                    { name: 'right', type: 'number' },
+                    { name: 'bottom', type: 'number' },
                 ],
                 returns: 'UiSelector',
             },
@@ -3577,7 +4311,7 @@ export const apiData: Record<string, GlobalDef> = {
                 name: 'filter',
                 description: '@param filter 过滤控件，回调函数，返回true表示符合条件，返回false表示不符合条件',
                 params: [
-                    { name: 'filter', type: '(v: UiObject)' },
+                    { name: 'filter', type: '(v: UiObject) => boolean' },
                 ],
                 returns: 'UiSelector',
             },
@@ -3614,7 +4348,7 @@ export const apiData: Record<string, GlobalDef> = {
                 name: 'findBy',
                 description: '查找某个控件选择器，在timeout时间内，如果找不到，则返回null；如果找到立马返回\n@param timeout 查找时间（毫秒数）',
                 params: [
-                    { name: 'timeout', type: 'Number' },
+                    { name: 'timeout', type: 'number' },
                 ],
                 returns: 'UiObject[]',
             },
@@ -3644,7 +4378,7 @@ export const apiData: Record<string, GlobalDef> = {
                 name: 'findOneBy',
                 description: '查找某个控件选择器，在timeout时间内，如果找不到，则返回null；如果找到立马返回\n@param timeout 查找时间（毫秒数）',
                 params: [
-                    { name: 'timeout', type: 'Number' },
+                    { name: 'timeout', type: 'number' },
                 ],
                 returns: 'UiObject',
             },
@@ -3657,6 +4391,209 @@ export const apiData: Record<string, GlobalDef> = {
             { name: 'simpleMode', type: 'boolean', optional: true },
         ],
         funcReturns: 'UiSelector',
+    },
+    'WebSocket': {
+        kind: 'object',
+        description: '',
+        methods: [
+            {
+                name: 'closeAll',
+                description: '',
+                params: [
+                ],
+                returns: 'void',
+            },
+        ],
+        properties: [
+        ],
+        constructorParams: [
+            { name: 'url', type: 'string' },
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+    },
+    'access': {
+        kind: 'object',
+        description: '',
+        methods: [
+            {
+                name: 'isAccessibilityServiceEnabled',
+                description: '是否开启了无障碍权限',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'isFloatWindowsEnabled',
+                description: '是否开启了悬浮窗权限',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'isBackgroundAlertEnabled',
+                description: '是否开启了后台弹窗权限',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'isMediaProjectionEnable',
+                description: '是否开启了截图录屏权限',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'openAccessibilityServiceSetting',
+                description: '开启了无障碍权限设置界面',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'openFloatWindowsSetting',
+                description: '开启了悬浮窗权限设置界面',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'openBackgroundAlertSetting',
+                description: '开启了后台弹窗权限设置界面',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'openMediaProjectionSetting',
+                description: '开启了截图录屏权限设置界面',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'requestNotificationAccess',
+                description: '进入通知权限设置界面（用户可以开启通知权限）',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'hasNotificationAccess',
+                description: '是否开启读取通知权限',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'hasMediaReadPermission',
+                description: '检查是否有媒体库读取权限（图片、视频）\n@return true 如果有权限',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'requestMediaPermissions',
+                description: '申请媒体库权限（统一接口，自动处理各Android版本差异）\n\n权限说明：\n- Android 13+: 请求 READ_MEDIA_IMAGES 和 READ_MEDIA_VIDEO\n- Android 10-12: 请求 READ_EXTERNAL_STORAGE\n- Android 9-: 请求 READ_EXTERNAL_STORAGE 和 WRITE_EXTERNAL_STORAGE\n\n注意：这是异步操作，不会阻塞',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'openPermissionSettings',
+                description: '打开应用权限设置页面',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'isMediaPermissionPermanentlyDenied',
+                description: '检查媒体权限是否被永久拒绝（用户选择了"不再询问"）\n\n如果返回true，说明用户之前拒绝过权限并选择了"不再询问"，\n系统不会再弹出权限对话框，需要引导用户去设置页面手动开启\n\n@return true 如果权限被永久拒绝',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'hasStoragePermission',
+                description: '检查是否有文件存储权限（适配Android 8及以上版本）\n\n权限说明：\n- Android 11+: 检查 MANAGE_EXTERNAL_STORAGE 权限（需要用户手动在设置中开启）\n- Android 8-10: 检查 READ_EXTERNAL_STORAGE 和 WRITE_EXTERNAL_STORAGE 权限\n\n@return true 如果有权限',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'requestStoragePermission',
+                description: '申请文件存储权限（适配Android 8及以上版本）\n\n权限说明：\n- Android 11+: 引导用户去设置页面手动开启 MANAGE_EXTERNAL_STORAGE 权限\n- Android 8-10: 请求 READ_EXTERNAL_STORAGE 和 WRITE_EXTERNAL_STORAGE 权限\n\n注意：这是异步操作，不会阻塞\n如果用户禁用了权限，需要调用 isStoragePermissionPermanentlyDenied() 检查是否被永久拒绝',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'isStoragePermissionPermanentlyDenied',
+                description: '检查文件存储权限是否被永久拒绝（用户选择了"不再询问"或禁用了权限）\n\n权限说明：\n- Android 11+: 检查 MANAGE_EXTERNAL_STORAGE 权限状态\n- Android 8-10: 检查 READ_EXTERNAL_STORAGE 和 WRITE_EXTERNAL_STORAGE 是否被永久拒绝\n\n如果返回true，说明用户之前拒绝过权限并选择了"不再询问"，\n或者用户禁用了权限，系统不会再弹出权限对话框，需要引导用户去设置页面手动开启\n\n@return true 如果权限被永久拒绝或禁用',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'hasLocationPermission',
+                description: '检查是否有位置权限\n\n权限说明：\n- 检查 ACCESS_FINE_LOCATION（精确定位）或 ACCESS_COARSE_LOCATION（粗略定位）权限\n- 如果授予了 ACCESS_FINE_LOCATION，则自动拥有 ACCESS_COARSE_LOCATION 权限\n\n@return true 如果有权限',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'requestLocationPermissions',
+                description: '申请位置权限\n\n权限说明：\n- 优先请求 ACCESS_FINE_LOCATION（精确定位）\n- 如果用户拒绝了精确定位，系统可能降级为 ACCESS_COARSE_LOCATION（粗略定位）\n\n注意：这是异步操作，不会阻塞\n如果用户禁用了权限，需要调用 isLocationPermissionPermanentlyDenied() 检查是否被永久拒绝',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'isLocationPermissionPermanentlyDenied',
+                description: '检查位置权限是否被永久拒绝（用户选择了"不再询问"）\n\n如果返回true，说明用户之前拒绝过权限并选择了"不再询问"，\n系统不会再弹出权限对话框，需要引导用户去设置页面手动开启\n\n@return true 如果权限被永久拒绝',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'hasBluetoothConnectionPermission',
+                description: '检查是否有蓝牙连接权限（Android 12+ 需要 BLUETOOTH_CONNECT）\nAndroid 12 以下始终返回 true',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'requestBluetoothConnectionPermission',
+                description: '申请蓝牙连接权限（BLUETOOTH_CONNECT + BLUETOOTH_SCAN）\nAndroid 12 以下无需申请\n注意：这是异步操作',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'isBluetoothPermissionPermanentlyDenied',
+                description: '检查蓝牙权限是否被永久拒绝（用户选择了"不再询问"）\n\n如果返回true，需要引导用户去设置页面手动开启',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'openBluetoothPermissionSettings',
+                description: '打开蓝牙权限设置页面（跳转到应用详情设置页）',
+                params: [
+                ],
+                returns: 'void',
+            },
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+        typeOnly: true,
     },
     'console': {
         kind: 'object',
@@ -3917,6 +4854,774 @@ export const apiData: Record<string, GlobalDef> = {
         ],
         funcReturns: '',
     },
+    'files': {
+        kind: 'object',
+        description: '',
+        methods: [
+            {
+                name: 'read',
+                description: '读取文件内容\n@param path 文件路径\n@return 文件内容，如果失败返回null',
+                params: [
+                    { name: 'path', type: 'string' },
+                ],
+                returns: 'string | null',
+            },
+            {
+                name: 'write',
+                description: '写入内容到文件\n@param path 文件路径\n@param content 要写入的内容\n@return 成功返回true，失败返回false',
+                params: [
+                    { name: 'path', type: 'string' },
+                    { name: 'content', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'append',
+                description: '追加内容到文件\n@param path 文件路径\n@param content 要追加的内容\n@return 成功返回true，失败返回false',
+                params: [
+                    { name: 'path', type: 'string' },
+                    { name: 'content', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'delete',
+                description: '删除文件或目录\n@param path 文件或目录路径\n@return 成功返回true，失败返回false',
+                params: [
+                    { name: 'path', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'exists',
+                description: '检查文件或目录是否存在\n@param path 文件或目录路径\n@return 存在返回true，不存在返回false',
+                params: [
+                    { name: 'path', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'mkdirs',
+                description: '创建目录（包括父目录）\n@param path 目录路径\n@return 成功返回true，失败返回false',
+                params: [
+                    { name: 'path', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'list',
+                description: '列出目录中的文件\n@param path 目录路径\n@return 文件名数组',
+                params: [
+                    { name: 'path', type: 'string' },
+                ],
+                returns: 'string[]',
+            },
+            {
+                name: 'listFiles',
+                description: '列出目录中的文件（包含完整路径）\n@param path 目录路径\n@return 文件完整路径数组',
+                params: [
+                    { name: 'path', type: 'string' },
+                ],
+                returns: 'string[]',
+            },
+            {
+                name: 'copy',
+                description: '复制文件\n@param source 源文件路径\n@param destination 目标文件路径\n@return 成功返回true，失败返回false',
+                params: [
+                    { name: 'source', type: 'string' },
+                    { name: 'destination', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'move',
+                description: '移动文件\n@param source 源文件路径\n@param destination 目标文件路径\n@return 成功返回true，失败返回false',
+                params: [
+                    { name: 'source', type: 'string' },
+                    { name: 'destination', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'size',
+                description: '获取文件大小（字节）\n@param path 文件路径\n@return 文件大小（字节），如果文件不存在或为目录返回-1',
+                params: [
+                    { name: 'path', type: 'string' },
+                ],
+                returns: 'number',
+            },
+            {
+                name: 'isDirectory',
+                description: '检查路径是否为目录\n@param path 路径\n@return 是目录返回true，否则返回false',
+                params: [
+                    { name: 'path', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'isFile',
+                description: '检查路径是否为文件\n@param path 路径\n@return 是文件返回true，否则返回false',
+                params: [
+                    { name: 'path', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'getName',
+                description: '获取文件名\n@param path 文件路径\n@return 文件名',
+                params: [
+                    { name: 'path', type: 'string' },
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'getParent',
+                description: '获取父目录路径\n@param path 文件路径\n@return 父目录路径',
+                params: [
+                    { name: 'path', type: 'string' },
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'getAbsolutePath',
+                description: '获取绝对路径\n@param path 文件路径\n@return 绝对路径',
+                params: [
+                    { name: 'path', type: 'string' },
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'rename',
+                description: '重命名文件或目录\n@param oldPath 旧路径\n@param newPath 新路径\n@return 成功返回true，失败返回false',
+                params: [
+                    { name: 'oldPath', type: 'string' },
+                    { name: 'newPath', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'lastModified',
+                description: '获取最后修改时间\n@param path 文件路径\n@return 最后修改时间（毫秒），如果文件不存在返回-1',
+                params: [
+                    { name: 'path', type: 'string' },
+                ],
+                returns: 'number',
+            },
+            {
+                name: 'readUri',
+                description: '从URI读取内容（支持content://和file://等URI）\n@param uriString URI字符串\n@return 内容，如果失败返回null',
+                params: [
+                    { name: 'uriString', type: 'string' },
+                ],
+                returns: 'string | null',
+            },
+            {
+                name: 'readBytesFromUri',
+                description: '从URI读取字节数组（支持content://和file://等URI，用于读取图片等二进制文件）\n@param uriString URI字符串\n@return 字节数组，如果失败返回null',
+                params: [
+                    { name: 'uriString', type: 'string' },
+                ],
+                returns: 'number[] | null',
+            },
+            {
+                name: 'getPathFromUri',
+                description: '从content URI获取真实文件路径\n@param uriString content URI字符串\n@return 真实文件路径，如果失败返回null',
+                params: [
+                    { name: 'uriString', type: 'string' },
+                ],
+                returns: 'string | null',
+            },
+            {
+                name: 'readBytes',
+                description: '从文件读取字节数组\n@param path 文件路径\n@return 字节数组，如果失败返回null',
+                params: [
+                    { name: 'path', type: 'string' },
+                ],
+                returns: 'number[] | null',
+            },
+            {
+                name: 'writeBytes',
+                description: '写入字节数组到文件\n@param path 文件路径\n@param bytes 要写入的字节数组\n@return 成功返回true，失败返回false',
+                params: [
+                    { name: 'path', type: 'string' },
+                    { name: 'bytes', type: 'number[]' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'copyFromUri',
+                description: '从URI复制文件到目标路径\n@param uriString 源URI字符串\n@param destination 目标文件路径\n@return 成功返回true，失败返回false',
+                params: [
+                    { name: 'uriString', type: 'string' },
+                    { name: 'destination', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'getExternalStoragePath',
+                description: '获取外部存储根目录路径\n@return 外部存储路径',
+                params: [
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'getFilesPath',
+                description: '获取应用私有文件目录路径\n@return 文件目录路径',
+                params: [
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'getCachePath',
+                description: '获取应用缓存目录路径\n@return 缓存目录路径',
+                params: [
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'getExternalFilesPath',
+                description: '获取应用外部私有文件目录路径\n@param type 文件目录类型（如"Pictures"、"Documents"），null表示根目录\n@return 外部文件目录路径',
+                params: [
+                    { name: 'type', type: 'string | null' },
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'getExternalFilesPath',
+                description: '获取应用外部私有文件根目录路径\n@return 外部文件目录路径',
+                params: [
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'getDownloadPath',
+                description: '获取Download目录路径\n@return Download目录路径',
+                params: [
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'getPicturesPath',
+                description: '获取Pictures目录路径\n@return Pictures目录路径',
+                params: [
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'getDCIMPath',
+                description: '获取DCIM目录路径\n@return DCIM目录路径',
+                params: [
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'getMoviesPath',
+                description: '获取Movies目录路径\n@return Movies目录路径',
+                params: [
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'getMusicPath',
+                description: '获取Music目录路径\n@return Music目录路径',
+                params: [
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'getDocumentsPath',
+                description: '获取Documents目录路径\n@return Documents目录路径',
+                params: [
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'readAsset',
+                description: '从assets读取文件\n@param fileName assets目录中的文件名\n@return 文件内容，如果失败返回null',
+                params: [
+                    { name: 'fileName', type: 'string' },
+                ],
+                returns: 'string | null',
+            },
+            {
+                name: 'isExternalStorageWritable',
+                description: '检查外部存储是否可用且可写\n@return 可用且可写返回true，否则返回false',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'isExternalStorageReadable',
+                description: '检查外部存储是否可读\n@return 可读返回true，否则返回false',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'getExtension',
+                description: '获取文件扩展名\n@param path 文件路径\n@return 文件扩展名（不含点），如果没有扩展名返回空字符串',
+                params: [
+                    { name: 'path', type: 'string' },
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'getNameWithoutExtension',
+                description: '获取不带扩展名的文件名\n@param path 文件路径\n@return 不带扩展名的文件名',
+                params: [
+                    { name: 'path', type: 'string' },
+                ],
+                returns: 'string',
+            },
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+        typeOnly: true,
+    },
+    'foregroundServiceBridge': {
+        kind: 'object',
+        description: '',
+        methods: [
+            {
+                name: 'startService',
+                description: '开启前台服务',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'register',
+                description: '注册执行的方法（启动服务前设置）\n@param register 注册监听',
+                params: [
+                    { name: 'func', type: 'Function' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'setContent',
+                description: '前台服务标题和内容设置（启动服务前设置）\n@param title 前台服务标题\n@param content 前台服务内容',
+                params: [
+                    { name: 'title', type: 'string' },
+                    { name: 'content', type: 'string' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'stopService',
+                description: '关闭服务',
+                params: [
+                ],
+                returns: 'void',
+            },
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+        typeOnly: true,
+    },
+    'hid': {
+        kind: 'object',
+        description: '',
+        methods: [
+            {
+                name: 'swipe',
+                description: '模拟从一个点滑动到另一个点。\n@param x1 起始点X坐标\n@param y1 起始点Y坐标\n@param x2 终点X坐标\n@param y2 终点Y坐标\n@param step 每步移动距离（5-60，默认随机20-51）\n@param downTimeout 按下后等待时间（默认随机100-180ms）\n@param upTimeout 滑动结束后等待抬起时间（默认随机100-180ms）\n@param timeout 每步之间的延迟时间（默认随机8-15ms）\n@param upDownTimes 抬起次数（默认1）\n@returns 是否滑动成功',
+                params: [
+                    { name: 'x1', type: 'number' },
+                    { name: 'y1', type: 'number' },
+                    { name: 'x2', type: 'number' },
+                    { name: 'y2', type: 'number' },
+                    { name: 'step', type: 'number', optional: true },
+                    { name: 'downTimeout', type: 'number', optional: true },
+                    { name: 'upTimeout', type: 'number', optional: true },
+                    { name: 'timeout', type: 'number', optional: true },
+                    { name: 'upDownTimes', type: 'number', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'swipex',
+                description: '使用仿真曲线滑动。\n@param x1 起始点X坐标\n@param y1 起始点Y坐标\n@param x2 终点X坐标\n@param y2 终点Y坐标\n@param radian 弧度大小（默认10-100）\n@param step 每步移动距离（5-60，默认随机20-51）\n@param downTimeout 按下后等待时间（默认随机100-180ms）\n@param upTimeout 滑动结束后等待抬起时间（默认随机100-180ms）\n@param timeout 每步之间的延迟时间（默认随机8-15ms）\n@param upDownTimes 抬起次数（默认1）\n@returns 是否滑动成功',
+                params: [
+                    { name: 'x1', type: 'number' },
+                    { name: 'y1', type: 'number' },
+                    { name: 'x2', type: 'number' },
+                    { name: 'y2', type: 'number' },
+                    { name: 'radian', type: 'number', optional: true },
+                    { name: 'step', type: 'number', optional: true },
+                    { name: 'downTimeout', type: 'number', optional: true },
+                    { name: 'upTimeout', type: 'number', optional: true },
+                    { name: 'timeout', type: 'number', optional: true },
+                    { name: 'upDownTimes', type: 'number', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'getHidZcm',
+                description: '获取服务器HID激活码。\n@returns 激活码字符串\n@throws Error 当蓝牙未初始化时',
+                params: [
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'ver',
+                description: '获取插件版本号。\n@returns 插件版本号',
+                params: [
+                ],
+                returns: 'number',
+            },
+            {
+                name: 'home',
+                description: '模拟按下Home键。\n@returns 是否成功',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'recents',
+                description: '模拟按下任务键。\n@returns 是否成功',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'back',
+                description: '模拟按下返回键。\n@returns 是否成功',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'back1',
+                description: '使用另一种方式模拟按下返回键。\n@returns 是否成功',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'touchDown',
+                description: '模拟手指按下事件。\n@param x X坐标\n@param y Y坐标\n@returns 是否成功',
+                params: [
+                    { name: 'x', type: 'number' },
+                    { name: 'y', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'touchMove',
+                description: '模拟手指移动事件。\n@param x X坐标\n@param y Y坐标\n@returns 是否成功',
+                params: [
+                    { name: 'x', type: 'number' },
+                    { name: 'y', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'touchUp',
+                description: '模拟手指抬起事件。\n@param x X坐标\n@param y Y坐标\n@returns 是否成功',
+                params: [
+                    { name: 'x', type: 'number', optional: true },
+                    { name: 'y', type: 'number', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'touchUp2',
+                description: '模拟手指多次抬起事件。\n@returns 是否成功',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'tap',
+                description: '模拟点击事件。\n@param x X坐标\n@param y Y坐标\n@returns 是否成功',
+                params: [
+                    { name: 'x', type: 'number' },
+                    { name: 'y', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'initBluetooth',
+                description: '初始化蓝牙模块。\n@param ctx 上下文对象\n@returns 是否成功',
+                params: [
+                    { name: 'ctx', type: 'any' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'getName',
+                description: '获取已连接蓝牙设备名称。\n@returns 设备名称',
+                params: [
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'keyDown',
+                description: '模拟按键按下事件。\n@param code 键码\n@returns 是否成功',
+                params: [
+                    { name: 'code', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'keyUp',
+                description: '模拟按键抬起事件。\n@param code 键码\n@returns 是否成功',
+                params: [
+                    { name: 'code', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'keyPress',
+                description: '模拟按键按下和抬起事件。\n@param code 键码\n@returns 是否成功',
+                params: [
+                    { name: 'code', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'keyPress_code',
+                description: '模拟指定键码的按键事件。\n@param code 键码\n@returns 是否成功',
+                params: [
+                    { name: 'code', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'keyDown_code',
+                description: '模拟指定键码的按键按下。\n@param code 键码\n@returns 是否成功',
+                params: [
+                    { name: 'code', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'keyUp_code',
+                description: '模拟指定键码的按键抬起。\n@param code 键码\n@returns 是否成功',
+                params: [
+                    { name: 'code', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'keyUpAll',
+                description: '模拟松开所有按键。\n@returns 是否成功',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'key_select',
+                description: '模拟全选操作。\n@returns 是否成功',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'key_paste',
+                description: '模拟粘贴操作。\n@returns 是否成功',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'key_copy',
+                description: '模拟复制操作。\n@returns 是否成功',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'key_cat',
+                description: '模拟剪切操作。\n@returns 是否成功',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'key_del',
+                description: '模拟退格操作。\n@returns 是否成功',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'key_delete',
+                description: '模拟删除操作。\n@returns 是否成功',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'key_enter',
+                description: '模拟回车操作。\n@returns 是否成功',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'key_num',
+                description: '模拟数字键输入。\n@param n 数字（0-9）\n@returns 是否成功',
+                params: [
+                    { name: 'n', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'key_abc',
+                description: '模拟字母键输入。\n@param n 字母\n@returns 是否成功',
+                params: [
+                    { name: 'n', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'volUp',
+                description: '模拟音量加操作。\n@returns 是否成功',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'volDown',
+                description: '模拟音量减操作。\n@returns 是否成功',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'power',
+                description: '模拟按下电源键。\n@param time 持续时间（可选）\n@returns 是否成功',
+                params: [
+                    { name: 'time', type: 'number', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'reboot',
+                description: '模拟重启设备。\n@returns 是否成功',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'setXY',
+                description: '设置屏幕分辨率。\n@param x 宽度\n@param y 高度\n@returns 是否成功',
+                params: [
+                    { name: 'x', type: 'number' },
+                    { name: 'y', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'reg',
+                description: '注册设备。\n@param key 注册码\n@returns 是否成功',
+                params: [
+                    { name: 'key', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'setRnd',
+                description: '设置点击延时随机数。\n@param x X随机数\n@param y Y随机数\n@returns 是否成功',
+                params: [
+                    { name: 'x', type: 'number' },
+                    { name: 'y', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'setBattery',
+                description: '设置设备电量。\n@param lv 电量百分比\n@returns 是否成功',
+                params: [
+                    { name: 'lv', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'connect',
+                description: '连接蓝牙设备。\n@param autoconnect 是否自动连接\n@param index 设备索引\n@returns 是否成功',
+                params: [
+                    { name: 'autoconnect', type: 'boolean' },
+                    { name: 'index', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'getConnectedDevices',
+                description: '获取已连接的蓝牙设备。\n@returns 蓝牙设备对象或null',
+                params: [
+                ],
+                returns: 'any',
+            },
+            {
+                name: 'getConnectState',
+                description: '获取蓝牙连接状态。\n@returns 是否已连接',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'sendData',
+                description: '发送数据到蓝牙设备。\n@param str 数据内容\n@returns 是否成功',
+                params: [
+                    { name: 'str', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'sendDataAwait',
+                description: '发送数据并等待响应。\n@param str 数据内容\n@param time 等待时间（毫秒）\n@returns 是否成功',
+                params: [
+                    { name: 'str', type: 'string' },
+                    { name: 'time', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'getData',
+                description: '获取接收到的数据。\n@param time 等待时间（可选）\n@returns 返回数据',
+                params: [
+                    { name: 'time', type: 'number', optional: true },
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'waitFor',
+                description: '等待数据响应。\n@param time 最大等待时间（毫秒，可选）\n@param sleep 检查间隔（毫秒，可选）\n@returns 返回数据或超时信息',
+                params: [
+                    { name: 'time', type: 'number', optional: true },
+                    { name: 'sleep', type: 'number', optional: true },
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'disconnect',
+                description: '断开蓝牙连接。\n@returns 是否成功',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+        typeOnly: true,
+    },
     'java': {
         kind: 'object',
         description: '',
@@ -3929,5 +5634,394 @@ export const apiData: Record<string, GlobalDef> = {
         funcParams: [
         ],
         funcReturns: 'any',
+    },
+    'log': {
+        kind: 'object',
+        description: '',
+        methods: [
+            {
+                name: 'setFile',
+                description: '全局设置日志输出文件',
+                params: [
+                    { name: 'filename', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'log',
+                description: '输出日志内容',
+                params: [
+                    { name: 'obj', type: 'object', rest: true },
+                ],
+                returns: 'void',
+            },
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+        typeOnly: true,
+    },
+    'notificationBridge': {
+        kind: 'object',
+        description: '',
+        methods: [
+            {
+                name: 'startService',
+                description: '开启读取通知服务',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'startListening',
+                description: '监听通知\n@param onNotification 通知发起后执行 @argument packageName 包名 @argument title 标题 @argument text 内容\n@param onNotificationRemoved 通知移除后执行 @argument packageName 包名 @argument title 标题 @argument text 内容',
+                params: [
+                    { name: 'onNotification', type: '(packageName: string, title: string, text: string) => void,\n        onNotificationRemoved: (packageName: string' },
+                    { name: 'title', type: 'string' },
+                    { name: 'text', type: 'string) => void' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'stopService',
+                description: '关闭服务',
+                params: [
+                ],
+                returns: 'void',
+            },
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+        typeOnly: true,
+    },
+    'socketIoClient': {
+        kind: 'object',
+        description: '',
+        methods: [
+            {
+                name: 'getInstance',
+                description: '获取socketIoClient实例\n@param serverUrl  socketIOServer地址\n@param reconnect  是否自动重连（默认为true）\n@param timeout  重连超时时间（毫秒）（默认为5000毫秒）',
+                params: [
+                    { name: 'serverUrl', type: 'string' },
+                    { name: 'reconnect', type: 'boolean' },
+                    { name: 'timeout', type: 'number' },
+                ],
+                returns: 'socketIoClient',
+            },
+            {
+                name: 'connect',
+                description: '连接socketIOServer',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'disconnect',
+                description: '断开socketIOServer',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'isConnected',
+                description: '是否已连接',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'emit',
+                description: '向服务器发送事件和数据\n@param eventName  事件名称\n@param data  数据',
+                params: [
+                    { name: 'eventName', type: 'string' },
+                    { name: 'data', type: 'string' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'emit',
+                description: '向服务器发送事件和数据\n@param eventName 事件名称\n@param data 数据\n@param callback 服务器确认后的回调函数',
+                params: [
+                    { name: 'eventName', type: 'string' },
+                    { name: 'data', type: 'string' },
+                    { name: 'callback', type: 'function' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'on',
+                description: '监听事件\n@param eventName \n@param callback',
+                params: [
+                    { name: 'eventName', type: 'string' },
+                    { name: 'callback', type: '(data: string) => void' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'off',
+                description: '移除事件监听器\n@param eventName \n@param callback',
+                params: [
+                    { name: 'eventName', type: 'string' },
+                    { name: 'callback', type: '(data: string) => void' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'off',
+                description: '移除事件监听器\n@param eventName',
+                params: [
+                    { name: 'eventName', type: 'string' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'off',
+                description: '移除所有事件监听器',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'setReconnect',
+                description: '重置当前实例的是否重连\n@param bool 是否自动重连',
+                params: [
+                    { name: 'bool', type: 'boolean' },
+                ],
+                returns: 'void',
+            },
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+        typeOnly: true,
+    },
+    'storage': {
+        kind: 'object',
+        description: '',
+        methods: [
+            {
+                name: 'create',
+                description: '创建存储实例  全局使用一个即可\n@param db 数据库名称\n@return 返回当前实例，如果已存在则直接返回',
+                params: [
+                    { name: 'db', type: 'string' },
+                ],
+                returns: 'storage',
+            },
+            {
+                name: 'put',
+                description: '设置字符串\n@param key 键\n@param value 值',
+                params: [
+                    { name: 'key', type: 'string' },
+                    { name: 'value', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'putInteger',
+                description: '设置整型值\n@param key 键\n@param value 值',
+                params: [
+                    { name: 'key', type: 'string' },
+                    { name: 'value', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'putBoolean',
+                description: '设置bool\n@param key 键\n@param value 值',
+                params: [
+                    { name: 'key', type: 'string' },
+                    { name: 'value', type: 'boolean' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'putDouble',
+                description: '设置双精度值\n@param key 键\n@param value 值',
+                params: [
+                    { name: 'key', type: 'string' },
+                    { name: 'value', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'putObj',
+                description: '设置对象\n@param key 键\n@param obj 值',
+                params: [
+                    { name: 'key', type: 'string' },
+                    { name: 'obj', type: 'object' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'putArray',
+                description: '设置集合（字符串）\n@param key 键\n@param set 值',
+                params: [
+                    { name: 'key', type: 'string' },
+                    { name: 'arr', type: 'Array' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'getArray',
+                description: '获取集合（字符串）\n@param key 键',
+                params: [
+                    { name: 'key', type: 'string' },
+                ],
+                returns: 'Array',
+            },
+            {
+                name: 'get',
+                description: '获取字符串\n@param key 键',
+                params: [
+                    { name: 'key', type: 'string' },
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'getString',
+                description: '获取字符串\n@param key 键',
+                params: [
+                    { name: 'key', type: 'string' },
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'getBoolean',
+                description: '获取bool类型的值\n@param key 键',
+                params: [
+                    { name: 'key', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'getDouble',
+                description: '获取Double类型的值\n@param key 键',
+                params: [
+                    { name: 'key', type: 'string' },
+                ],
+                returns: 'number',
+            },
+            {
+                name: 'getInteger',
+                description: '获取整型类型的值\n@param key 键',
+                params: [
+                    { name: 'key', type: 'string' },
+                ],
+                returns: 'number',
+            },
+            {
+                name: 'getObj',
+                description: '获取对象类型的值\n@param key 键',
+                params: [
+                    { name: 'key', type: 'string' },
+                ],
+                returns: 'object',
+            },
+            {
+                name: 'remove',
+                description: '移除某个键\n@param key 键\n@return 返回Promise，实际使用时通过blockingSubscribe()或toCompletionStage()来获取结果',
+                params: [
+                    { name: 'key', type: 'string' },
+                ],
+                returns: 'any',
+            },
+            {
+                name: 'clear',
+                description: '清空所有值\n@return 返回Promise，实际使用时通过blockingSubscribe()或toCompletionStage()来获取结果',
+                params: [
+                ],
+                returns: 'any',
+            },
+            {
+                name: 'contains',
+                description: '判断是否包含键为key的数据\n@param key 键\n@return 返回boolean，表示是否存在该键',
+                params: [
+                    { name: 'key', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+        typeOnly: true,
+    },
+    'webSocket': {
+        kind: 'object',
+        description: '',
+        methods: [
+            {
+                name: 'onOpen',
+                description: '静态关闭所有连接 */\n    static closeAll(): void;\n\n    /**\n连接成功',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'onMessage',
+                description: '消息通知\n@param data',
+                params: [
+                    { name: 'data', type: 'string' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'onClose',
+                description: '连接关闭\n@param code \n@param reason',
+                params: [
+                    { name: 'code', type: 'number' },
+                    { name: 'reason', type: 'string' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'onError',
+                description: '连接出错\n@param errorMsg',
+                params: [
+                    { name: 'errorMsg', type: 'string' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'send',
+                description: '发送数据\n@param data',
+                params: [
+                    { name: 'data', type: 'string' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'close',
+                description: '关闭当前连接',
+                params: [
+                ],
+                returns: 'void',
+            },
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+        typeOnly: true,
     },
 };

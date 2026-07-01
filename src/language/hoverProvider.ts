@@ -117,9 +117,9 @@ export const hoverProvider: vscode.HoverProvider = {
             return undefined;
         }
 
-        // Check if it's a global API name
+        // Check if it's a global API name (skip type-only entries — they aren't globals)
         const def = apiData[word];
-        if (def) {
+        if (def && !def.typeOnly) {
             const content = buildGlobalHover(def, word);
             return new vscode.Hover(content, wordRange);
         }

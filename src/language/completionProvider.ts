@@ -2,6 +2,8 @@ import * as vscode from 'vscode';
 import { apiData, GlobalDef, MethodDef } from './apiData';
 import { isDeekeScriptProject } from './utils';
 
+console.log('[DeekeScript] completionProvider module loaded');
+
 /** Build a signature string like "launch(packageName: string): void" */
 function buildSignature(method: MethodDef): string {
     const params = method.params.map(p => {
@@ -78,6 +80,57 @@ function buildDocumentation(arg: GlobalDef | MethodDef, globalName?: string): vs
     return md;
 }
 
+/**
+ * Resolve the type of an arbitrary expression by adding a dummy member access
+ * and delegating to resolveDotContext. Returns the type name or null.
+ */
+function resolveExpressionType(expr: string, document?: vscode.TextDocument, beforeLine?: number): string | null {
+    expr = expr.replace(/;+\s*$/, '').trim();
+    if (!expr) return null;
+    return resolveDotContext(expr + '.', document, beforeLine);
+}
+
+/**
+ * Search the document backwards from the current line for an assignment to
+ * `varName` (let/var/const or bare assignment) and resolve the RHS type.
+ */
+export function findVariableType(document: vscode.TextDocument, varName: string, beforeLine: number): string | null {
+    console.log('[DeekeScript] findVariableType looking for:', varName, 'beforeLine:', beforeLine);
+    // Search backwards from the current line
+    for (let lineNum = beforeLine; lineNum >= 0; lineNum--) {
+        const line = document.lineAt(lineNum).text;
+        console.log('[DeekeScript]   line', lineNum, ':', line);
+
+        // let/var/const name[: Type] = RHS — capture everything after '='
+        const declMatch = line.match(new RegExp(`(?:let|var|const)\\s+${escapeRegExp(varName)}\\s*(?::\\s*[^=]+)?\\s*=\\s*(.+)$`));
+        if (declMatch) {
+            // Strip trailing semicolons and whitespace
+            const rhs = declMatch[1].replace(/;+\s*$/, '').trim();
+            console.log('[DeekeScript]   decl RHS:', rhs);
+            const type = resolveExpressionType(rhs, document, beforeLine);
+            console.log('[DeekeScript]   resolveExpressionType:', type);
+            if (type) return type;
+        }
+
+        // Bare reassignment: name = RHS
+        const assignMatch = line.match(new RegExp(`^\\s*${escapeRegExp(varName)}\\s*=\\s*(.+)$`));
+        if (assignMatch) {
+            const rhs = assignMatch[1].replace(/;+\s*$/, '').trim();
+            console.log('[DeekeScript]   assign RHS:', rhs);
+            const type = resolveExpressionType(rhs, document, beforeLine);
+            console.log('[DeekeScript]   resolveExpressionType:', type);
+            if (type) return type;
+        }
+    }
+    console.log('[DeekeScript] findVariableType: no match found');
+    return null;
+}
+
+/** Escape special regex characters in a string */
+function escapeRegExp(s: string): string {
+    return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 export const completionProvider: vscode.CompletionItemProvider = {
     async provideCompletionItems(
         document: vscode.TextDocument,
@@ -85,15 +138,32 @@ export const completionProvider: vscode.CompletionItemProvider = {
         _token: vscode.CancellationToken,
         context: vscode.CompletionContext
     ): Promise<vscode.CompletionList | undefined> {
-        if (!await isDeekeScriptProject(document)) return undefined;
+        console.log('[DeekeScript] provideCompletionItems triggered, language:', document.languageId);
+        if (!await isDeekeScriptProject(document)) {
+            console.log('[DeekeScript] not a DeekeScript project, skipping');
+            return undefined;
+        }
 
         const lineText = document.lineAt(position.line).text;
         const textBeforeCursor = lineText.slice(0, position.character);
 
         // Check if we're in a member access context (triggered by '.')
-        const dotMatch = resolveDotContext(textBeforeCursor);
+        const dotMatch = resolveDotContext(textBeforeCursor, document, position.line);
         if (dotMatch) {
-            return new vscode.CompletionList(provideMemberCompletions(dotMatch), false);
+            const completions = provideMemberCompletions(dotMatch);
+            if (completions) {
+                return new vscode.CompletionList(completions, false);
+            }
+            // Object name not in apiData — try to resolve it as a local variable
+            const resolvedType = findVariableType(document, dotMatch, position.line);
+            console.log('[DeekeScript] dotMatch:', dotMatch, 'resolvedType:', resolvedType);
+            if (resolvedType) {
+                const varCompletions = provideMemberCompletions(resolvedType);
+                if (varCompletions) {
+                    return new vscode.CompletionList(varCompletions, false);
+                }
+            }
+            return undefined;
         }
 
         // For global scope completions, only trigger on manual invoke or after certain patterns
@@ -120,6 +190,9 @@ function provideGlobalCompletions(filter?: string): vscode.CompletionItem[] {
 
     for (const [name, def] of Object.entries(apiData)) {
         if (filterLower && !name.toLowerCase().startsWith(filterLower)) continue;
+        // Skip type-only entries — they are types referenced by return values,
+        // not global variables that users can access directly.
+        if (def.typeOnly) continue;
 
         const item = new vscode.CompletionItem(name);
         (item as any).label = { label: name, description: 'DeekeScript' };
@@ -163,8 +236,15 @@ function provideGlobalCompletions(filter?: string): vscode.CompletionItem[] {
  *   "Word()."            → returns funcReturns of Word (function call)
  *   "obj.method()."      → returns method.returns (method call chain)
  *   "UiSelector().className('name')." → recursive chain resolution
+ *
+ * When `document` and `beforeLine` are provided, also resolves local variable
+ * types (e.g. `let tag = ... ; tag.` → traces assignment to find the type).
  */
-export function resolveDotContext(textBefore: string): string | null {
+export function resolveDotContext(
+    textBefore: string,
+    document?: vscode.TextDocument,
+    beforeLine?: number
+): string | null {
     if (!textBefore.endsWith('.')) return null;
 
     const beforeDot = textBefore.slice(0, -1).trimEnd();
@@ -197,9 +277,16 @@ export function resolveDotContext(textBefore: string): string | null {
                 const beforeName = beforeParen.slice(0, beforeParen.length - funcName.length).trimEnd();
                 if (beforeName.endsWith('.')) {
                     // Method call chain: resolve parent object type, then look up method return type
-                    const parentType = resolveDotContext(beforeName);
+                    const parentType = resolveDotContext(beforeName, document, beforeLine);
                     if (parentType) {
-                        const parentDef = apiData[parentType];
+                        let parentDef = apiData[parentType];
+                        // Not a known global — try local variable resolution
+                        if (!parentDef && document && beforeLine !== undefined) {
+                            const resolvedType = findVariableType(document, parentType, beforeLine);
+                            if (resolvedType) {
+                                parentDef = apiData[resolvedType];
+                            }
+                        }
                         if (parentDef) {
                             const method = parentDef.methods.find(m => m.name === funcName);
                             if (method && method.returns && method.returns !== 'void') {

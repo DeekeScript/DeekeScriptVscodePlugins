@@ -35,7 +35,10 @@ function generateDtsContent(): string {
                     lines.push(`    ${p.name}: ${p.type};`);
                 }
                 lines.push('}');
-                lines.push(`declare var ${name}: ${name};`);
+                // typeOnly entries are pure types (e.g. UiObject) — not global variables
+                if (!def.typeOnly) {
+                    lines.push(`declare var ${name}: ${name};`);
+                }
                 lines.push('');
                 break;
 

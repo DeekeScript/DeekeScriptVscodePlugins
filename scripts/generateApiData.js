@@ -152,9 +152,10 @@ function parseOneParam(str) {
     }
     let type = str.slice(colonIdx + 1).trim();
 
-    // Strip default values from type (e.g., "boolean = true" → "boolean")
+    // Strip default values from type (e.g., "boolean = true" → "boolean").
+    // Skip "=>" (arrow function return) — the '=' in '=>' is not a default value.
     const eqIdx = findCharAtDepth(type, '=', 0);
-    if (eqIdx !== -1) {
+    if (eqIdx !== -1 && type[eqIdx + 1] !== '>') {
         type = type.slice(0, eqIdx).trim();
     }
 
@@ -336,14 +337,26 @@ function parseDtsFile(filePath) {
     // But keep /** */ blocks
 
     // Parse var declarations: var Name: Type;
-    const varRe = /var\s+(\w+)\s*:\s*(.+?);/g;
-    let m;
-    while ((m = varRe.exec(globalContent)) !== null) {
-        const name = m[1];
-        // Skip if 'name' is a type keyword in TS (just in case)
-        let type = m[2].trim();
-        const jsdoc = extractJsDoc(globalContent.slice(0, m.index));
-        result.globals.push({ name, type, kind: 'var', params: [], returns: '', jsdoc });
+    // Uses manual brace-depth tracking so multi-line inline object types
+    // (e.g. WebSocket) are captured correctly.
+    {
+        const varRe = /var\s+(\w+)\s*:\s*/g;
+        let m;
+        while ((m = varRe.exec(globalContent)) !== null) {
+            const name = m[1];
+            const typeStart = varRe.lastIndex;
+            let depth = 0;
+            let type = '';
+            for (let i = typeStart; i < globalContent.length; i++) {
+                const ch = globalContent[i];
+                if (ch === '{' || ch === '(' || ch === '<') depth++;
+                else if (ch === '}' || ch === ')' || ch === '>') depth--;
+                else if (ch === ';' && depth === 0) break;
+                type += ch;
+            }
+            const jsdoc = extractJsDoc(globalContent.slice(0, m.index));
+            result.globals.push({ name, type: type.trim(), kind: 'var', params: [], returns: '', jsdoc });
+        }
     }
 
     // Parse function declarations: function Name(params): ReturnType;
@@ -610,6 +623,24 @@ function buildApiData() {
         }
     }
 
+    // --- Handle orphan interfaces that are used as types but have no global var ---
+    // e.g., UiObject, Mat, Point, ThreadWrapper — these are return types / param types
+    // referenced by methods but are not standalone global variables.
+    for (const [iname, iface] of Object.entries(allInterfaces)) {
+        if (!apiData[iname]) {
+            apiData[iname] = {
+                kind: 'object',
+                description: iface.jsdoc,
+                methods: iface.methods,
+                properties: iface.properties,
+                constructorParams: [],
+                funcParams: [],
+                funcReturns: '',
+                typeOnly: true
+            };
+        }
+    }
+
     return apiData;
 }
 
@@ -651,6 +682,7 @@ function generateOutput(apiData) {
     out += "    constructorParams: ParamDef[];\n";
     out += "    funcParams: ParamDef[];\n";
     out += "    funcReturns: string;\n";
+    out += "    typeOnly?: boolean;\n";
     out += '}\n';
     out += '\n';
     out += 'export const apiData: Record<string, GlobalDef> = {\n';
@@ -694,6 +726,9 @@ function generateOutput(apiData) {
         }
         out += `        ],\n`;
         out += `        funcReturns: '${tsEscape(def.funcReturns)}',\n`;
+        if (def.typeOnly) {
+            out += `        typeOnly: true,\n`;
+        }
         out += `    },\n`;
     }
 

@@ -5,6 +5,7 @@ import { signatureHelpProvider } from './signatureHelpProvider';
 import { setupWorkspaceTypeChecking } from './workspaceSetup';
 
 export function activateLanguageFeatures(context: vscode.ExtensionContext): void {
+    console.log('[DeekeScript] activateLanguageFeatures called');
     const jsSelector: vscode.DocumentSelector = { language: 'javascript' };
 
     // Disable VS Code's built-in word-based suggestions for JavaScript files.

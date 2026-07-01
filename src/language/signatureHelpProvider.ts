@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { apiData, MethodDef } from './apiData';
 import { isDeekeScriptProject } from './utils';
-import { resolveDotContext } from './completionProvider';
+import { resolveDotContext, findVariableType } from './completionProvider';
 
 function buildSignatureInfo(method: MethodDef, objectName: string, methodName: string): vscode.SignatureInformation {
     const params = method.params.map(p => {
@@ -67,7 +67,7 @@ export const signatureHelpProvider: vscode.SignatureHelpProvider = {
         const textBeforeCursor = lineText.slice(0, position.character);
 
         // Resolve the call target: handles Func(, new Cls(, obj.method(, and chain calls
-        const target = resolveCallTarget(textBeforeCursor);
+        const target = resolveCallTarget(textBeforeCursor, document, position.line);
         if (!target) return undefined;
 
         const { objectType, methodName, isNew } = target;
@@ -151,8 +151,13 @@ export const signatureHelpProvider: vscode.SignatureHelpProvider = {
 /**
  * Resolve the target of a call expression ending with '('.
  * Handles: Func(, new Cls(, obj.method(, Func().method(, chain().a().b(
+ * Also resolves local variable types via findVariableType.
  */
-function resolveCallTarget(textBefore: string): { objectType: string | null, methodName: string, isNew: boolean } | null {
+function resolveCallTarget(
+    textBefore: string,
+    document?: vscode.TextDocument,
+    currentLine?: number
+): { objectType: string | null, methodName: string, isNew: boolean } | null {
     if (!textBefore.endsWith('(')) return null;
 
     // Find the word before the last '('
@@ -170,9 +175,16 @@ function resolveCallTarget(textBefore: string): { objectType: string | null, met
     const beforeNameText = isNew ? beforeWord.slice(0, -3).trimEnd() : beforeWord;
     if (beforeNameText.endsWith('.')) {
         // Resolve the type before the dot
-        const objectType = resolveDotContext(beforeNameText);
-        if (objectType) {
+        let objectType = resolveDotContext(beforeNameText, document, currentLine);
+        if (objectType && apiData[objectType]) {
             return { objectType, methodName, isNew: false };
+        }
+        // Not in apiData — try to resolve as a local variable
+        if (objectType && document && currentLine !== undefined) {
+            const resolvedType = findVariableType(document, objectType, currentLine);
+            if (resolvedType && apiData[resolvedType]) {
+                return { objectType: resolvedType, methodName, isNew: false };
+            }
         }
         return null;
     }
