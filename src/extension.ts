@@ -5,9 +5,13 @@ import Client from './Client';
 import setting from './setting';
 import log, { LogLevel } from './unit/log';
 import { Workspace } from './Workspace';
+import { activateLanguageFeatures } from './language';
 
 export function activate(context: vscode.ExtensionContext) {
 	setting.init(context);//创建日志窗口， 设置extension变量
+
+	// Activate language features (code completion, hover, signature help)
+	activateLanguageFeatures(context);
 
 	// 初始化日志配置，确保在Windows PowerShell等环境中禁用颜色
 	log.setConfig({
