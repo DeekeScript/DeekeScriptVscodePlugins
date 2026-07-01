@@ -134,6 +134,34 @@ async function ensureJsConfig(workspaceFolder: vscode.Uri): Promise<void> {
         existing.compilerOptions.target = 'ES2022';
     }
 
+    // Remove @types/node — DeekeScript runs on Android Rhino, not Node.js.
+    // @types/node (>=22) ships web-globals shims (Storage, WebSocket, etc.)
+    // whose constructor-type declarations conflict with DeekeScript globals.
+    if (existing.compilerOptions.types) {
+        const filtered = existing.compilerOptions.types.filter((t: string) => t !== 'node');
+        if (filtered.length === 0) {
+            delete existing.compilerOptions.types;
+        } else {
+            existing.compilerOptions.types = filtered;
+        }
+    }
+
+    // Remove @deekeScript references — the generated deekeScript.d.ts already
+    // consolidates all DeekeScript type declarations. Including the source .d.ts
+    // files is redundant and can cause name-mismatch conflicts (e.g. Storage.d.ts
+    // declares `var Storage: storage` while deekeScript.d.ts declares `var Storage: Storage`).
+    if (existing.include) {
+        existing.include = existing.include.filter((p: string) => !p.includes('@deekeScript'));
+    }
+
+    // Ensure lib excludes "dom" — browser DOM types declare their own Storage
+    // constructor, which would conflict with the DeekeScript Storage global.
+    if (!existing.compilerOptions.lib) {
+        existing.compilerOptions.lib = ['es2022'];
+    } else if (existing.compilerOptions.lib.includes('dom')) {
+        existing.compilerOptions.lib = existing.compilerOptions.lib.filter((l: string) => l !== 'dom');
+    }
+
     // Include .vscode/ so TypeScript picks up the generated deekeScript.d.ts
     if (!existing.include) {
         existing.include = ['.vscode/*.d.ts', '**/*.js'];
