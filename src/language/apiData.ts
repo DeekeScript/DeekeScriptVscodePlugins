@@ -743,6 +743,89 @@ export const apiData: Record<string, GlobalDef> = {
         funcReturns: '',
         typeOnly: true,
     },
+    'Cos': {
+        kind: 'object',
+        description: '',
+        methods: [
+            {
+                name: 'setConfig',
+                description: '设置腾讯云COS配置，调用此方法后会自动初始化COSClient\n@param secretId 腾讯云SecretId\n@param secretKey 腾讯云SecretKey\n@param region 地域，例如 "ap-guangzhou"\n@param bucket 存储桶名称，例如 "my-bucket-1234567890"',
+                params: [
+                    { name: 'secretId', type: 'string' },
+                    { name: 'secretKey', type: 'string' },
+                    { name: 'region', type: 'string' },
+                    { name: 'bucket', type: 'string' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'upload',
+                description: '同步上传文件到COS（指定cosKey）\n@param localPath 本地文件路径\n@param cosKey COS上的对象键（路径），例如 "images/photo.jpg"\n@returns 返回数组 [url, error]，上传成功时 url 为文件地址且 error 为 null，失败时 url 为 null 且 error 为错误信息',
+                params: [
+                    { name: 'localPath', type: 'string' },
+                    { name: 'cosKey', type: 'string' },
+                ],
+                returns: '[string | null, string | null]',
+            },
+            {
+                name: 'upload',
+                description: '同步上传文件到COS（自动生成cosKey，格式为 uploads/时间戳_文件名）\n@param localPath 本地文件路径\n@returns 返回数组 [url, error]，上传成功时 url 为文件地址且 error 为 null，失败时 url 为 null 且 error 为错误信息',
+                params: [
+                    { name: 'localPath', type: 'string' },
+                ],
+                returns: '[string | null, string | null]',
+            },
+            {
+                name: 'uploadAsync',
+                description: '异步上传文件到COS（指定cosKey）\n@param localPath 本地文件路径\n@param cosKey COS上的对象键（路径）\n@param callback 回调对象 { success: (url) => {}, fail: (error) => {} }',
+                params: [
+                    { name: 'localPath', type: 'string' },
+                    { name: 'cosKey', type: 'string' },
+                    { name: 'callback', type: 'CosCallback' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'uploadAsync',
+                description: '异步上传文件到COS（自动生成cosKey）\n@param localPath 本地文件路径\n@param callback 回调对象 { success: (url) => {}, fail: (error) => {} }',
+                params: [
+                    { name: 'localPath', type: 'string' },
+                    { name: 'callback', type: 'CosCallback' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'shutdown',
+                description: '关闭COSClient，释放资源',
+                params: [
+                ],
+                returns: 'void',
+            },
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+    },
+    'CosCallback': {
+        kind: 'object',
+        description: '',
+        methods: [
+        ],
+        properties: [
+            { name: 'success', type: '(url: string) => void', description: '' },
+            { name: 'fail', type: '(error: string) => void', description: '' },
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+        typeOnly: true,
+    },
     'DeekeBounds': {
         kind: 'object',
         description: '',
@@ -1486,8 +1569,17 @@ export const apiData: Record<string, GlobalDef> = {
                 returns: 'string',
             },
             {
+                name: 'hmac_sha256',
+                description: 'HMAC-SHA256 签名\n@param key 密钥\n@param data 待签名的数据\n@returns 十六进制字符串',
+                params: [
+                    { name: 'key', type: 'string' },
+                    { name: 'data', type: 'string' },
+                ],
+                returns: 'string',
+            },
+            {
                 name: 'aesCbcDecode',
-                description: 'aescbc解密\n@param key \n@param iv \n@param input',
+                description: 'aescbc解密\n@param key\n@param iv\n@param input',
                 params: [
                     { name: 'key', type: 'string' },
                     { name: 'iv', type: 'string' },
@@ -2922,6 +3014,14 @@ export const apiData: Record<string, GlobalDef> = {
                 returns: 'any[]',
             },
             {
+                name: 'getImagesByPath',
+                description: '根据相对目录获取图片\n@param path 相对路径，例如 "/storage/emulated/0/Pictures/WeiXin"、"Pictures/WeiXin"、"DCIM/Camera"、"Screenshots"\n@return JavaScript 数组，包含图片信息对象 {id, name, size, date, relativePath, uri}',
+                params: [
+                    { name: 'path', type: 'string' },
+                ],
+                returns: 'any[]',
+            },
+            {
                 name: 'saveImage',
                 description: '保存图片到相册\n@param sourcePath 源图片路径\n@param displayName 显示名称（可选）\n@param relativePath 相对路径（可选，如 "Pictures/MyApp"）\n@return 保存后的 content:// Uri 字符串，失败返回 null',
                 params: [
@@ -3182,13 +3282,13 @@ export const apiData: Record<string, GlobalDef> = {
         methods: [
             {
                 name: 'getInstance',
-                description: '获取socketIoClient实例\n@param serverUrl  socketIOServer地址\n@param reconnect  是否自动重连（默认为true）\n@param timeout  重连超时时间（毫秒）（默认为5000毫秒）',
+                description: '获取socketIOClient实例\n@param serverUrl  socketIOServer地址\n@param reconnect  是否自动重连（默认为true）\n@param timeout  重连超时时间（毫秒）（默认为5000毫秒）',
                 params: [
                     { name: 'serverUrl', type: 'string' },
                     { name: 'reconnect', type: 'boolean' },
                     { name: 'timeout', type: 'number' },
                 ],
-                returns: 'socketIoClient',
+                returns: 'socketIOClient',
             },
             {
                 name: 'connect',
@@ -4212,10 +4312,10 @@ export const apiData: Record<string, GlobalDef> = {
                 name: 'bounds',
                 description: '@param left 左边距 整数\n@param top  上边距  整数\n@param right 右边距  整数\n@param bottom 下边距  整数',
                 params: [
-                    { name: 'left', type: 'number' },
-                    { name: 'top', type: 'number' },
-                    { name: 'right', type: 'number' },
-                    { name: 'bottom', type: 'number' },
+                    { name: 'left', type: 'Number' },
+                    { name: 'top', type: 'Number' },
+                    { name: 'right', type: 'Number' },
+                    { name: 'bottom', type: 'Number' },
                 ],
                 returns: 'UiSelector',
             },
@@ -4348,7 +4448,7 @@ export const apiData: Record<string, GlobalDef> = {
                 name: 'findBy',
                 description: '查找某个控件选择器，在timeout时间内，如果找不到，则返回null；如果找到立马返回\n@param timeout 查找时间（毫秒数）',
                 params: [
-                    { name: 'timeout', type: 'number' },
+                    { name: 'timeout', type: 'Number' },
                 ],
                 returns: 'UiObject[]',
             },
@@ -4378,7 +4478,7 @@ export const apiData: Record<string, GlobalDef> = {
                 name: 'findOneBy',
                 description: '查找某个控件选择器，在timeout时间内，如果找不到，则返回null；如果找到立马返回\n@param timeout 查找时间（毫秒数）',
                 params: [
-                    { name: 'timeout', type: 'number' },
+                    { name: 'timeout', type: 'Number' },
                 ],
                 returns: 'UiObject',
             },
@@ -5709,13 +5809,13 @@ export const apiData: Record<string, GlobalDef> = {
         methods: [
             {
                 name: 'getInstance',
-                description: '获取socketIoClient实例\n@param serverUrl  socketIOServer地址\n@param reconnect  是否自动重连（默认为true）\n@param timeout  重连超时时间（毫秒）（默认为5000毫秒）',
+                description: '获取socketIOClient实例\n@param serverUrl  socketIOServer地址\n@param reconnect  是否自动重连（默认为true）\n@param timeout  重连超时时间（毫秒）（默认为5000毫秒）',
                 params: [
                     { name: 'serverUrl', type: 'string' },
                     { name: 'reconnect', type: 'boolean' },
                     { name: 'timeout', type: 'number' },
                 ],
-                returns: 'socketIoClient',
+                returns: 'socketIOClient',
             },
             {
                 name: 'connect',
