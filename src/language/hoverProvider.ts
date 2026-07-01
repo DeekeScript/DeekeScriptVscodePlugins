@@ -6,8 +6,8 @@ function buildSignature(method: MethodDef, name: string): string {
     const params = method.params.map(p => {
         let s = p.name;
         if (p.rest) s = '...' + s;
-        s += ': ' + p.type;
         if (p.optional) s += '?';
+        s += ': ' + p.type;
         return s;
     }).join(', ');
     return `${name}.${method.name}(${params}): ${method.returns}`;

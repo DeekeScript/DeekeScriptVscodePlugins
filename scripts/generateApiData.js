@@ -118,22 +118,82 @@ function parseOneParam(str) {
         rest = true;
         str = str.slice(3);
     }
-    // Split on last ':' to separate name from type
-    const colonIdx = str.lastIndexOf(':');
+
+    // Find the FIRST colon at depth 0 (not inside nested (), {}, or <>).
+    // Using lastIndexOf broke on arrow-function and object-literal types
+    // that contain their own colons, e.g. "(data: string) => void".
+    let colonIdx = -1;
+    let depth = 0;
+    for (let i = 0; i < str.length; i++) {
+        const ch = str[i];
+        if (ch === '(' || ch === '{' || ch === '<') depth++;
+        else if (ch === ')' || ch === '}' || ch === '>') depth--;
+        else if (ch === ':' && depth === 0) { colonIdx = i; break; }
+    }
+
+    // Handle optional params (name ends with ?) — checked regardless of whether
+    // there's a type annotation, since untyped params can also be optional: "param?"
+    let optional = false;
+    let rawName = str.trim();
+
     if (colonIdx === -1) {
         // Untyped parameter
-        return { name: str.trim(), type: 'any', optional: false, rest };
+        if (rawName.endsWith('?')) {
+            optional = true;
+            rawName = rawName.slice(0, -1);
+        }
+        return { name: rawName, type: 'any', optional, rest };
     }
-    const name = str.slice(0, colonIdx).trim();
-    let type = str.slice(colonIdx + 1).trim();
-    // Handle optional params (name ends with ?)
-    let optional = false;
-    let cleanName = name;
-    if (cleanName.endsWith('?')) {
+
+    rawName = str.slice(0, colonIdx).trim();
+    if (rawName.endsWith('?')) {
         optional = true;
-        cleanName = cleanName.slice(0, -1);
+        rawName = rawName.slice(0, -1);
     }
-    return { name: cleanName, type, optional, rest };
+    let type = str.slice(colonIdx + 1).trim();
+
+    // Strip default values from type (e.g., "boolean = true" → "boolean")
+    const eqIdx = findCharAtDepth(type, '=', 0);
+    if (eqIdx !== -1) {
+        type = type.slice(0, eqIdx).trim();
+    }
+
+    return { name: rawName, type, optional, rest };
+}
+
+/** Find a character ch in str while at exactly the given depth (nesting level). */
+function findCharAtDepth(str, target, targetDepth) {
+    let d = 0;
+    for (let i = 0; i < str.length; i++) {
+        const ch = str[i];
+        if (ch === '(' || ch === '{' || ch === '<') d++;
+        else if (ch === ')' || ch === '}' || ch === '>') d--;
+        else if (ch === target && d === targetDepth) return i;
+    }
+    return -1;
+}
+
+/**
+ * Check if position `pos` in `body` is inside a method parameter list.
+ * Scans backward from pos: if there's an unmatched '(' before this position
+ * (i.e., a '(' without a matching ')' between it and pos), we're inside a
+ * method signature's parameter list, and this is not a real property.
+ */
+function isInsideMethodParams(body, pos) {
+    let depth = 0;
+    for (let i = pos - 1; i >= 0; i--) {
+        const ch = body[i];
+        if (ch === ')') depth++;
+        else if (ch === '(') {
+            if (depth === 0) return true; // unmatched '(' found — inside method params
+            depth--;
+        }
+        // Exit early if we hit a ';' or '{' at depth 0 — we're not inside method params
+        else if (ch === ';' && depth === 0) return false;
+        else if (ch === '{' && depth === 0) return false;
+        // A newline with no unmatched paren means we're likely between statements
+    }
+    return false;
 }
 
 /**
@@ -153,12 +213,16 @@ function parseMethodSig(sig, jsdocText) {
     const paramResult = extractParamStr(sig, parenStart);
     const params = parseParamList(paramResult.paramStr);
 
-    // Extract return type after closing paren
+    // Extract return type after closing paren — handles multi-line return types
     let returns = 'void';
-    const afterParen = sig.slice(paramResult.endIdx);
-    const returnMatch = afterParen.match(/^\s*:\s*(.+?)\s*;?\s*$/);
-    if (returnMatch) {
-        returns = returnMatch[1].trim();
+    const afterParen = sig.slice(paramResult.endIdx).trimStart();
+    if (afterParen.startsWith(':')) {
+        let typeStart = 1;
+        while (typeStart < afterParen.length && afterParen[typeStart] === ' ') typeStart++;
+        const semiIdx = findCharAtDepth(afterParen, ';', 0);
+        if (semiIdx !== -1) {
+            returns = afterParen.slice(typeStart, semiIdx).trim();
+        }
     }
 
     // Merge @param docs into params
@@ -191,12 +255,16 @@ function extractMethodsFromBody(body) {
         const parenIdx = mm.index + mm[0].length - 1; // position of '('
         const paramResult = extractParamStr(body, parenIdx);
 
-        // Extract return type
+        // Extract return type — handles multi-line return types (e.g. Device.getPublicIPInfo)
         let returns = 'void';
-        const afterParen = body.slice(paramResult.endIdx);
-        const returnMatch = afterParen.match(/^\s*:\s*(.+?)\s*;/);
-        if (returnMatch) {
-            returns = returnMatch[1].trim();
+        const afterParen = body.slice(paramResult.endIdx).trimStart();
+        if (afterParen.startsWith(':')) {
+            let typeStart = 1; // skip ':'
+            while (typeStart < afterParen.length && afterParen[typeStart] === ' ') typeStart++;
+            const semiIdx = findCharAtDepth(afterParen, ';', 0);
+            if (semiIdx !== -1) {
+                returns = afterParen.slice(typeStart, semiIdx).trim();
+            }
         }
 
         const params = parseParamList(paramResult.paramStr);
@@ -308,7 +376,7 @@ function parseDtsFile(filePath) {
         const propRe = /((?:\/\*\*[\s\S]*?\*\/\s*)?)\s*(\w+)\s*:\s*(.+?);/g;
         while ((pm = propRe.exec(classBody)) !== null) {
             if (pm[2] === 'constructor') continue;
-            if (/^public\s/.test(bodyLineAt(classBody, pm.index))) continue;
+            if (isInsideMethodParams(classBody, pm.index)) continue;
             const propJsdoc = cleanJsDoc(pm[1]);
             properties.push({ name: pm[2], type: pm[3].trim(), description: propJsdoc });
         }
@@ -347,8 +415,8 @@ function parseDtsFile(filePath) {
             const propRe = /((?:\/\*\*[\s\S]*?\*\/\s*)?)\s*(\w+)\s*:\s*(.+?);/g;
             while ((pm = propRe.exec(ifaceBody)) !== null) {
                 if (pm[2] === 'constructor') continue;
-                const lineBefore = ifaceBody.slice(Math.max(0, pm.index - 80), pm.index);
-                if (/public\s+\w+\s*\(/.test(lineBefore + pm[0])) continue;
+                // Skip if this match is inside a method signature (has unmatched '(' before it)
+                if (isInsideMethodParams(ifaceBody, pm.index)) continue;
                 const propJsdoc = cleanJsDoc(pm[1]);
                 properties.push({ name: pm[2], type: pm[3].trim(), description: propJsdoc });
             }
@@ -360,12 +428,6 @@ function parseDtsFile(filePath) {
     return result;
 }
 
-function bodyLineAt(body, index) {
-    // Get the line at the given index in the body
-    const lineStart = body.lastIndexOf('\n', index) + 1;
-    const lineEnd = body.indexOf('\n', index);
-    return body.slice(lineStart, lineEnd === -1 ? body.length : lineEnd);
-}
 
 // ---------------------------------------------------------------------------
 // Aggregation and generation

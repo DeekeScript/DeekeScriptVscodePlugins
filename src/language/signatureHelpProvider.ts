@@ -7,8 +7,8 @@ function buildSignatureInfo(method: MethodDef, objectName: string, methodName: s
     const params = method.params.map(p => {
         let s = p.name;
         if (p.rest) s = '...' + s;
-        s += ': ' + p.type;
         if (p.optional) s += '?';
+        s += ': ' + p.type;
         return s;
     }).join(', ');
 
@@ -35,8 +35,8 @@ function buildSignatureInfo(method: MethodDef, objectName: string, methodName: s
     si.parameters = method.params.map((p, i) => {
         let text = p.name;
         if (p.rest) text = '...' + text;
-        text += ': ' + p.type;
         if (p.optional) text += '?';
+        text += ': ' + p.type;
 
         // Calculate the offset of this param within the full label
         let offset = prefixLen;
@@ -44,8 +44,8 @@ function buildSignatureInfo(method: MethodDef, objectName: string, methodName: s
             let pj = method.params[j];
             let pt = pj.name;
             if (pj.rest) pt = '...' + pt;
-            pt += ': ' + pj.type;
             if (pj.optional) pt += '?';
+            pt += ': ' + pj.type;
             offset += pt.length + 2; // +2 for ', '
         }
         return new vscode.ParameterInformation([offset, offset + text.length]);
