@@ -19,7 +19,7 @@ export function activateLanguageFeatures(context: vscode.ExtensionContext): void
         const merged = {
             ...currentOverride,
             'editor.wordBasedSuggestions': 'off',
-            'javascript.suggest.enabled': false,
+            'javascript.suggest.enabled': true,
         };
         config.update(jsKey, merged, vscode.ConfigurationTarget.Workspace);
     }
