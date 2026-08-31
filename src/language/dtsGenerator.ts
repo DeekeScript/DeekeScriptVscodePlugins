@@ -1,4 +1,5 @@
 import { apiData, GlobalDef, MethodDef, ParamDef, PropertyDef } from './apiData';
+import { generateV2DtsContent } from './v2Dts';
 
 /** Pro 版 API 文档根地址 */
 const DOC_BASE = 'https://script.deeke.cn';
@@ -267,6 +268,8 @@ export function generateDtsContent(): string {
             }
         }
     }
+
+    lines.push(generateV2DtsContent());
 
     return lines.join('\n');
 }
