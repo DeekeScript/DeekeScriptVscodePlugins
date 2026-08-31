@@ -1,83 +1,152 @@
-# DeekeScript VSCode 插件
+# DeekeScript Pro · VS Code 扩展
 
-## 插件介绍
+**DeekeScript Pro 在桌面端的官方开发插件**——通过 WebSocket 连接手机上的 Pro 运行时，完成脚本编辑、项目同步、单文件调试与 API 智能提示，支撑从界面配置到自动化脚本的完整交付流程。
 
-DeekeScript VSCode插件是DeekeScript移动端APP开发的辅助神器，通过该插件能够十分便利地调试与开发引流获客App以及其他RPA相关应用。本插件实现了VSCode与DeekeScript移动端APP之间的实时通信，为开发者提供了完整的开发调试环境。
+| 适用产品 | DeekeScript Pro（Android 端） |
+| --- | --- |
+| 脚本语言 | JavaScript |
+| 官方文档 | [script.deeke.cn](https://script.deeke.cn) |
+| 示例工程 | [deekeScriptV2Demo](https://github.com/DeekeScript/deekeScriptV2Demo) |
 
-## 什么是DeekeScript？
+---
 
-DeekeScript是一个专为Android自动化开发设计的脚本语言和开发平台，主要用于开发引流获客、RPA自动化等移动端应用。它提供了简单易用的API接口，让开发者能够快速构建稳定可靠的自动化APP应用。
+## 产品定位
 
-### DeekeScript的核心特性：
+本扩展**不是**独立的自动化框架，而是 **DeekeScript Pro 开发工作流中的 IDE 侧组件**，与手机端 Pro App 配对使用：
 
-- 😄 **快速开发**：可快速开发商业化的Android模拟点击类产品
-- 🕊 **轻量高效**：小巧，易上手，开发出来的应用稳定性强
-- 🐂 **界面美观**：采用简单配置实现美观大气界面，参考[Deeke引流获客App](https://github.com/DeekeScript/ad-deeke)
-- 🦆 **免费使用**：对应个人开发者完全免费
-- 🏡 **企业支持**：为企业提供打包支持、后台卡密（贴牌）系统等
-- ☝🏻 **私有部署**：支持私有化部署
+- **Pro 运行时**：在 Android 设备上执行无障碍自动化、页面渲染与任务调度。
+- **本扩展**：在 VS Code 中编写与调试脚本，将工程同步至手机，并触发执行与日志回传。
 
-## 插件功能
+典型场景包括：RPA 任务脚本开发、JSON + `page.js` 工作台搭建、单文件任务联调，以及配合官方文档进行 API 开发。
 
-### 🔗 连接管理
-- **连接手机**：通过IP地址连接DeekeScript移动端APP
-- **连接状态**：实时显示连接状态和重连信息
-- **关闭连接**：安全断开与移动端的连接
-- **重置重连**：重置重连状态，解决连接问题
+---
 
-### 📁 文件同步
-- **单文件同步**：将当前编辑的JavaScript文件同步到移动端
-- **项目同步**：同步整个DeekeScript项目到移动端
-- **自动同步**：支持文件变更自动同步（可配置）
-- **文件删除**：支持删除移动端文件
+## 核心能力
 
-### ▶️ 脚本执行
-- **单文件执行**：在移动端执行当前编辑的脚本文件
-- **项目执行**：执行整个DeekeScript项目
-- **停止执行**：停止所有正在运行的脚本
+### 设备连接
 
-### ⚙️ 配置管理
-- **WebSocket配置**：自定义端口号、重连次数、重连延迟
-- **日志配置**：设置日志级别、颜色显示、通知开关
-- **同步配置**：配置自动同步、防抖延迟、排除模式
+通过局域网 WebSocket 连接手机端 Pro，支持连接状态展示、主动断开与重连状态重置。
 
-### 🎯 开发体验
-- **编辑器集成**：在VSCode编辑器标题栏提供快捷操作按钮
-- **状态显示**：实时显示连接状态和操作结果
-- **错误处理**：友好的错误提示和异常处理
-- **进度显示**：连接和同步操作进度可视化
+### 工程同步
 
-## 使用方法
+- **项目同步**：将完整 DeekeScript 工程推送到手机。
+- **单文件同步**：同步当前编辑的脚本文件。
+- **自动同步**：文件变更后按配置防抖上传（可关闭）。
+- **排除规则**：默认跳过 `node_modules`、`.git`、`.vscode` 等目录。
 
-### 1. 安装插件
-在VSCode扩展市场中搜索"DeekeScript"并安装
+### 脚本执行
 
-### 2. 连接手机
-1. 确保手机已安装DeekeScript APP并启动
-2. 在VSCode中执行"DeekeScript：连接手机"命令
-3. 输入手机的IP地址（格式：192.168.xxx.xxx）
+- **仅当前文件执行**：调试独立任务脚本（`.js`），无需从手机界面入口启动。
+- **项目执行**：按工程配置运行完整项目。
+- **停止所有脚本**：终止手机端正在运行的脚本。
 
-### 3. 开发调试
-- 编辑JavaScript脚本文件
-- 使用"文件同步"将代码同步到手机
-- 使用"仅当前文件执行"在手机上运行脚本
-- 查看执行结果和日志输出
+### 编辑器增强（DeekeScript 工程）
 
-### 4. 项目管理
-- 创建`deekeScript.json`配置文件
-- 使用"项目同步"同步整个项目
-- 使用"项目执行"运行完整项目
+当工作区根目录存在 `deekeScript.json` 时，扩展会自动：
 
-## 注意事项
+1. 生成 `.vscode/deekeScript.d.ts`（全局 API 类型声明，含参数与返回值说明）。
+2. 配置 `jsconfig.json`，启用 `checkJs` 与类型检查。
+3. 通过 TypeScript 语言服务提供**补全、悬停文档、签名帮助与类型诊断**。
 
-安装前请阅读官方文档，确保了解DeekeScript的基本概念和使用方法。
+API 文档链接指向 [DeekeScript Pro 文档](https://script.deeke.cn)。非 DeekeScript 工程不会写入上述文件，也不会改动编辑器行为。
 
-## 官方文档
+---
 
-* [DeekeScript开发文档](https://doc.deeke.cn)
-* [DeekeScript平台](https://mp.deeke.cn)
+## 环境要求
 
-## 技术支持
-> 邮箱：miniphper@gmail.com
+| 端 | 要求 |
+| --- | --- |
+| 电脑 | VS Code ≥ 1.96，与本扩展 |
+| 手机 | DeekeScript Pro App，已开启无障碍、悬浮窗、**开发模式** |
+| 网络 | 手机与电脑同一局域网；调试时建议关闭电脑端 VPN |
+| 工程 | 根目录包含 `deekeScript.json`（标识为 DeekeScript 项目） |
 
-> <img src="https://jiangqiao-1252432685.cos.ap-shanghai.myqcloud.com/DeekeScript/weixin.png" width="268px">
+---
+
+## 快速开始
+
+### 1. 安装
+
+在 VS Code 扩展市场搜索 **DeekeScript** 并安装本扩展。
+
+### 2. 准备工程
+
+```bash
+git clone https://github.com/DeekeScript/deekeScriptV2Demo.git
+```
+
+用 VS Code 打开克隆后的目录，确认根目录存在 `deekeScript.json`。
+
+### 3. 连接与同步
+
+1. 手机端 Pro 查看局域网 IP，确保开发模式已开启。
+2. VS Code 执行 **DeekeScript：连接手机**，输入手机 IP。
+3. 执行 **DeekeScript：项目同步**，将工程推送到手机。
+
+### 4. 运行与调试
+
+| 目标 | 操作 |
+| --- | --- |
+| 调试单个任务脚本 | 打开任务 `.js` → **DeekeScript：仅当前文件执行** |
+| 运行完整项目 | **DeekeScript：项目执行** |
+| 从手机界面跑任务 | 同步后，在 App 工作台点击对应功能 |
+
+**注意**
+
+- 不要对 `page.js` 使用「仅当前文件执行」；页面脚本由引擎在打开对应页面时加载。
+- 页面按钮应通过 `Engines.executeScript` 调用任务脚本，不宜把长任务直接写在 JSON 的 `action` 中。
+
+更完整的流程见官方文档：[快速开始](https://script.deeke.cn/quick/start.html)、[VS Code 开发](https://script.deeke.cn/config/vscode.html)。
+
+---
+
+## 命令一览
+
+在命令面板（`Ctrl+Shift+P`）中搜索 **DeekeScript**：
+
+| 命令 | 说明 |
+| --- | --- |
+| DeekeScript：连接手机 | 建立与 Pro 运行时的 WebSocket 连接 |
+| DeekeScript：关闭连接 | 断开连接 |
+| DeekeScript：重置重连状态 | 清除重连计数，用于连接异常后恢复 |
+| DeekeScript：文件同步 | 同步当前文件到手机 |
+| DeekeScript：项目同步 | 同步整个工程到手机 |
+| DeekeScript：仅当前文件执行 | 在手机上运行当前 `.js` 文件 |
+| DeekeScript：项目执行 | 运行整个 DeekeScript 工程 |
+| DeekeScript：停止所有脚本 | 停止手机端全部脚本 |
+| DeekeScript：显示状态 | 查看当前连接与运行状态 |
+
+编辑 `deekeScript.json` 时，编辑器标题栏会显示连接、项目同步等快捷按钮。
+
+---
+
+## 配置项
+
+在 VS Code 设置中搜索 `deekeScript`：
+
+| 配置键 | 说明 | 默认值 |
+| --- | --- | --- |
+| `deekeScript.server.port` | WebSocket 端口 | `8088` |
+| `deekeScript.server.wsMaxRetries` | 最大重连次数 | `59` |
+| `deekeScript.server.wsBaseDelay` | 重连基础延迟（ms） | `1000` |
+| `deekeScript.sync.autoSync` | 是否自动同步文件变更 | `true` |
+| `deekeScript.sync.debounceDelay` | 自动同步防抖（ms） | `500` |
+| `deekeScript.sync.excludePatterns` | 同步排除路径 | `node_modules`, `.git`, `.vscode` |
+| `deekeScript.logging.level` | 日志级别 | `info` |
+| `deekeScript.logging.enableColors` | 彩色日志 | `true` |
+| `deekeScript.logging.showNotifications` | 操作结果通知 | `true` |
+
+---
+
+## 关于 DeekeScript Pro
+
+DeekeScript Pro 是面向 Android 自动化的脚本与交付平台：支持无障碍节点操作、JSON 页面与 `page.js` 动态 UI、自定义组件、UI 热更新、一键打包等能力。本扩展负责 **IDE 侧连接与调试**；框架能力、API 细节与界面开发规范请以官方文档为准。
+
+---
+
+## 文档与支持
+
+- **开发文档**：[https://script.deeke.cn](https://script.deeke.cn)
+- **示例工程**：[deekeScriptV2Demo](https://github.com/DeekeScript/deekeScriptV2Demo)
+- **问题反馈**：[GitHub Issues](https://github.com/DeekeScript/DeekeScriptVscodePlugins/issues)
+- **技术支持**：miniphper@gmail.com
