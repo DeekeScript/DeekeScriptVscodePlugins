@@ -10,7 +10,7 @@ import { activateLanguageFeatures } from './language';
 export function activate(context: vscode.ExtensionContext) {
 	setting.init(context);//创建日志窗口， 设置extension变量
 
-	// Generate deekeScript.d.ts + jsconfig.json for TypeScript-based IntelliSense
+	// Generate .vscode/deekeScriptPro.d.ts + jsconfig.json for TypeScript-based IntelliSense
 	activateLanguageFeatures(context);
 
 	// 初始化日志配置，确保在Windows PowerShell等环境中禁用颜色
@@ -28,10 +28,10 @@ export function activate(context: vscode.ExtensionContext) {
 	// 全局状态（跨工作区持久化）
 	const globalState = context.globalState;
 
-	context.subscriptions.push(vscode.commands.registerCommand('deekeScript.serverRun', async () => {
+	context.subscriptions.push(vscode.commands.registerCommand('deekeScriptPro.serverRun', async () => {
 		//输入手机地址
 		const input = vscode.window.createInputBox();
-		let ip: string | undefined = globalState.get('ip');
+		let ip: string | undefined = globalState.get('deekeScriptPro.ip');
 		if (ip) {
 			input.value = ip;
 		}
@@ -47,7 +47,7 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 
 			try {
-				globalState.update('ip', param);
+				globalState.update('deekeScriptPro.ip', param);
 				input.hide();
 				// 检查是否已经有连接且IP地址相同
 				if (client && client.state()) {
@@ -73,7 +73,7 @@ export function activate(context: vscode.ExtensionContext) {
 	}));
 
 	let errorMsg = "未连接手机或连接中断（请执行“连接手机”命令）";
-	context.subscriptions.push(vscode.commands.registerCommand('deekeScript.projectSync', () => {
+	context.subscriptions.push(vscode.commands.registerCommand('deekeScriptPro.projectSync', () => {
 		if (!client?.state()) {
 			return log.modelError(errorMsg);
 		}
@@ -86,7 +86,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('deekeScript.fileSync', () => {
+	context.subscriptions.push(vscode.commands.registerCommand('deekeScriptPro.fileSync', () => {
 		if (!client?.state()) {
 			return log.modelError(errorMsg);
 		}
@@ -100,7 +100,7 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('deekeScript.run', () => {
+	context.subscriptions.push(vscode.commands.registerCommand('deekeScriptPro.run', () => {
 		if (!client?.state()) {
 			return log.modelError(errorMsg);
 		}
@@ -118,21 +118,21 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('deekeScript.projectRun', () => {
+	context.subscriptions.push(vscode.commands.registerCommand('deekeScriptPro.projectRun', () => {
 		if (!client?.state()) {
 			return log.modelError(errorMsg);
 		}
 		client.projectRunCommand();
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('deekeScript.stopAll', () => {
+	context.subscriptions.push(vscode.commands.registerCommand('deekeScriptPro.stopAll', () => {
 		if (!client?.state()) {
 			return log.modelError(errorMsg);
 		}
 		client.stopCommand();
 	}));
 
-	context.subscriptions.push(vscode.commands.registerCommand('deekeScript.serverClose', () => {
+	context.subscriptions.push(vscode.commands.registerCommand('deekeScriptPro.serverClose', () => {
 		if (client?.state()) {
 			client.close();
 			workspace.setStop(true);//stop workspace listening
@@ -144,7 +144,7 @@ export function activate(context: vscode.ExtensionContext) {
 	}));
 
 	// 添加重置重连状态的命令
-	context.subscriptions.push(vscode.commands.registerCommand('deekeScript.resetRetry', () => {
+	context.subscriptions.push(vscode.commands.registerCommand('deekeScriptPro.resetRetry', () => {
 		if (client) {
 			client.resetRetryState();
 			log.showInfo("重连状态已重置");
@@ -154,7 +154,7 @@ export function activate(context: vscode.ExtensionContext) {
 	}));
 
 	// 添加显示状态的命令
-	context.subscriptions.push(vscode.commands.registerCommand('deekeScript.showStatus', () => {
+	context.subscriptions.push(vscode.commands.registerCommand('deekeScriptPro.showStatus', () => {
 		if (client) {
 			const retryInfo = client.getRetryInfo();
 			const syncState = client.getSyncState();

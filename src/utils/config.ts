@@ -34,7 +34,7 @@ export class ConfigManager {
   }
 
   private loadConfig(): DeekeScriptConfig {
-    const workspaceConfig = vscode.workspace.getConfiguration('deekeScript');
+    const workspaceConfig = vscode.workspace.getConfiguration('deekeScriptPro');
     
     return {
       server: {
@@ -65,7 +65,7 @@ export class ConfigManager {
   }
 
   private async saveConfig(): Promise<void> {
-    const workspaceConfig = vscode.workspace.getConfiguration('deekeScript');
+    const workspaceConfig = vscode.workspace.getConfiguration('deekeScriptPro');
     
     // 更新服务器配置
     await workspaceConfig.update('server.port', this.config.server.port, vscode.ConfigurationTarget.Workspace);

@@ -1,7 +1,7 @@
 {
-  "name": "deekescript",
-  "displayName": "DeekeScript",
-  "description": "DeekeScript扩展，协助用户开发",
+  "name": "deekescript-pro",
+  "displayName": "DeekeScript Pro",
+  "description": "DeekeScript Pro 官方 VS Code 扩展：连接手机端 Pro 运行时，同步工程、调试脚本，并提供 API 智能提示。",
   "version": "2.0.2",
   "icon": "resources/logo.png",
   "publisher": "DeekeScript",
@@ -9,19 +9,24 @@
     "vscode": "^1.96.0"
   },
   "categories": [
-    "Language Packs"
+    "Other",
+    "Debuggers"
   ],
   "keywords": [
     "Deeke",
     "Deeke.cn",
+    "DeekeScript Pro",
     "DeekeScript",
-    "Automation scripts",
-    "DeekeScript Development Tools"
+    "Android",
+    "RPA",
+    "Automation",
+    "Android Automation",
+    "script.deeke.cn"
   ],
   "author": {
     "name": "DeekeScript"
   },
-  "homepage": "https://github.com/DeekeScript/DeekeScriptVscodePlugins",
+  "homepage": "https://script.deeke.cn",
   "bugs": {
     "url": "https://github.com/DeekeScript",
     "email": "miniphper@gmail.com"
@@ -32,110 +37,109 @@
   },
   "pricing": "Free",
   "activationEvents": [
-    "onStartupFinished"
+    "workspaceContains:deekeScript.json"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "deekeScript.serverRun",
-        "title": "DeekeScript：连接手机",
+        "command": "deekeScriptPro.serverRun",
+        "title": "DeekeScript Pro：连接手机",
         "icon": "$(link)"
       },
       {
-        "command": "deekeScript.stopAll",
-        "title": "DeekeScript：停止所有脚本",
+        "command": "deekeScriptPro.stopAll",
+        "title": "DeekeScript Pro：停止所有脚本",
         "icon": "$(debug-stop)"
       },
       {
-        "command": "deekeScript.fileSync",
-        "title": "DeekeScript：文件同步",
+        "command": "deekeScriptPro.fileSync",
+        "title": "DeekeScript Pro：文件同步",
         "icon": "$(sync)"
       },
       {
-        "command": "deekeScript.run",
-        "title": "DeekeScript：仅当前文件执行",
+        "command": "deekeScriptPro.run",
+        "title": "DeekeScript Pro：仅当前文件执行",
         "icon": "$(testing-run-icon)"
       },
       {
-        "command": "deekeScript.projectRun",
-        "title": "DeekeScript：项目执行",
+        "command": "deekeScriptPro.projectRun",
+        "title": "DeekeScript Pro：项目执行",
         "icon": "$(testing-run-icon)"
       },
       {
-        "command": "deekeScript.projectSync",
-        "title": "DeekeScript：项目同步",
+        "command": "deekeScriptPro.projectSync",
+        "title": "DeekeScript Pro：项目同步",
         "icon": "$(cloud-upload)"
       },
       {
-        "command": "deekeScript.serverClose",
-        "title": "DeekeScript：关闭连接",
+        "command": "deekeScriptPro.serverClose",
+        "title": "DeekeScript Pro：关闭连接",
         "icon": "$(debug-disconnect)"
       },
       {
-        "command": "deekeScript.resetRetry",
-        "title": "DeekeScript：重置重连状态",
+        "command": "deekeScriptPro.resetRetry",
+        "title": "DeekeScript Pro：重置重连状态",
         "icon": "$(refresh)"
       },
       {
-        "command": "deekeScript.showStatus",
-        "title": "DeekeScript：显示状态",
+        "command": "deekeScriptPro.showStatus",
+        "title": "DeekeScript Pro：显示状态",
         "icon": "$(info)"
       }
     ],
     "configuration": {
-      "type": "object",
-      "title": "DeekeScript配置",
+      "title": "DeekeScript Pro",
       "properties": {
-        "server.port": {
+        "deekeScriptPro.server.port": {
           "type": "number",
           "default": 8088,
           "scope": "window",
-          "description": "WebSocket服务端的端口号"
+          "description": "连接 DeekeScript Pro 手机端时使用的 WebSocket 端口"
         },
-        "server.wsMaxRetries": {
+        "deekeScriptPro.server.wsMaxRetries": {
           "type": "number",
           "default": 59,
-          "description": "最大重连次数"
+          "description": "WebSocket 最大重连次数"
         },
-        "server.wsBaseDelay": {
+        "deekeScriptPro.server.wsBaseDelay": {
           "type": "number",
           "default": 1000,
-          "description": "基础重连延迟(ms)"
+          "description": "WebSocket 基础重连延迟（毫秒）"
         },
-        "logging.level": {
+        "deekeScriptPro.logging.level": {
           "type": "string",
           "enum": ["debug", "info", "warn", "error"],
           "default": "info",
-          "description": "日志输出级别"
+          "description": "扩展日志输出级别"
         },
-        "logging.enableColors": {
+        "deekeScriptPro.logging.enableColors": {
           "type": "boolean",
           "default": true,
-          "description": "是否启用彩色日志输出"
+          "description": "是否在输出通道中启用彩色日志"
         },
-        "logging.showNotifications": {
+        "deekeScriptPro.logging.showNotifications": {
           "type": "boolean",
           "default": true,
-          "description": "是否显示通知消息"
+          "description": "是否在操作完成或失败时显示通知"
         },
-        "sync.debounceDelay": {
+        "deekeScriptPro.sync.debounceDelay": {
           "type": "number",
           "default": 500,
-          "description": "文件同步防抖延迟(ms)"
+          "description": "自动同步防抖延迟（毫秒）"
         },
-        "sync.autoSync": {
+        "deekeScriptPro.sync.autoSync": {
           "type": "boolean",
           "default": true,
-          "description": "是否自动同步文件变更"
+          "description": "是否在文件变更后自动同步到手机"
         },
-        "sync.excludePatterns": {
+        "deekeScriptPro.sync.excludePatterns": {
           "type": "array",
           "items": {
             "type": "string"
           },
           "default": ["node_modules", ".git", ".vscode"],
-          "description": "文件同步排除模式"
+          "description": "同步到手机时排除的路径模式"
         }
       }
     },
@@ -143,32 +147,32 @@
       "editor/title": [
         {
           "when": "editorFocus",
-          "command": "deekeScript.fileSync",
+          "command": "deekeScriptPro.fileSync",
           "group": "navigation"
         },
         {
           "when": "resourceFilename == 'deekeScript.json'",
-          "command": "deekeScript.serverRun",
+          "command": "deekeScriptPro.serverRun",
           "group": "navigation"
         },
         {
           "when": "resourceFilename == 'deekeScript.json'",
-          "command": "deekeScript.projectSync",
+          "command": "deekeScriptPro.projectSync",
           "group": "navigation"
         },
         {
           "when": "resourceFilename == 'deekeScript.json'",
-          "command": "deekeScript.serverClose",
+          "command": "deekeScriptPro.serverClose",
           "group": "navigation"
         },
         {
           "when": "editorLangId == 'javascript'",
-          "command": "deekeScript.run",
+          "command": "deekeScriptPro.run",
           "group": "navigation"
         },
         {
           "when": "editorTextFocus",
-          "command": "deekeScript.stopAll",
+          "command": "deekeScriptPro.stopAll",
           "group": "navigation"
         }
       ]

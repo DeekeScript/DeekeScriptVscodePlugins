@@ -48,13 +48,13 @@ exports.deactivate = deactivate;
 // Import the module and reference it with the alias vscode in your code below
 const vscode = __importStar(__webpack_require__(1));
 const Client_1 = __importDefault(__webpack_require__(2));
-const setting_1 = __importDefault(__webpack_require__(33));
-const log_1 = __importStar(__webpack_require__(32));
-const Workspace_1 = __webpack_require__(38);
-const language_1 = __webpack_require__(39);
+const setting_1 = __importDefault(__webpack_require__(34));
+const log_1 = __importStar(__webpack_require__(33));
+const Workspace_1 = __webpack_require__(39);
+const language_1 = __webpack_require__(40);
 function activate(context) {
     setting_1.default.init(context); //创建日志窗口， 设置extension变量
-    // Generate deekeScript.d.ts + jsconfig.json for TypeScript-based IntelliSense
+    // Generate .vscode/deekeScriptPro.d.ts + jsconfig.json for TypeScript-based IntelliSense
     (0, language_1.activateLanguageFeatures)(context);
     // 初始化日志配置，确保在Windows PowerShell等环境中禁用颜色
     log_1.default.setConfig({
@@ -69,10 +69,10 @@ function activate(context) {
     workspace.init(); //监听工作区文件变化
     // 全局状态（跨工作区持久化）
     const globalState = context.globalState;
-    context.subscriptions.push(vscode.commands.registerCommand('deekeScript.serverRun', async () => {
+    context.subscriptions.push(vscode.commands.registerCommand('deekeScriptPro.serverRun', async () => {
         //输入手机地址
         const input = vscode.window.createInputBox();
-        let ip = globalState.get('ip');
+        let ip = globalState.get('deekeScriptPro.ip');
         if (ip) {
             input.value = ip;
         }
@@ -85,7 +85,7 @@ function activate(context) {
                 return;
             }
             try {
-                globalState.update('ip', param);
+                globalState.update('deekeScriptPro.ip', param);
                 input.hide();
                 // 检查是否已经有连接且IP地址相同
                 if (client && client.state()) {
@@ -109,7 +109,7 @@ function activate(context) {
         });
     }));
     let errorMsg = "未连接手机或连接中断（请执行“连接手机”命令）";
-    context.subscriptions.push(vscode.commands.registerCommand('deekeScript.projectSync', () => {
+    context.subscriptions.push(vscode.commands.registerCommand('deekeScriptPro.projectSync', () => {
         if (!client?.state()) {
             return log_1.default.modelError(errorMsg);
         }
@@ -121,7 +121,7 @@ function activate(context) {
             client?.projectSync(workspaceFolder.uri.fsPath);
         }
     }));
-    context.subscriptions.push(vscode.commands.registerCommand('deekeScript.fileSync', () => {
+    context.subscriptions.push(vscode.commands.registerCommand('deekeScriptPro.fileSync', () => {
         if (!client?.state()) {
             return log_1.default.modelError(errorMsg);
         }
@@ -133,7 +133,7 @@ function activate(context) {
             client.fileSync(workspaceFolder.uri.fsPath, vscode.window?.activeTextEditor?.document?.fileName, false);
         }
     }));
-    context.subscriptions.push(vscode.commands.registerCommand('deekeScript.run', () => {
+    context.subscriptions.push(vscode.commands.registerCommand('deekeScriptPro.run', () => {
         if (!client?.state()) {
             return log_1.default.modelError(errorMsg);
         }
@@ -148,19 +148,19 @@ function activate(context) {
             });
         }
     }));
-    context.subscriptions.push(vscode.commands.registerCommand('deekeScript.projectRun', () => {
+    context.subscriptions.push(vscode.commands.registerCommand('deekeScriptPro.projectRun', () => {
         if (!client?.state()) {
             return log_1.default.modelError(errorMsg);
         }
         client.projectRunCommand();
     }));
-    context.subscriptions.push(vscode.commands.registerCommand('deekeScript.stopAll', () => {
+    context.subscriptions.push(vscode.commands.registerCommand('deekeScriptPro.stopAll', () => {
         if (!client?.state()) {
             return log_1.default.modelError(errorMsg);
         }
         client.stopCommand();
     }));
-    context.subscriptions.push(vscode.commands.registerCommand('deekeScript.serverClose', () => {
+    context.subscriptions.push(vscode.commands.registerCommand('deekeScriptPro.serverClose', () => {
         if (client?.state()) {
             client.close();
             workspace.setStop(true); //stop workspace listening
@@ -172,7 +172,7 @@ function activate(context) {
         }
     }));
     // 添加重置重连状态的命令
-    context.subscriptions.push(vscode.commands.registerCommand('deekeScript.resetRetry', () => {
+    context.subscriptions.push(vscode.commands.registerCommand('deekeScriptPro.resetRetry', () => {
         if (client) {
             client.resetRetryState();
             log_1.default.showInfo("重连状态已重置");
@@ -182,7 +182,7 @@ function activate(context) {
         }
     }));
     // 添加显示状态的命令
-    context.subscriptions.push(vscode.commands.registerCommand('deekeScript.showStatus', () => {
+    context.subscriptions.push(vscode.commands.registerCommand('deekeScriptPro.showStatus', () => {
         if (client) {
             const retryInfo = client.getRetryInfo();
             const syncState = client.getSyncState();
@@ -254,13 +254,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const fs = __importStar(__webpack_require__(3));
-const vscode_1 = __webpack_require__(1);
-const WebSocketService_1 = __webpack_require__(4);
-const FileSyncService_1 = __webpack_require__(34);
-const log_1 = __importDefault(__webpack_require__(32));
-const setting_1 = __importDefault(__webpack_require__(33));
-const utils_1 = __webpack_require__(36);
-const progress_1 = __webpack_require__(37);
+const config_1 = __webpack_require__(4);
+const WebSocketService_1 = __webpack_require__(5);
+const FileSyncService_1 = __webpack_require__(36);
+const log_1 = __importDefault(__webpack_require__(33));
+const setting_1 = __importDefault(__webpack_require__(34));
+const utils_1 = __webpack_require__(37);
+const progress_1 = __webpack_require__(38);
 class Client {
     wsService;
     fileSyncService;
@@ -276,11 +276,11 @@ class Client {
         this.fileSyncService = new FileSyncService_1.FileSyncService(this.wsService);
     }
     loadConfig() {
-        const config = vscode_1.workspace.getConfiguration('server');
+        const config = config_1.configManager.getServerConfig();
         return {
-            port: config.get('port') || 8088,
-            wsMaxRetries: config.get('wsMaxRetries') || 59,
-            wsBaseDelay: config.get('wsBaseDelay') || 1000
+            port: config.port,
+            wsMaxRetries: config.wsMaxRetries,
+            wsBaseDelay: config.wsBaseDelay
         };
     }
     // 更新配置
@@ -414,14 +414,135 @@ module.exports = require("fs");
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.configManager = exports.ConfigManager = void 0;
+const vscode = __importStar(__webpack_require__(1));
+class ConfigManager {
+    static instance;
+    config;
+    constructor() {
+        this.config = this.loadConfig();
+    }
+    static getInstance() {
+        if (!ConfigManager.instance) {
+            ConfigManager.instance = new ConfigManager();
+        }
+        return ConfigManager.instance;
+    }
+    loadConfig() {
+        const workspaceConfig = vscode.workspace.getConfiguration('deekeScriptPro');
+        return {
+            server: {
+                port: workspaceConfig.get('server.port', 8088),
+                wsMaxRetries: workspaceConfig.get('server.wsMaxRetries', 59),
+                wsBaseDelay: workspaceConfig.get('server.wsBaseDelay', 1000)
+            },
+            logging: {
+                level: workspaceConfig.get('logging.level', 'info'),
+                enableColors: workspaceConfig.get('logging.enableColors', true),
+                showNotifications: workspaceConfig.get('logging.showNotifications', true)
+            },
+            sync: {
+                debounceDelay: workspaceConfig.get('sync.debounceDelay', 500),
+                autoSync: workspaceConfig.get('sync.autoSync', true),
+                excludePatterns: workspaceConfig.get('sync.excludePatterns', ['node_modules', '.git', '.vscode'])
+            }
+        };
+    }
+    getConfig() {
+        return { ...this.config };
+    }
+    updateConfig(updates) {
+        this.config = { ...this.config, ...updates };
+        this.saveConfig();
+    }
+    async saveConfig() {
+        const workspaceConfig = vscode.workspace.getConfiguration('deekeScriptPro');
+        // 更新服务器配置
+        await workspaceConfig.update('server.port', this.config.server.port, vscode.ConfigurationTarget.Workspace);
+        await workspaceConfig.update('server.wsMaxRetries', this.config.server.wsMaxRetries, vscode.ConfigurationTarget.Workspace);
+        await workspaceConfig.update('server.wsBaseDelay', this.config.server.wsBaseDelay, vscode.ConfigurationTarget.Workspace);
+        // 更新日志配置
+        await workspaceConfig.update('logging.level', this.config.logging.level, vscode.ConfigurationTarget.Workspace);
+        await workspaceConfig.update('logging.enableColors', this.config.logging.enableColors, vscode.ConfigurationTarget.Workspace);
+        await workspaceConfig.update('logging.showNotifications', this.config.logging.showNotifications, vscode.ConfigurationTarget.Workspace);
+        // 更新同步配置
+        await workspaceConfig.update('sync.debounceDelay', this.config.sync.debounceDelay, vscode.ConfigurationTarget.Workspace);
+        await workspaceConfig.update('sync.autoSync', this.config.sync.autoSync, vscode.ConfigurationTarget.Workspace);
+        await workspaceConfig.update('sync.excludePatterns', this.config.sync.excludePatterns, vscode.ConfigurationTarget.Workspace);
+    }
+    // 获取服务器配置
+    getServerConfig() {
+        return this.config.server;
+    }
+    // 获取日志配置
+    getLoggingConfig() {
+        return this.config.logging;
+    }
+    // 获取同步配置
+    getSyncConfig() {
+        return this.config.sync;
+    }
+    // 检查文件是否应该被排除
+    shouldExcludeFile(filePath) {
+        return this.config.sync.excludePatterns.some(pattern => filePath.includes(pattern));
+    }
+    // 重新加载配置
+    reloadConfig() {
+        this.config = this.loadConfig();
+    }
+}
+exports.ConfigManager = ConfigManager;
+// 导出单例实例
+exports.configManager = ConfigManager.getInstance();
+
+
+/***/ }),
+/* 5 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.WebSocketService = void 0;
-const ws_1 = __webpack_require__(5);
-const types_1 = __webpack_require__(31);
-const log_1 = __importDefault(__webpack_require__(32));
+const ws_1 = __webpack_require__(6);
+const types_1 = __webpack_require__(32);
+const log_1 = __importDefault(__webpack_require__(33));
 class WebSocketService {
     socket = undefined;
     socketIp;
@@ -728,17 +849,17 @@ exports.WebSocketService = WebSocketService;
 
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 
 
-const WebSocket = __webpack_require__(6);
+const WebSocket = __webpack_require__(7);
 
-WebSocket.createWebSocketStream = __webpack_require__(28);
-WebSocket.Server = __webpack_require__(29);
-WebSocket.Receiver = __webpack_require__(21);
-WebSocket.Sender = __webpack_require__(25);
+WebSocket.createWebSocketStream = __webpack_require__(29);
+WebSocket.Server = __webpack_require__(30);
+WebSocket.Receiver = __webpack_require__(22);
+WebSocket.Sender = __webpack_require__(26);
 
 WebSocket.WebSocket = WebSocket;
 WebSocket.WebSocketServer = WebSocket.Server;
@@ -747,26 +868,26 @@ module.exports = WebSocket;
 
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 /* eslint no-unused-vars: ["error", { "varsIgnorePattern": "^Duplex|Readable$", "caughtErrors": "none" }] */
 
 
 
-const EventEmitter = __webpack_require__(7);
-const https = __webpack_require__(8);
-const http = __webpack_require__(9);
-const net = __webpack_require__(10);
-const tls = __webpack_require__(11);
-const { randomBytes, createHash } = __webpack_require__(12);
-const { Duplex, Readable } = __webpack_require__(13);
-const { URL } = __webpack_require__(14);
+const EventEmitter = __webpack_require__(8);
+const https = __webpack_require__(9);
+const http = __webpack_require__(10);
+const net = __webpack_require__(11);
+const tls = __webpack_require__(12);
+const { randomBytes, createHash } = __webpack_require__(13);
+const { Duplex, Readable } = __webpack_require__(14);
+const { URL } = __webpack_require__(15);
 
-const PerMessageDeflate = __webpack_require__(15);
-const Receiver = __webpack_require__(21);
-const Sender = __webpack_require__(25);
-const { isBlob } = __webpack_require__(22);
+const PerMessageDeflate = __webpack_require__(16);
+const Receiver = __webpack_require__(22);
+const Sender = __webpack_require__(26);
+const { isBlob } = __webpack_require__(23);
 
 const {
   BINARY_TYPES,
@@ -777,12 +898,12 @@ const {
   kStatusCode,
   kWebSocket,
   NOOP
-} = __webpack_require__(18);
+} = __webpack_require__(19);
 const {
   EventTarget: { addEventListener, removeEventListener }
-} = __webpack_require__(26);
-const { format, parse } = __webpack_require__(27);
-const { toBuffer } = __webpack_require__(17);
+} = __webpack_require__(27);
+const { format, parse } = __webpack_require__(28);
+const { toBuffer } = __webpack_require__(18);
 
 const closeTimeout = 30 * 1000;
 const kAborted = Symbol('kAborted');
@@ -2141,64 +2262,64 @@ function socketOnError() {
 
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ ((module) => {
 
 module.exports = require("events");
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ ((module) => {
 
 module.exports = require("https");
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ ((module) => {
 
 module.exports = require("http");
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ ((module) => {
 
 module.exports = require("net");
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ ((module) => {
 
 module.exports = require("tls");
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ ((module) => {
 
 module.exports = require("crypto");
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ ((module) => {
 
 module.exports = require("stream");
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ ((module) => {
 
 module.exports = require("url");
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 
 
-const zlib = __webpack_require__(16);
+const zlib = __webpack_require__(17);
 
-const bufferUtil = __webpack_require__(17);
-const Limiter = __webpack_require__(20);
-const { kStatusCode } = __webpack_require__(18);
+const bufferUtil = __webpack_require__(18);
+const Limiter = __webpack_require__(21);
+const { kStatusCode } = __webpack_require__(19);
 
 const FastBuffer = Buffer[Symbol.species];
 const TRAILER = Buffer.from([0x00, 0x00, 0xff, 0xff]);
@@ -2723,18 +2844,18 @@ function inflateOnError(err) {
 
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ ((module) => {
 
 module.exports = require("zlib");
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 
 
-const { EMPTY_BUFFER } = __webpack_require__(18);
+const { EMPTY_BUFFER } = __webpack_require__(19);
 
 const FastBuffer = Buffer[Symbol.species];
 
@@ -2848,7 +2969,7 @@ module.exports = {
 /* istanbul ignore else  */
 if (!process.env.WS_NO_BUFFER_UTIL) {
   try {
-    const bufferUtil = __webpack_require__(19);
+    const bufferUtil = __webpack_require__(20);
 
     module.exports.mask = function (source, mask, output, offset, length) {
       if (length < 48) _mask(source, mask, output, offset, length);
@@ -2866,7 +2987,7 @@ if (!process.env.WS_NO_BUFFER_UTIL) {
 
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ ((module) => {
 
 
@@ -2890,13 +3011,13 @@ module.exports = {
 
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ ((module) => {
 
 module.exports = require("bufferutil");
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ ((module) => {
 
 
@@ -2957,22 +3078,22 @@ module.exports = Limiter;
 
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 
 
-const { Writable } = __webpack_require__(13);
+const { Writable } = __webpack_require__(14);
 
-const PerMessageDeflate = __webpack_require__(15);
+const PerMessageDeflate = __webpack_require__(16);
 const {
   BINARY_TYPES,
   EMPTY_BUFFER,
   kStatusCode,
   kWebSocket
-} = __webpack_require__(18);
-const { concat, toArrayBuffer, unmask } = __webpack_require__(17);
-const { isValidStatusCode, isValidUTF8 } = __webpack_require__(22);
+} = __webpack_require__(19);
+const { concat, toArrayBuffer, unmask } = __webpack_require__(18);
+const { isValidStatusCode, isValidUTF8 } = __webpack_require__(23);
 
 const FastBuffer = Buffer[Symbol.species];
 
@@ -3669,14 +3790,14 @@ module.exports = Receiver;
 
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 
 
-const { isUtf8 } = __webpack_require__(23);
+const { isUtf8 } = __webpack_require__(24);
 
-const { hasBlob } = __webpack_require__(18);
+const { hasBlob } = __webpack_require__(19);
 
 //
 // Allowed token characters:
@@ -3815,7 +3936,7 @@ if (isUtf8) {
   };
 } /* istanbul ignore else  */ else if (!process.env.WS_NO_UTF_8_VALIDATE) {
   try {
-    const isValidUTF8 = __webpack_require__(24);
+    const isValidUTF8 = __webpack_require__(25);
 
     module.exports.isValidUTF8 = function (buf) {
       return buf.length < 32 ? _isValidUTF8(buf) : isValidUTF8(buf);
@@ -3827,32 +3948,32 @@ if (isUtf8) {
 
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ ((module) => {
 
 module.exports = require("buffer");
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ ((module) => {
 
 module.exports = require("utf-8-validate");
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 /* eslint no-unused-vars: ["error", { "varsIgnorePattern": "^Duplex" }] */
 
 
 
-const { Duplex } = __webpack_require__(13);
-const { randomFillSync } = __webpack_require__(12);
+const { Duplex } = __webpack_require__(14);
+const { randomFillSync } = __webpack_require__(13);
 
-const PerMessageDeflate = __webpack_require__(15);
-const { EMPTY_BUFFER, kWebSocket, NOOP } = __webpack_require__(18);
-const { isBlob, isValidStatusCode } = __webpack_require__(22);
-const { mask: applyMask, toBuffer } = __webpack_require__(17);
+const PerMessageDeflate = __webpack_require__(16);
+const { EMPTY_BUFFER, kWebSocket, NOOP } = __webpack_require__(19);
+const { isBlob, isValidStatusCode } = __webpack_require__(23);
+const { mask: applyMask, toBuffer } = __webpack_require__(18);
 
 const kByteLength = Symbol('kByteLength');
 const maskBuffer = Buffer.alloc(4);
@@ -4447,12 +4568,12 @@ function onError(sender, err, cb) {
 
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 
 
-const { kForOnEventAttribute, kListener } = __webpack_require__(18);
+const { kForOnEventAttribute, kListener } = __webpack_require__(19);
 
 const kCode = Symbol('kCode');
 const kData = Symbol('kData');
@@ -4745,12 +4866,12 @@ function callListener(listener, thisArg, event) {
 
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 
 
-const { tokenChars } = __webpack_require__(22);
+const { tokenChars } = __webpack_require__(23);
 
 /**
  * Adds an offer to the map of extension offers or a parameter to the map of
@@ -4954,14 +5075,14 @@ module.exports = { format, parse };
 
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 /* eslint no-unused-vars: ["error", { "varsIgnorePattern": "^WebSocket$" }] */
 
 
-const WebSocket = __webpack_require__(6);
-const { Duplex } = __webpack_require__(13);
+const WebSocket = __webpack_require__(7);
+const { Duplex } = __webpack_require__(14);
 
 /**
  * Emits the `'close'` event on a stream.
@@ -5121,23 +5242,23 @@ module.exports = createWebSocketStream;
 
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 /* eslint no-unused-vars: ["error", { "varsIgnorePattern": "^Duplex$", "caughtErrors": "none" }] */
 
 
 
-const EventEmitter = __webpack_require__(7);
-const http = __webpack_require__(9);
-const { Duplex } = __webpack_require__(13);
-const { createHash } = __webpack_require__(12);
+const EventEmitter = __webpack_require__(8);
+const http = __webpack_require__(10);
+const { Duplex } = __webpack_require__(14);
+const { createHash } = __webpack_require__(13);
 
-const extension = __webpack_require__(27);
-const PerMessageDeflate = __webpack_require__(15);
-const subprotocol = __webpack_require__(30);
-const WebSocket = __webpack_require__(6);
-const { GUID, kWebSocket } = __webpack_require__(18);
+const extension = __webpack_require__(28);
+const PerMessageDeflate = __webpack_require__(16);
+const subprotocol = __webpack_require__(31);
+const WebSocket = __webpack_require__(7);
+const { GUID, kWebSocket } = __webpack_require__(19);
 
 const keyRegex = /^[+/0-9A-Za-z]{22}==$/;
 
@@ -5677,12 +5798,12 @@ function abortHandshakeOrEmitwsClientError(
 
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 
 
-const { tokenChars } = __webpack_require__(22);
+const { tokenChars } = __webpack_require__(23);
 
 /**
  * Parses the `Sec-WebSocket-Protocol` header into a set of subprotocol names.
@@ -5745,7 +5866,7 @@ module.exports = { parse };
 
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -5762,7 +5883,7 @@ var ConnectionState;
 
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -5805,7 +5926,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.LogLevel = void 0;
 const vscode = __importStar(__webpack_require__(1));
-const setting_1 = __importDefault(__webpack_require__(33));
+const setting_1 = __importDefault(__webpack_require__(34));
 // 日志级别枚举
 var LogLevel;
 (function (LogLevel) {
@@ -6001,7 +6122,7 @@ exports["default"] = log;
 
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6039,6 +6160,8 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+const fs = __importStar(__webpack_require__(3));
+const path = __importStar(__webpack_require__(35));
 const vscode = __importStar(__webpack_require__(1));
 let extension;
 let logg;
@@ -6069,15 +6192,30 @@ const setting = {
         return logg;
     },
     isProject() {
-        let dir = setting.getContext().asAbsolutePath("");
-        return vscode.FileSystemError.FileExists(dir + "/deekeScript.json"); //is or not the project is deeke project
+        const folders = vscode.workspace.workspaceFolders;
+        if (!folders || folders.length === 0) {
+            return false;
+        }
+        for (const folder of folders) {
+            const deekeJson = path.join(folder.uri.fsPath, 'deekeScript.json');
+            if (fs.existsSync(deekeJson)) {
+                return true;
+            }
+        }
+        return false;
     }
 };
 exports["default"] = setting;
 
 
 /***/ }),
-/* 34 */
+/* 35 */
+/***/ ((module) => {
+
+module.exports = require("path");
+
+/***/ }),
+/* 36 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6122,9 +6260,9 @@ exports.FileSyncService = void 0;
 const fs = __importStar(__webpack_require__(3));
 const path = __importStar(__webpack_require__(35));
 const vscode = __importStar(__webpack_require__(1));
-const utils_1 = __webpack_require__(36);
-const progress_1 = __webpack_require__(37);
-const log_1 = __importDefault(__webpack_require__(32));
+const utils_1 = __webpack_require__(37);
+const progress_1 = __webpack_require__(38);
+const log_1 = __importDefault(__webpack_require__(33));
 class FileSyncService {
     wsService;
     syncState = {
@@ -6357,13 +6495,7 @@ exports.FileSyncService = FileSyncService;
 
 
 /***/ }),
-/* 35 */
-/***/ ((module) => {
-
-module.exports = require("path");
-
-/***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6482,7 +6614,7 @@ async function retry(fn, maxRetries, baseDelay) {
 
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6527,7 +6659,7 @@ exports.showProgress = showProgress;
 exports.showFileSyncProgress = showFileSyncProgress;
 exports.showConnectionProgress = showConnectionProgress;
 const vscode = __importStar(__webpack_require__(1));
-const log_1 = __importDefault(__webpack_require__(32));
+const log_1 = __importDefault(__webpack_require__(33));
 // 简化的进度条工具
 async function showProgress(title, task) {
     return vscode.window.withProgress({
@@ -6590,7 +6722,7 @@ async function showConnectionProgress(connectionTask) {
 
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6632,10 +6764,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.Workspace = void 0;
-const log_1 = __importDefault(__webpack_require__(32));
+const log_1 = __importDefault(__webpack_require__(33));
 const vscode = __importStar(__webpack_require__(1));
-const setting_1 = __importDefault(__webpack_require__(33));
-const utils_1 = __webpack_require__(36);
+const setting_1 = __importDefault(__webpack_require__(34));
+const utils_1 = __webpack_require__(37);
 class Workspace {
     stop = false;
     client = undefined;
@@ -6837,7 +6969,7 @@ exports.Workspace = Workspace;
 
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6877,11 +7009,9 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.activateLanguageFeatures = activateLanguageFeatures;
 const vscode = __importStar(__webpack_require__(1));
-const workspaceSetup_1 = __webpack_require__(40);
-function activateLanguageFeatures(context) {
-    // Disable word-based suggestions — they add noise in DeekeScript workspaces.
-    // API completions, hover, signature help and diagnostics come from the
-    // generated .vscode/deekeScript.d.ts via the TypeScript language service.
+const workspaceSetup_1 = __webpack_require__(41);
+const utils_1 = __webpack_require__(44);
+async function applyDeekeScriptEditorSettings() {
     const config = vscode.workspace.getConfiguration();
     const jsKey = '[javascript]';
     const currentOverride = config.get(jsKey) || {};
@@ -6890,15 +7020,34 @@ function activateLanguageFeatures(context) {
             ...currentOverride,
             'editor.wordBasedSuggestions': 'off',
         };
-        config.update(jsKey, merged, vscode.ConfigurationTarget.Workspace);
+        await config.update(jsKey, merged, vscode.ConfigurationTarget.Workspace);
     }
-    (0, workspaceSetup_1.setupWorkspaceTypeChecking)();
-    context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders(() => (0, workspaceSetup_1.setupWorkspaceTypeChecking)()));
+}
+async function setupDeekeScriptLanguageSupport() {
+    if (!await (0, utils_1.hasAnyDeekeScriptProject)()) {
+        return;
+    }
+    await applyDeekeScriptEditorSettings();
+    await (0, workspaceSetup_1.setupWorkspaceTypeChecking)();
+}
+function activateLanguageFeatures(context) {
+    void setupDeekeScriptLanguageSupport();
+    context.subscriptions.push(vscode.workspace.onDidChangeWorkspaceFolders(() => {
+        (0, utils_1.clearDeekeScriptProjectCache)();
+        void setupDeekeScriptLanguageSupport();
+    }));
+    const deekeJsonWatcher = vscode.workspace.createFileSystemWatcher('**/deekeScript.json');
+    deekeJsonWatcher.onDidCreate(() => {
+        (0, utils_1.clearDeekeScriptProjectCache)();
+        void setupDeekeScriptLanguageSupport();
+    });
+    deekeJsonWatcher.onDidDelete(() => (0, utils_1.clearDeekeScriptProjectCache)());
+    context.subscriptions.push(deekeJsonWatcher);
 }
 
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 
@@ -6938,7 +7087,10 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.setupWorkspaceTypeChecking = setupWorkspaceTypeChecking;
 const vscode = __importStar(__webpack_require__(1));
-const dtsGenerator_1 = __webpack_require__(41);
+const dtsGenerator_1 = __webpack_require__(42);
+const utils_1 = __webpack_require__(44);
+const PRO_DTS_FILE = 'deekeScriptPro.d.ts';
+const PRO_DTS_INCLUDE = '.vscode/deekeScriptPro.d.ts';
 /** Ensure jsconfig.json exists at workspace root with checkJs enabled. */
 async function ensureJsConfig(workspaceFolder) {
     const jsconfigUri = vscode.Uri.parse(workspaceFolder.toString() + '/jsconfig.json');
@@ -6985,14 +7137,14 @@ async function ensureJsConfig(workspaceFolder) {
     else if (existing.compilerOptions.lib.includes('dom')) {
         existing.compilerOptions.lib = existing.compilerOptions.lib.filter((l) => l !== 'dom');
     }
-    // Include .vscode/ so TypeScript picks up the generated deekeScript.d.ts
+    // Include Pro type declarations (do not overwrite standard deekeScript.d.ts)
     if (!existing.include) {
-        existing.include = ['.vscode/*.d.ts', '**/*.js'];
+        existing.include = [PRO_DTS_INCLUDE, '**/*.js'];
     }
     else {
-        const hasVscodeDts = existing.include.some((p) => p.includes('.vscode'));
-        if (!hasVscodeDts) {
-            existing.include.push('.vscode/*.d.ts');
+        const hasProDts = existing.include.some((p) => p.includes('deekeScriptPro.d.ts'));
+        if (!hasProDts) {
+            existing.include.push(PRO_DTS_INCLUDE);
         }
     }
     const content = JSON.stringify(existing, null, 4);
@@ -7000,7 +7152,7 @@ async function ensureJsConfig(workspaceFolder) {
 }
 /**
  * Set up workspace-level type checking for a DeekeScript project.
- * Writes deekeScript.d.ts (global API declarations) and jsconfig.json (checkJs enabled).
+ * Writes deekeScriptPro.d.ts (global API declarations) and jsconfig.json (checkJs enabled).
  * Skips if the workspace is not a DeekeScript project.
  */
 async function setupWorkspaceTypeChecking() {
@@ -7008,17 +7160,12 @@ async function setupWorkspaceTypeChecking() {
     if (!folders || folders.length === 0)
         return;
     for (const folder of folders) {
-        // Only set up if this workspace is a DeekeScript project
-        const deekeJsonUri = vscode.Uri.parse(folder.uri.toString() + '/deekeScript.json');
-        try {
-            await vscode.workspace.fs.stat(deekeJsonUri);
-        }
-        catch {
+        if (!await (0, utils_1.isDeekeScriptWorkspaceFolder)(folder)) {
             continue;
         }
         // Write type declarations to .vscode/ (hidden IDE config dir, not project source)
         const vscodeDir = vscode.Uri.parse(folder.uri.toString() + '/.vscode');
-        const dtsUri = vscode.Uri.parse(vscodeDir.toString() + '/deekeScript.d.ts');
+        const dtsUri = vscode.Uri.parse(vscodeDir.toString() + '/' + PRO_DTS_FILE);
         const dtsContent = (0, dtsGenerator_1.generateDtsContent)();
         try {
             await vscode.workspace.fs.createDirectory(vscodeDir);
@@ -7042,13 +7189,13 @@ async function setupWorkspaceTypeChecking() {
 
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.generateDtsContent = generateDtsContent;
-const apiData_1 = __webpack_require__(42);
+const apiData_1 = __webpack_require__(43);
 /** Pro 版 API 文档根地址 */
 const DOC_BASE = 'https://script.deeke.cn';
 const DOC_LINK_LABEL = 'DeekeScript Pro 文档';
@@ -7205,8 +7352,8 @@ function writeProperty(lines, globalName, prop, indent) {
 /** Generate a .d.ts file content from apiData so VS Code's TypeScript checker knows about DeekeScript globals. */
 function generateDtsContent() {
     const lines = [
-        '// Auto-generated by DeekeScript extension — DO NOT EDIT',
-        '// Enables VS Code JavaScript type checking for DeekeScript projects.',
+        '// Auto-generated by DeekeScript Pro extension — DO NOT EDIT',
+        '// Enables VS Code JavaScript type checking for DeekeScript Pro projects.',
         '// API documentation: https://script.deeke.cn',
         '',
     ];
@@ -7289,7 +7436,7 @@ function generateDtsContent() {
 
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ ((__unused_webpack_module, exports) => {
 
 
@@ -12833,6 +12980,87 @@ exports.apiData = {
         typeOnly: true,
     },
 };
+
+
+/***/ }),
+/* 44 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.clearDeekeScriptProjectCache = clearDeekeScriptProjectCache;
+exports.isDeekeScriptWorkspaceFolder = isDeekeScriptWorkspaceFolder;
+exports.hasAnyDeekeScriptProject = hasAnyDeekeScriptProject;
+exports.isDeekeScriptProject = isDeekeScriptProject;
+const vscode = __importStar(__webpack_require__(1));
+const projectCache = new Map();
+function clearDeekeScriptProjectCache() {
+    projectCache.clear();
+}
+async function isDeekeScriptWorkspaceFolder(folder) {
+    const key = folder.uri.toString();
+    if (!projectCache.has(key)) {
+        try {
+            await vscode.workspace.fs.stat(vscode.Uri.parse(folder.uri.toString() + '/deekeScript.json'));
+            projectCache.set(key, true);
+        }
+        catch {
+            projectCache.set(key, false);
+        }
+    }
+    return projectCache.get(key);
+}
+async function hasAnyDeekeScriptProject() {
+    const folders = vscode.workspace.workspaceFolders;
+    if (!folders || folders.length === 0)
+        return false;
+    for (const folder of folders) {
+        if (await isDeekeScriptWorkspaceFolder(folder)) {
+            return true;
+        }
+    }
+    return false;
+}
+async function isDeekeScriptProject(document) {
+    const folder = vscode.workspace.getWorkspaceFolder(document.uri);
+    if (!folder)
+        return false;
+    return isDeekeScriptWorkspaceFolder(folder);
+}
+vscode.workspace.onDidChangeWorkspaceFolders(() => clearDeekeScriptProjectCache());
 
 
 /***/ })

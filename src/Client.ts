@@ -1,6 +1,6 @@
 import * as fs from "fs";
 import * as vscode from "vscode";
-import { workspace } from "vscode";
+import { configManager } from './utils/config';
 import { WebSocketService } from './services/WebSocketService';
 import { FileSyncService } from './services/FileSyncService';
 import { FileRunData, StopData, ProjectRunData, ClientConfig } from './types';
@@ -28,11 +28,11 @@ export default class Client {
     }
 
     private loadConfig(): ClientConfig {
-        const config = workspace.getConfiguration('server');
+        const config = configManager.getServerConfig();
         return {
-            port: config.get('port') || 8088,
-            wsMaxRetries: config.get('wsMaxRetries') || 59,
-            wsBaseDelay: config.get('wsBaseDelay') || 1000
+            port: config.port,
+            wsMaxRetries: config.wsMaxRetries,
+            wsBaseDelay: config.wsBaseDelay
         };
     }
 

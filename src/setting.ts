@@ -1,3 +1,5 @@
+import * as fs from 'fs';
+import * as path from 'path';
 import * as vscode from 'vscode';
 
 let extension!: vscode.Extension<any>;
@@ -29,9 +31,18 @@ const setting = {
     getLogWindows() {
         return logg;
     },
-    isProject() {
-        let dir = setting.getContext().asAbsolutePath("");
-        return vscode.FileSystemError.FileExists(dir + "/deekeScript.json");//is or not the project is deeke project
+    isProject(): boolean {
+        const folders = vscode.workspace.workspaceFolders;
+        if (!folders || folders.length === 0) {
+            return false;
+        }
+        for (const folder of folders) {
+            const deekeJson = path.join(folder.uri.fsPath, 'deekeScript.json');
+            if (fs.existsSync(deekeJson)) {
+                return true;
+            }
+        }
+        return false;
     }
 };
 

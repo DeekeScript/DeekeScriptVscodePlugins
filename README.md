@@ -44,7 +44,7 @@
 
 当工作区根目录存在 `deekeScript.json` 时，扩展会自动：
 
-1. 生成 `.vscode/deekeScript.d.ts`（全局 API 类型声明，含参数与返回值说明）。
+1. 生成 `.vscode/deekeScriptPro.d.ts`（全局 API 类型声明，含参数与返回值说明）。
 2. 配置 `jsconfig.json`，启用 `checkJs` 与类型检查。
 3. 通过 TypeScript 语言服务提供**补全、悬停文档、签名帮助与类型诊断**。
 
@@ -67,7 +67,7 @@ API 文档链接指向 [DeekeScript Pro 文档](https://script.deeke.cn)。非 D
 
 ### 1. 安装
 
-在 VS Code 扩展市场搜索 **DeekeScript** 并安装本扩展。
+在 VS Code 扩展市场搜索 **DeekeScript Pro** 并安装本扩展。
 
 ### 2. 准备工程
 
@@ -80,15 +80,15 @@ git clone https://github.com/DeekeScript/deekeScriptV2Demo.git
 ### 3. 连接与同步
 
 1. 手机端 Pro 查看局域网 IP，确保开发模式已开启。
-2. VS Code 执行 **DeekeScript：连接手机**，输入手机 IP。
-3. 执行 **DeekeScript：项目同步**，将工程推送到手机。
+2. VS Code 执行 **DeekeScript Pro：连接手机**，输入手机 IP。
+3. 执行 **DeekeScript Pro：项目同步**，将工程推送到手机。
 
 ### 4. 运行与调试
 
 | 目标 | 操作 |
 | --- | --- |
-| 调试单个任务脚本 | 打开任务 `.js` → **DeekeScript：仅当前文件执行** |
-| 运行完整项目 | **DeekeScript：项目执行** |
+| 调试单个任务脚本 | 打开任务 `.js` → **DeekeScript Pro：仅当前文件执行** |
+| 运行完整项目 | **DeekeScript Pro：项目执行** |
 | 从手机界面跑任务 | 同步后，在 App 工作台点击对应功能 |
 
 **注意**
@@ -102,19 +102,19 @@ git clone https://github.com/DeekeScript/deekeScriptV2Demo.git
 
 ## 命令一览
 
-在命令面板（`Ctrl+Shift+P`）中搜索 **DeekeScript**：
+在命令面板（`Ctrl+Shift+P`）中搜索 **DeekeScript Pro**：
 
 | 命令 | 说明 |
 | --- | --- |
-| DeekeScript：连接手机 | 建立与 Pro 运行时的 WebSocket 连接 |
-| DeekeScript：关闭连接 | 断开连接 |
-| DeekeScript：重置重连状态 | 清除重连计数，用于连接异常后恢复 |
-| DeekeScript：文件同步 | 同步当前文件到手机 |
-| DeekeScript：项目同步 | 同步整个工程到手机 |
-| DeekeScript：仅当前文件执行 | 在手机上运行当前 `.js` 文件 |
-| DeekeScript：项目执行 | 运行整个 DeekeScript 工程 |
-| DeekeScript：停止所有脚本 | 停止手机端全部脚本 |
-| DeekeScript：显示状态 | 查看当前连接与运行状态 |
+| DeekeScript Pro：连接手机 | 建立与 Pro 运行时的 WebSocket 连接 |
+| DeekeScript Pro：关闭连接 | 断开连接 |
+| DeekeScript Pro：重置重连状态 | 清除重连计数，用于连接异常后恢复 |
+| DeekeScript Pro：文件同步 | 同步当前文件到手机 |
+| DeekeScript Pro：项目同步 | 同步整个工程到手机 |
+| DeekeScript Pro：仅当前文件执行 | 在手机上运行当前 `.js` 文件 |
+| DeekeScript Pro：项目执行 | 运行整个 DeekeScript 工程 |
+| DeekeScript Pro：停止所有脚本 | 停止手机端全部脚本 |
+| DeekeScript Pro：显示状态 | 查看当前连接与运行状态 |
 
 编辑 `deekeScript.json` 时，编辑器标题栏会显示连接、项目同步等快捷按钮。
 
@@ -122,25 +122,46 @@ git clone https://github.com/DeekeScript/deekeScriptV2Demo.git
 
 ## 配置项
 
-在 VS Code 设置中搜索 `deekeScript`：
+在 VS Code 设置中搜索 `deekeScriptPro`：
 
 | 配置键 | 说明 | 默认值 |
 | --- | --- | --- |
-| `deekeScript.server.port` | WebSocket 端口 | `8088` |
-| `deekeScript.server.wsMaxRetries` | 最大重连次数 | `59` |
-| `deekeScript.server.wsBaseDelay` | 重连基础延迟（ms） | `1000` |
-| `deekeScript.sync.autoSync` | 是否自动同步文件变更 | `true` |
-| `deekeScript.sync.debounceDelay` | 自动同步防抖（ms） | `500` |
-| `deekeScript.sync.excludePatterns` | 同步排除路径 | `node_modules`, `.git`, `.vscode` |
-| `deekeScript.logging.level` | 日志级别 | `info` |
-| `deekeScript.logging.enableColors` | 彩色日志 | `true` |
-| `deekeScript.logging.showNotifications` | 操作结果通知 | `true` |
+| `deekeScriptPro.server.port` | WebSocket 端口 | `8088` |
+| `deekeScriptPro.server.wsMaxRetries` | 最大重连次数 | `59` |
+| `deekeScriptPro.server.wsBaseDelay` | 重连基础延迟（ms） | `1000` |
+| `deekeScriptPro.sync.autoSync` | 是否自动同步文件变更 | `true` |
+| `deekeScriptPro.sync.debounceDelay` | 自动同步防抖（ms） | `500` |
+| `deekeScriptPro.sync.excludePatterns` | 同步排除路径 | `node_modules`, `.git`, `.vscode` |
+| `deekeScriptPro.logging.level` | 日志级别 | `info` |
+| `deekeScriptPro.logging.enableColors` | 彩色日志 | `true` |
+| `deekeScriptPro.logging.showNotifications` | 操作结果通知 | `true` |
 
 ---
 
 ## 关于 DeekeScript Pro
 
 DeekeScript Pro 是面向 Android 自动化的脚本与交付平台：支持无障碍节点操作、JSON 页面与 `page.js` 动态 UI、自定义组件、UI 热更新、一键打包等能力。本扩展负责 **IDE 侧连接与调试**；框架能力、API 细节与界面开发规范请以官方文档为准。
+
+---
+
+## 与标准版 DeekeScript 插件并存
+
+本扩展（`DeekeScript.deekescript-pro`）已与标准版 **DeekeScript** 扩展在标识上隔离，可同时安装，但**同一工作区建议只启用一个**用于连接与同步。
+
+| 项目 | Pro 扩展 | 标准版扩展（若同时安装） |
+| --- | --- | --- |
+| 扩展 ID | `DeekeScript.deekescript-pro` | `DeekeScript.deekescript` |
+| 命令 ID | `deekeScriptPro.*` | `deekeScript.*` |
+| 设置命名空间 | `deekeScriptPro.*` | `deekeScript.*` |
+| 类型声明文件 | `.vscode/deekeScriptPro.d.ts` | `.vscode/deekeScript.d.ts` |
+| 输出通道 | DeekeScript Pro | DeekeScript |
+
+**仍可能冲突的情况**（需避免）：
+
+- 两个扩展同时连接同一台手机并执行同步/运行，手机端 WebSocket 与文件状态可能混乱。
+- 若 `jsconfig.json` 同时包含两份类型声明，TypeScript 可能报全局符号重复定义。
+
+**推荐做法**：开发 Pro 项目时只启用 **DeekeScript Pro** 扩展，在扩展面板禁用标准版 DeekeScript。
 
 ---
 
