@@ -3,7 +3,8 @@ import log from "./unit/log";
 import * as vscode from 'vscode';
 import setting from "./setting";
 import Client from "./Client";
-import { debounce } from "./utils";
+import { debounce, getRelativePath } from "./utils";
+import { configManager } from "./utils/config";
 
 export class Workspace {
     private stop: boolean = false;
@@ -11,18 +12,9 @@ export class Workspace {
     private debouncedFileSync: (baseDir: string, filePath: string, isDir: boolean, document?: vscode.TextDocument) => void;
 
     constructor() {
-        // 创建防抖的文件同步函数，延迟500ms
         this.debouncedFileSync = debounce((baseDir: string, filePath: string, isDir: boolean, document?: vscode.TextDocument) => {
-            if (this.client) {
-                // 在执行时重新获取最新的文档对象，确保获取到最新的内容
-                const latestDocument = vscode.workspace.textDocuments.find(doc => doc.fileName === filePath);
-                const documentToUse = latestDocument || document;
-                
-                this.client.fileSync(baseDir, filePath, isDir, documentToUse).catch((error: unknown) => {
-                    log.error(`防抖同步文件失败：${error instanceof Error ? error.message : '未知错误'}`);
-                });
-            }
-        }, 500);
+            void this.syncFileToPhone(baseDir, filePath, isDir, document);
+        }, configManager.getSyncConfig().debounceDelay);
     }
 
     setStop(stop: boolean) {
@@ -35,47 +27,82 @@ export class Workspace {
 
     init() {
         this.listening();
-        log.info("正在监听工作区文件变化");
+        log.info("正在监听工作区文件变化（连接成功后自动同步到手机）");
     }
 
-    private canEdit(): boolean {
+    /** 已连接且允许自动同步 */
+    private canSync(): boolean {
         if (this.stop) {
             return false;
         }
-
         if (!setting.isProject()) {
-            log.debug("非DeekeScript项目，跳过文件监听");
             return false;
         }
-
-        // 简化文件存在检查，避免异步操作
+        if (!configManager.getSyncConfig().autoSync) {
+            return false;
+        }
+        if (!this.client?.state()) {
+            return false;
+        }
         return true;
+    }
+
+    private shouldSyncPath(filePath: string): boolean {
+        const normalized = filePath.replace(/\\/g, '/');
+        return !configManager.getSyncConfig().excludePatterns.some((pattern) => normalized.includes(pattern));
+    }
+
+    private getWorkspaceFolder(uri: vscode.Uri): vscode.WorkspaceFolder | undefined {
+        return vscode.workspace.getWorkspaceFolder(uri);
+    }
+
+    private scheduleFileSync(baseDir: string, filePath: string, document?: vscode.TextDocument): void {
+        if (!this.canSync() || !this.shouldSyncPath(filePath)) {
+            return;
+        }
+        this.debouncedFileSync(baseDir, filePath, false, document);
+    }
+
+    private async syncFileToPhone(
+        baseDir: string,
+        filePath: string,
+        isDir: boolean = false,
+        document?: vscode.TextDocument
+    ): Promise<void> {
+        if (!this.canSync() || !this.client) {
+            return;
+        }
+        if (!isDir && !this.shouldSyncPath(filePath)) {
+            return;
+        }
+
+        try {
+            const latestDocument = vscode.workspace.textDocuments.find((doc) => doc.fileName === filePath);
+            await this.client.fileSync(baseDir, filePath, isDir, latestDocument || document);
+        } catch (error) {
+            log.error(`自动同步失败：${error instanceof Error ? error.message : '未知错误'}`);
+        }
     }
 
     // 递归同步文件夹内的所有文件
     private async syncDirectoryRecursively(baseDir: string, dirPath: string): Promise<void> {
-        if (!this.client) return;
+        if (!this.canSync() || !this.client) {
+            return;
+        }
 
         try {
-            // 首先同步文件夹本身
             await this.client.fileSync(baseDir, dirPath, true);
-            //log.info(`同步文件夹：${dirPath}`);
 
-            // 读取文件夹内容
             const entries = await vscode.workspace.fs.readDirectory(vscode.Uri.file(dirPath));
-            
+
             for (const entry of entries) {
                 const fullPath = dirPath + '/' + entry[0];
                 const isDir = entry[1] === vscode.FileType.Directory;
-                
+
                 if (isDir) {
-                    // 递归处理子文件夹
                     await this.syncDirectoryRecursively(baseDir, fullPath);
                 } else {
-                    // 同步文件 - 尝试获取文档对象
-                    const document = vscode.workspace.textDocuments.find(doc => doc.fileName === fullPath);
-                    await this.client.fileSync(baseDir, fullPath, false, document);
-                    //log.info(`同步文件：${fullPath}`);
+                    await this.syncFileToPhone(baseDir, fullPath, false);
                 }
             }
         } catch (error) {
@@ -83,149 +110,141 @@ export class Workspace {
         }
     }
 
+    private async handleFileUri(uri: vscode.Uri, isDir: boolean): Promise<void> {
+        if (uri.scheme !== 'file' || !this.canSync()) {
+            return;
+        }
+
+        const workspaceFolder = this.getWorkspaceFolder(uri);
+        if (!workspaceFolder) {
+            return;
+        }
+
+        const filePath = uri.fsPath;
+        if (isDir) {
+            await this.syncDirectoryRecursively(workspaceFolder.uri.fsPath, filePath);
+            return;
+        }
+
+        const document = vscode.workspace.textDocuments.find((doc) => doc.fileName === filePath);
+        await this.syncFileToPhone(workspaceFolder.uri.fsPath, filePath, false, document);
+    }
+
     listening() {
         vscode.workspace.onDidChangeConfiguration((_e: ConfigurationChangeEvent) => {
-            if (!this.canEdit()) {
-                return;
-            }
+            configManager.reloadConfig();
         });
 
         vscode.workspace.onDidChangeNotebookDocument((e: NotebookDocumentChangeEvent) => {
-            if (!this.canEdit() || !e.notebook.isDirty) {
+            if (!this.canSync() || !e.notebook.isDirty) {
                 return;
             }
 
-            log.info("内容变更：" + e.notebook.uri.path);
-
-            if (this.client) {
-                const workspaceFolder = vscode.workspace.getWorkspaceFolder(e.notebook.uri);
-                if (!workspaceFolder) {
-                    log.showError("当前文件不属于任何工作区");
-                    return;
-                }
-
-                // 对于notebook，我们无法直接获取文本内容，所以不传递文档对象
-                this.client.fileSync(workspaceFolder.uri.fsPath, e.notebook.uri.path, false);
+            const workspaceFolder = this.getWorkspaceFolder(e.notebook.uri);
+            if (!workspaceFolder) {
+                return;
             }
+
+            void this.syncFileToPhone(workspaceFolder.uri.fsPath, e.notebook.uri.fsPath, false);
         });
 
+        // 编辑过程中防抖同步（不要求 isDirty，避免保存后漏同步）
         vscode.workspace.onDidChangeTextDocument((e: TextDocumentChangeEvent) => {
-            if (!this.canEdit() || !e.document.isDirty) {
+            if (!this.canSync()) {
                 return;
             }
-            log.debug("文件变更：" + e.document.fileName);
-            if (this.client) {
-                const workspaceFolder = vscode.workspace.getWorkspaceFolder(e.document.uri);
-                if (!workspaceFolder) {
-                    log.showError("当前文件不属于任何工作区");
-                    return;
-                }
 
-                // 使用防抖的文件同步，传递文档对象以获取实时内容
-                this.debouncedFileSync(workspaceFolder.uri.fsPath, e.document.fileName, false, e.document);
+            const workspaceFolder = this.getWorkspaceFolder(e.document.uri);
+            if (!workspaceFolder) {
+                return;
             }
+
+            this.scheduleFileSync(workspaceFolder.uri.fsPath, e.document.fileName, e.document);
         });
 
-        // vscode.workspace.onDidChangeWorkspaceFolders((e: WorkspaceFoldersChangeEvent) => {
-        //     if (!e.added) {
-        //         return false;
-        //     }
+        // 保存时立即同步最新内容
+        vscode.workspace.onDidSaveTextDocument((document) => {
+            if (!this.canSync()) {
+                return;
+            }
 
-        //     for (let i in e.added) {
-        //         if (this.canEdit(e.added[i].uri.path)) {
-        //             continue;
-        //         }
-        //         return log.info("目录变更：" + e.added[i].uri.path);
-        //     }
-        // });
+            const workspaceFolder = this.getWorkspaceFolder(document.uri);
+            if (!workspaceFolder) {
+                return;
+            }
+
+            void this.syncFileToPhone(workspaceFolder.uri.fsPath, document.fileName, false, document);
+        });
 
         vscode.workspace.onDidCreateFiles(async (e: FileCreateEvent) => {
-            if (!e.files) {
+            if (!e.files?.length) {
                 return;
             }
 
-            log.info("文件新增：");
-            for (let i in e.files) {
-                if (!this.canEdit()) {
+            for (const file of e.files) {
+                if (!this.canSync()) {
                     continue;
                 }
-                log.info(e.files[i].fsPath);
-                if (this.client) {
-                    const workspaceFolder = vscode.workspace.getWorkspaceFolder(e.files[i]);
-                    if (!workspaceFolder) {
-                        log.showError("当前文件不属于任何工作区");
-                        return;
-                    }
-                    const stats = await vscode.workspace.fs.stat(e.files[i]);
-                    const isDir = stats.type == vscode.FileType.File ? false : true;
-                    
-                    if (isDir) {
-                        // 如果是文件夹，递归同步文件夹内的所有文件
-                        await this.syncDirectoryRecursively(workspaceFolder.uri.fsPath, e.files[i].fsPath);
-                    } else {
-                        // 如果是文件，直接同步 - 尝试获取文档对象
-                        const document = vscode.workspace.textDocuments.find(doc => doc.fileName === e.files[i].fsPath);
-                        this.client.fileSync(workspaceFolder.uri.fsPath, e.files[i].fsPath, isDir, document);
-                    }
+
+                const workspaceFolder = this.getWorkspaceFolder(file);
+                if (!workspaceFolder) {
+                    continue;
                 }
+
+                log.info(`文件新增：${getRelativePath(workspaceFolder.uri.fsPath, file.fsPath)}`);
+                const stats = await vscode.workspace.fs.stat(file);
+                const isDir = stats.type !== vscode.FileType.File;
+                await this.handleFileUri(file, isDir);
             }
         });
 
         vscode.workspace.onDidDeleteFiles((e: FileDeleteEvent) => {
-            if (!e.files) {
+            if (!e.files?.length || !this.canSync() || !this.client) {
                 return;
             }
 
-            if (e.files && e.files.length > 0) {
-                log.info("文件移除：");
-                for (let i in e.files) {
-                    log.info(e.files[i].fsPath);
-                    if (this.client) {
-                        const workspaceFolder = vscode.workspace.getWorkspaceFolder(e.files[i]);
-                        if (!workspaceFolder) {
-                            log.showError("当前文件不属于任何工作区");
-                            return;
-                        }
-
-                        //文件其实不需要传类型，文件和文件夹不会重名，Android端直接能判断 【这里因为文件已经被删了，所以判断不了类型】
-                        this.client.fileDelete(workspaceFolder.uri.fsPath, e.files[i].fsPath, false);
-                    }
+            for (const file of e.files) {
+                const workspaceFolder = this.getWorkspaceFolder(file);
+                if (!workspaceFolder) {
+                    continue;
                 }
+
+                log.info(`文件移除：${getRelativePath(workspaceFolder.uri.fsPath, file.fsPath)}`);
+                void this.client.fileDelete(workspaceFolder.uri.fsPath, file.fsPath, false);
             }
         });
 
         vscode.workspace.onDidRenameFiles(async (e: vscode.FileRenameEvent) => {
-            if (!e.files) {
+            if (!e.files?.length || !this.canSync() || !this.client) {
                 return;
             }
 
-            for (let i in e.files) {
-                if (!this.canEdit()) {
+            for (const file of e.files) {
+                const workspaceFolder = this.getWorkspaceFolder(file.newUri);
+                if (!workspaceFolder) {
                     continue;
                 }
-                log.info("文件重命名：" + e.files[i].oldUri.fsPath + "变更为" + e.files[i].newUri.fsPath);
-                if (this.client) {
-                    const stats = await vscode.workspace.fs.stat(e.files[i].newUri);
-                    const isDir = stats.type == vscode.FileType.File ? false : true;
-                    const workspaceFolder = vscode.workspace.getWorkspaceFolder(e.files[i].newUri);
-                    if (!workspaceFolder) {
-                        log.showError("当前文件不属于任何工作区");
-                        return;
-                    }
 
-                    // 删除旧文件/文件夹
-                    this.client.fileDelete(workspaceFolder.uri.fsPath, e.files[i].oldUri.fsPath, isDir);
-                    
-                    if (isDir) {
-                        // 如果是文件夹，递归同步文件夹内的所有文件
-                        await this.syncDirectoryRecursively(workspaceFolder.uri.fsPath, e.files[i].newUri.fsPath);
-                    } else {
-                        // 如果是文件，直接同步 - 尝试获取文档对象
-                        const document = vscode.workspace.textDocuments.find(doc => doc.fileName === e.files[i].newUri.fsPath);
-                        this.client.fileSync(workspaceFolder.uri.fsPath, e.files[i].newUri.fsPath, isDir, document);
-                    }
-                }
+                log.info(`文件重命名：${file.oldUri.fsPath} → ${file.newUri.fsPath}`);
+                const stats = await vscode.workspace.fs.stat(file.newUri);
+                const isDir = stats.type !== vscode.FileType.File;
+
+                await this.client.fileDelete(workspaceFolder.uri.fsPath, file.oldUri.fsPath, isDir);
+                await this.handleFileUri(file.newUri, isDir);
             }
+        });
+
+        // 监听磁盘上的文件修改（Git 切换、外部工具写入等）
+        const fileWatcher = vscode.workspace.createFileSystemWatcher('**/*');
+        fileWatcher.onDidChange((uri) => {
+            if (!this.canSync()) {
+                return;
+            }
+            const workspaceFolder = this.getWorkspaceFolder(uri);
+            if (!workspaceFolder) {
+                return;
+            }
+            this.scheduleFileSync(workspaceFolder.uri.fsPath, uri.fsPath);
         });
     }
 }

@@ -97,6 +97,7 @@ export function activate(context: vscode.ExtensionContext) {
 			client = new Client(ip);
 			await client.createSocket();
 			workspace.setClient(client);
+			workspace.setStop(false);
 			if (options.auto) {
 				log.showInfo(`局域网扫描连接成功：${ip}`);
 				log.info(`局域网扫描连接成功：${ip}`);
