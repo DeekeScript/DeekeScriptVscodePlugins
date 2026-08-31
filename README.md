@@ -144,24 +144,9 @@ DeekeScript Pro 是面向 Android 自动化的脚本与交付平台：支持无�
 
 ---
 
-## 与标准版 DeekeScript 插件并存
+## 区分插件名称
 
-本扩展（`DeekeScript.deekescript-pro`）已与标准版 **DeekeScript** 扩展在标识上隔离，可同时安装，但**同一工作区建议只启用一个**用于连接与同步。
-
-| 项目 | Pro 扩展 | 标准版扩展（若同时安装） |
-| --- | --- | --- |
-| 扩展 ID | `DeekeScript.deekescript-pro` | `DeekeScript.deekescript` |
-| 命令 ID | `deekeScriptPro.*` | `deekeScript.*` |
-| 设置命名空间 | `deekeScriptPro.*` | `deekeScript.*` |
-| 类型声明文件 | `.vscode/deekeScriptPro.d.ts` | `.vscode/deekeScript.d.ts` |
-| 输出通道 | DeekeScript Pro | DeekeScript |
-
-**仍可能冲突的情况**（需避免）：
-
-- 两个扩展同时连接同一台手机并执行同步/运行，手机端 WebSocket 与文件状态可能混乱。
-- 若 `jsconfig.json` 同时包含两份类型声明，TypeScript 可能报全局符号重复定义。
-
-**推荐做法**：开发 Pro 项目时只启用 **DeekeScript Pro** 扩展，在扩展面板禁用标准版 DeekeScript。
+VS Code 扩展市场同时有 **DeekeScript** 与 **DeekeScript Pro** 两款插件，名称相近。开发 Pro 项目请安装 **DeekeScript Pro**（扩展 ID：`DeekeScript.deekescript-pro`），勿与标准版 **DeekeScript** 插件搞混。
 
 ---
 
