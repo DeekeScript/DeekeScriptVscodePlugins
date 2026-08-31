@@ -67,7 +67,7 @@ API 文档链接指向 [DeekeScript Pro 文档](https://script.deeke.cn)。非 D
 
 ### 1. 安装
 
-在 VS Code 扩展市场搜索 **DeekeScript Pro** 并安装本扩展。
+在 VS Code 扩展市场搜索 **DeekeScript Pro** 并安装本扩展。若已安装标准版 **DeekeScript**，请先在扩展面板禁用它，避免编辑器右上角出现两套图标。
 
 ### 2. 准备工程
 
@@ -146,7 +146,7 @@ DeekeScript Pro 是面向 Android 自动化的脚本与交付平台：支持无�
 
 ## 区分插件名称
 
-VS Code 扩展市场同时有 **DeekeScript** 与 **DeekeScript Pro** 两款插件，名称相近。开发 Pro 项目请安装 **DeekeScript Pro**（扩展 ID：`DeekeScript.deekescript-pro`），勿与标准版 **DeekeScript** 插件搞混。
+VS Code 扩展市场同时有 **DeekeScript** 与 **DeekeScript Pro** 两款插件，名称相近。开发 Pro 项目请安装 **DeekeScript Pro**（扩展 ID：`DeekeScript.deekescript-pro`），并在扩展面板**禁用**标准版 **DeekeScript**。两款同时启用时，编辑器右上角都会挂上同步/运行等图标，容易点错、造成混淆。
 
 ---
 

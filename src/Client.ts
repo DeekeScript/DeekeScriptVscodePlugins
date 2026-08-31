@@ -159,4 +159,9 @@ export default class Client {
     getRetryInfo() {
         return this.wsService.getRetryInfo();
     }
+
+    /** 是否允许局域网自动发现 */
+    allowsAutoDiscovery(): boolean {
+        return this.wsService.allowsAutoDiscovery();
+    }
 } 

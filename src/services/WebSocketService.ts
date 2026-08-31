@@ -343,4 +343,25 @@ export class WebSocketService {
       maxRetries: this.wsMaxRetries
     };
   }
+
+  /** 是否允许局域网自动发现（未连接且不在重连过程中） */
+  allowsAutoDiscovery(): boolean {
+    if (this.isConnected) {
+      return false;
+    }
+    if (this.connectionState === ConnectionState.CONNECTING) {
+      return false;
+    }
+    if (this.connectionState === ConnectionState.RECONNECTING) {
+      return false;
+    }
+    if (this.reconnectTimer) {
+      return false;
+    }
+    // 曾连上过且仍在重试周期内 → 交给重连逻辑，不扫网
+    if (this.retryOpen && this.currentRetryCount < this.wsMaxRetries) {
+      return false;
+    }
+    return true;
+  }
 } 

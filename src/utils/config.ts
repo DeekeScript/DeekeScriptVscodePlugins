@@ -5,6 +5,8 @@ export interface DeekeScriptConfig {
     port: number;
     wsMaxRetries: number;
     wsBaseDelay: number;
+    discoveryEnabled: boolean;
+    discoveryIntervalMs: number;
   };
   logging: {
     level: 'debug' | 'info' | 'warn' | 'error';
@@ -40,7 +42,9 @@ export class ConfigManager {
       server: {
         port: workspaceConfig.get('server.port', 8088),
         wsMaxRetries: workspaceConfig.get('server.wsMaxRetries', 59),
-        wsBaseDelay: workspaceConfig.get('server.wsBaseDelay', 1000)
+        wsBaseDelay: workspaceConfig.get('server.wsBaseDelay', 1000),
+        discoveryEnabled: workspaceConfig.get('server.discoveryEnabled', true),
+        discoveryIntervalMs: workspaceConfig.get('server.discoveryIntervalMs', 5000)
       },
       logging: {
         level: workspaceConfig.get('logging.level', 'info'),

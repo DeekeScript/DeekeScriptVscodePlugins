@@ -2,7 +2,7 @@
   "name": "deekescript-pro",
   "displayName": "DeekeScript Pro",
   "description": "DeekeScript Pro 官方 VS Code 扩展：连接手机端 Pro 运行时，同步工程、调试脚本，并提供 API 智能提示。",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "icon": "resources/logo.png",
   "publisher": "DeekeScript",
   "engines": {
@@ -37,7 +37,8 @@
   },
   "pricing": "Free",
   "activationEvents": [
-    "workspaceContains:deekeScript.json"
+    "workspaceContains:deekeScript.json",
+    "onStartupFinished"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -106,6 +107,19 @@
           "type": "number",
           "default": 1000,
           "description": "WebSocket 基础重连延迟（毫秒）"
+        },
+        "deekeScriptPro.server.discoveryEnabled": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "description": "未连接时是否每 5 秒自动扫描局域网内的 DeekeScript Pro 手机端"
+        },
+        "deekeScriptPro.server.discoveryIntervalMs": {
+          "type": "number",
+          "default": 5000,
+          "minimum": 3000,
+          "scope": "window",
+          "description": "局域网自动扫描间隔（毫秒），仅在未连接且重连已结束时生效"
         },
         "deekeScriptPro.logging.level": {
           "type": "string",
