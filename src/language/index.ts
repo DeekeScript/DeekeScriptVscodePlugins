@@ -1,10 +1,8 @@
 import * as vscode from 'vscode';
 import { setupWorkspaceTypeChecking } from './workspaceSetup';
+import { clearDeekeScriptProjectCache, hasAnyDeekeScriptProject } from './utils';
 
-export function activateLanguageFeatures(context: vscode.ExtensionContext): void {
-    // Disable word-based suggestions — they add noise in DeekeScript workspaces.
-    // API completions, hover, signature help and diagnostics come from the
-    // generated .vscode/deekeScript.d.ts via the TypeScript language service.
+async function applyDeekeScriptEditorSettings(): Promise<void> {
     const config = vscode.workspace.getConfiguration();
     const jsKey = '[javascript]';
     const currentOverride = config.get<Record<string, unknown>>(jsKey) || {};
@@ -13,11 +11,35 @@ export function activateLanguageFeatures(context: vscode.ExtensionContext): void
             ...currentOverride,
             'editor.wordBasedSuggestions': 'off',
         };
-        config.update(jsKey, merged, vscode.ConfigurationTarget.Workspace);
+        await config.update(jsKey, merged, vscode.ConfigurationTarget.Workspace);
+    }
+}
+
+async function setupDeekeScriptLanguageSupport(): Promise<void> {
+    if (!await hasAnyDeekeScriptProject()) {
+        return;
     }
 
-    setupWorkspaceTypeChecking();
+    await applyDeekeScriptEditorSettings();
+    await setupWorkspaceTypeChecking();
+}
+
+export function activateLanguageFeatures(context: vscode.ExtensionContext): void {
+    // Only generate deekeScript.d.ts / jsconfig.json when deekeScript.json exists.
+    void setupDeekeScriptLanguageSupport();
+
     context.subscriptions.push(
-        vscode.workspace.onDidChangeWorkspaceFolders(() => setupWorkspaceTypeChecking())
+        vscode.workspace.onDidChangeWorkspaceFolders(() => {
+            clearDeekeScriptProjectCache();
+            void setupDeekeScriptLanguageSupport();
+        })
     );
+
+    const deekeJsonWatcher = vscode.workspace.createFileSystemWatcher('**/deekeScript.json');
+    deekeJsonWatcher.onDidCreate(() => {
+        clearDeekeScriptProjectCache();
+        void setupDeekeScriptLanguageSupport();
+    });
+    deekeJsonWatcher.onDidDelete(() => clearDeekeScriptProjectCache());
+    context.subscriptions.push(deekeJsonWatcher);
 }

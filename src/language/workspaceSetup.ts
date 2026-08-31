@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { generateDtsContent } from './dtsGenerator';
+import { isDeekeScriptWorkspaceFolder } from './utils';
 
 /** Ensure jsconfig.json exists at workspace root with checkJs enabled. */
 async function ensureJsConfig(workspaceFolder: vscode.Uri): Promise<void> {
@@ -64,24 +65,19 @@ async function ensureJsConfig(workspaceFolder: vscode.Uri): Promise<void> {
 }
 
 /**
- * Set up workspace-level type checking for a DeekeScript project.
+ * Set up workspace-level type checking for DeekeScript projects only.
  * Writes deekeScript.d.ts (global API declarations) and jsconfig.json (checkJs enabled).
- * Skips if the workspace is not a DeekeScript project.
+ * Skips workspace folders that do not contain deekeScript.json.
  */
 export async function setupWorkspaceTypeChecking(): Promise<void> {
     const folders = vscode.workspace.workspaceFolders;
     if (!folders || folders.length === 0) return;
 
     for (const folder of folders) {
-        // Only set up if this workspace is a DeekeScript project
-        const deekeJsonUri = vscode.Uri.parse(folder.uri.toString() + '/deekeScript.json');
-        try {
-            await vscode.workspace.fs.stat(deekeJsonUri);
-        } catch {
+        if (!await isDeekeScriptWorkspaceFolder(folder)) {
             continue;
         }
 
-        // Write type declarations to .vscode/ (hidden IDE config dir, not project source)
         const vscodeDir = vscode.Uri.parse(folder.uri.toString() + '/.vscode');
         const dtsUri = vscode.Uri.parse(vscodeDir.toString() + '/deekeScript.d.ts');
         const dtsContent = generateDtsContent();
@@ -100,7 +96,6 @@ export async function setupWorkspaceTypeChecking(): Promise<void> {
             // Old file doesn't exist — fine
         }
 
-        // Ensure jsconfig.json exists with checkJs enabled
         await ensureJsConfig(folder.uri);
     }
 }
