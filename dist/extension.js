@@ -68,7 +68,7 @@ function activate(context) {
     log_1.default.modelInfo("~_~ 欢迎使用" + context.extension.packageJSON.displayName + "~");
     let client = undefined;
     let workspace = new Workspace_1.Workspace();
-    workspace.init(); //监听工作区文件变化
+    workspace.init(context); //监听工作区文件变化
     // 全局状态（跨工作区持久化）
     const globalState = context.globalState;
     const serverConfig = config_1.configManager.getServerConfig();
@@ -120,13 +120,14 @@ function activate(context) {
             }
         }
         discovery.pause();
+        const newClient = new Client_1.default(ip);
         try {
             await globalState.update('deekeScriptPro.ip', ip);
+            await newClient.createSocket();
             if (client) {
                 client.close();
             }
-            client = new Client_1.default(ip);
-            await client.createSocket();
+            client = newClient;
             workspace.setClient(client);
             workspace.setStop(false);
             if (options.auto) {
@@ -136,6 +137,7 @@ function activate(context) {
             return true;
         }
         catch (error) {
+            newClient.close();
             const message = error instanceof Error ? error.message : '未知错误';
             if (options.silentFail) {
                 log_1.default.info(`自动连接 ${ip} 失败（${message}），将继续扫描局域网`);
@@ -272,12 +274,14 @@ function activate(context) {
     context.subscriptions.push(vscode.commands.registerCommand('deekeScriptPro.serverClose', () => {
         if (client?.state()) {
             client.close();
+            workspace.setClient(undefined);
             workspace.setStop(true); //stop workspace listening
             log_1.default.showInfo("连接关闭成功");
             ensureDiscoveryRunning();
         }
         else {
             client?.close();
+            workspace.setClient(undefined);
             log_1.default.showError("连接未开启");
             ensureDiscoveryRunning();
         }
@@ -6911,20 +6915,17 @@ const config_1 = __webpack_require__(4);
 class Workspace {
     stop = false;
     client = undefined;
-    debouncedFileSync;
-    constructor() {
-        this.debouncedFileSync = (0, utils_1.debounce)((baseDir, filePath, isDir, document) => {
-            void this.syncFileToPhone(baseDir, filePath, isDir, document);
-        }, config_1.configManager.getSyncConfig().debounceDelay);
-    }
+    /** 按文件路径独立防抖，避免多文件编辑时互相覆盖 */
+    debouncers = new Map();
+    fileWatcher;
     setStop(stop) {
         this.stop = stop;
     }
     setClient(client) {
         this.client = client;
     }
-    init() {
-        this.listening();
+    init(context) {
+        this.listening(context);
         log_1.default.info("正在监听工作区文件变化（连接成功后自动同步到手机）");
     }
     /** 已连接且允许自动同步 */
@@ -6950,11 +6951,25 @@ class Workspace {
     getWorkspaceFolder(uri) {
         return vscode.workspace.getWorkspaceFolder(uri);
     }
+    getDebouncedSync(filePath) {
+        let fn = this.debouncers.get(filePath);
+        if (!fn) {
+            fn = (0, utils_1.debounce)((baseDir, path, document) => {
+                void this.syncFileToPhone(baseDir, path, false, document);
+            }, config_1.configManager.getSyncConfig().debounceDelay);
+            this.debouncers.set(filePath, fn);
+        }
+        return fn;
+    }
     scheduleFileSync(baseDir, filePath, document) {
         if (!this.canSync() || !this.shouldSyncPath(filePath)) {
             return;
         }
-        this.debouncedFileSync(baseDir, filePath, false, document);
+        this.getDebouncedSync(filePath)(baseDir, filePath, document);
+    }
+    isDocumentOpen(uri) {
+        const target = uri.toString();
+        return vscode.workspace.textDocuments.some((doc) => doc.uri.toString() === target);
     }
     async syncFileToPhone(baseDir, filePath, isDir = false, document) {
         if (!this.canSync() || !this.client) {
@@ -6976,11 +6991,17 @@ class Workspace {
         if (!this.canSync() || !this.client) {
             return;
         }
+        if (!this.shouldSyncPath(dirPath)) {
+            return;
+        }
         try {
             await this.client.fileSync(baseDir, dirPath, true);
             const entries = await vscode.workspace.fs.readDirectory(vscode.Uri.file(dirPath));
             for (const entry of entries) {
                 const fullPath = dirPath + '/' + entry[0];
+                if (!this.shouldSyncPath(fullPath)) {
+                    continue;
+                }
                 const isDir = entry[1] === vscode.FileType.Directory;
                 if (isDir) {
                     await this.syncDirectoryRecursively(baseDir, fullPath);
@@ -7010,11 +7031,11 @@ class Workspace {
         const document = vscode.workspace.textDocuments.find((doc) => doc.fileName === filePath);
         await this.syncFileToPhone(workspaceFolder.uri.fsPath, filePath, false, document);
     }
-    listening() {
-        vscode.workspace.onDidChangeConfiguration((_e) => {
+    listening(context) {
+        context.subscriptions.push(vscode.workspace.onDidChangeConfiguration((_e) => {
             config_1.configManager.reloadConfig();
-        });
-        vscode.workspace.onDidChangeNotebookDocument((e) => {
+        }));
+        context.subscriptions.push(vscode.workspace.onDidChangeNotebookDocument((e) => {
             if (!this.canSync() || !e.notebook.isDirty) {
                 return;
             }
@@ -7023,9 +7044,9 @@ class Workspace {
                 return;
             }
             void this.syncFileToPhone(workspaceFolder.uri.fsPath, e.notebook.uri.fsPath, false);
-        });
-        // 编辑过程中防抖同步（不要求 isDirty，避免保存后漏同步）
-        vscode.workspace.onDidChangeTextDocument((e) => {
+        }));
+        // 编辑过程中防抖同步
+        context.subscriptions.push(vscode.workspace.onDidChangeTextDocument((e) => {
             if (!this.canSync()) {
                 return;
             }
@@ -7034,9 +7055,9 @@ class Workspace {
                 return;
             }
             this.scheduleFileSync(workspaceFolder.uri.fsPath, e.document.fileName, e.document);
-        });
+        }));
         // 保存时立即同步最新内容
-        vscode.workspace.onDidSaveTextDocument((document) => {
+        context.subscriptions.push(vscode.workspace.onDidSaveTextDocument((document) => {
             if (!this.canSync()) {
                 return;
             }
@@ -7045,8 +7066,8 @@ class Workspace {
                 return;
             }
             void this.syncFileToPhone(workspaceFolder.uri.fsPath, document.fileName, false, document);
-        });
-        vscode.workspace.onDidCreateFiles(async (e) => {
+        }));
+        context.subscriptions.push(vscode.workspace.onDidCreateFiles(async (e) => {
             if (!e.files?.length) {
                 return;
             }
@@ -7063,12 +7084,15 @@ class Workspace {
                 const isDir = stats.type !== vscode.FileType.File;
                 await this.handleFileUri(file, isDir);
             }
-        });
-        vscode.workspace.onDidDeleteFiles((e) => {
+        }));
+        context.subscriptions.push(vscode.workspace.onDidDeleteFiles((e) => {
             if (!e.files?.length || !this.canSync() || !this.client) {
                 return;
             }
             for (const file of e.files) {
+                if (!this.shouldSyncPath(file.fsPath)) {
+                    continue;
+                }
                 const workspaceFolder = this.getWorkspaceFolder(file);
                 if (!workspaceFolder) {
                     continue;
@@ -7076,8 +7100,8 @@ class Workspace {
                 log_1.default.info(`文件移除：${(0, utils_1.getRelativePath)(workspaceFolder.uri.fsPath, file.fsPath)}`);
                 void this.client.fileDelete(workspaceFolder.uri.fsPath, file.fsPath, false);
             }
-        });
-        vscode.workspace.onDidRenameFiles(async (e) => {
+        }));
+        context.subscriptions.push(vscode.workspace.onDidRenameFiles(async (e) => {
             if (!e.files?.length || !this.canSync() || !this.client) {
                 return;
             }
@@ -7092,11 +7116,11 @@ class Workspace {
                 await this.client.fileDelete(workspaceFolder.uri.fsPath, file.oldUri.fsPath, isDir);
                 await this.handleFileUri(file.newUri, isDir);
             }
-        });
-        // 监听磁盘上的文件修改（Git 切换、外部工具写入等）
-        const fileWatcher = vscode.workspace.createFileSystemWatcher('**/*');
-        fileWatcher.onDidChange((uri) => {
-            if (!this.canSync()) {
+        }));
+        // 磁盘修改（Git 切换、外部工具写入）；已在编辑器中打开的文件由 onDidChangeTextDocument 处理
+        this.fileWatcher = vscode.workspace.createFileSystemWatcher('**/*');
+        this.fileWatcher.onDidChange((uri) => {
+            if (!this.canSync() || this.isDocumentOpen(uri)) {
                 return;
             }
             const workspaceFolder = this.getWorkspaceFolder(uri);
@@ -7105,6 +7129,7 @@ class Workspace {
             }
             this.scheduleFileSync(workspaceFolder.uri.fsPath, uri.fsPath);
         });
+        context.subscriptions.push(this.fileWatcher);
     }
 }
 exports.Workspace = Workspace;

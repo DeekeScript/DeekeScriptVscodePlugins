@@ -26,7 +26,7 @@ export function activate(context: vscode.ExtensionContext) {
 	log.modelInfo("~_~ 欢迎使用" + context.extension.packageJSON.displayName + "~");
 	let client: Client | undefined = undefined;
 	let workspace: Workspace = new Workspace();
-	workspace.init();//监听工作区文件变化
+	workspace.init(context);//监听工作区文件变化
 	// 全局状态（跨工作区持久化）
 	const globalState = context.globalState;
 
@@ -89,13 +89,14 @@ export function activate(context: vscode.ExtensionContext) {
 		}
 
 		discovery.pause();
+		const newClient = new Client(ip);
 		try {
 			await globalState.update('deekeScriptPro.ip', ip);
+			await newClient.createSocket();
 			if (client) {
 				client.close();
 			}
-			client = new Client(ip);
-			await client.createSocket();
+			client = newClient;
 			workspace.setClient(client);
 			workspace.setStop(false);
 			if (options.auto) {
@@ -104,6 +105,7 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 			return true;
 		} catch (error) {
+			newClient.close();
 			const message = error instanceof Error ? error.message : '未知错误';
 			if (options.silentFail) {
 				log.info(`自动连接 ${ip} 失败（${message}），将继续扫描局域网`);
@@ -257,11 +259,13 @@ export function activate(context: vscode.ExtensionContext) {
 	context.subscriptions.push(vscode.commands.registerCommand('deekeScriptPro.serverClose', () => {
 		if (client?.state()) {
 			client.close();
+			workspace.setClient(undefined);
 			workspace.setStop(true);//stop workspace listening
 			log.showInfo("连接关闭成功");
 			ensureDiscoveryRunning();
 		} else {
 			client?.close();
+			workspace.setClient(undefined);
 			log.showError("连接未开启");
 			ensureDiscoveryRunning();
 		}
