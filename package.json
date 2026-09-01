@@ -2,7 +2,7 @@
   "name": "deekescript-pro",
   "displayName": "DeekeScript Pro",
   "description": "DeekeScript Pro 官方 VS Code 扩展：连接手机端 Pro 运行时，同步工程、调试脚本，并提供 API 智能提示。",
-  "version": "2.0.4",
+  "version": "2.0.5",
   "icon": "resources/logo.png",
   "publisher": "DeekeScript",
   "engines": {
