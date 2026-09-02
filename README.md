@@ -44,8 +44,8 @@
 
 当工作区根目录存在 `deekeScript.json` 时，扩展会自动：
 
-1. 生成 `.vscode/deekeScriptPro.d.ts`（全局 API 类型声明，含参数与返回值说明）。
-2. 配置 `jsconfig.json`，启用 `checkJs` 与类型检查。
+1. 生成 `.vscode/deekeScriptPro.d.ts`（全局 API 类型声明，含 `FloatWindow`、定时器、参数与返回值说明）。
+2. 配置 `jsconfig.json`，启用 `checkJs` 与类型检查（仅引用 `deekeScriptPro.d.ts`，不再使用旧的 `deekeScript.d.ts`）。
 3. 通过 TypeScript 语言服务提供**补全、悬停文档、签名帮助与类型诊断**。
 
 API 文档链接指向 [DeekeScript Pro 文档](https://script.deeke.cn)。非 DeekeScript 工程不会写入上述文件，也不会改动编辑器行为。

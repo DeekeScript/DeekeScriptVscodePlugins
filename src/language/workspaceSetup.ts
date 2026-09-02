@@ -92,6 +92,14 @@ export async function setupWorkspaceTypeChecking(): Promise<void> {
         }
         await vscode.workspace.fs.writeFile(dtsUri, Buffer.from(dtsContent, 'utf-8'));
 
+        // Clean up legacy type stubs (superseded by deekeScriptPro.d.ts)
+        const legacyDtsUri = vscode.Uri.parse(vscodeDir.toString() + '/deekeScript.d.ts');
+        try {
+            await vscode.workspace.fs.delete(legacyDtsUri);
+        } catch {
+            // Legacy file doesn't exist — fine
+        }
+
         // Clean up old file from workspace root (previously written there)
         const oldDtsUri = vscode.Uri.parse(folder.uri.toString() + '/deekeScript.d.ts');
         try {

@@ -2,6 +2,78 @@
 const DOC = 'https://script.deeke.cn';
 const DOC_LABEL = 'DeekeScript Pro 文档';
 
+/** 悬浮球菜单相关类型（在 FloatWindow 全局之前生成） */
+export function generateFloatWindowTypes(): string {
+    return [
+        '// --- 悬浮球 ---',
+        '',
+        '/** 菜单点击回调 @see {@link ' + DOC + '/v2/floatWindow.html ' + DOC_LABEL + '} */',
+        'type DeekeFloatWindowMenuHandler = (menuId?: string) => void;',
+        '',
+        '/** deekeScript.json → floatWindow.menus[] / FloatWindow.setMenus @see {@link ' + DOC + '/v2/config.html ' + DOC_LABEL + '} */',
+        'interface DeekeFloatWindowMenuItem {',
+        '    /** 菜单 id，给 FloatWindow.on / update 用 */',
+        '    id?: string;',
+        '    /** 内置 close / play / hide，或工程内图片路径 */',
+        '    icon?: string;',
+        '    /** 图标下方文案 */',
+        '    label?: string;',
+        '    /** 点击函数名，或内联 function（setMenus 时） */',
+        '    onTap?: string | DeekeFloatWindowMenuHandler;',
+        '    /** always（默认）/ running / idle */',
+        '    show?: "always" | "running" | "idle" | string;',
+        '    /** 圆形底色，如 #FFE8E6 */',
+        '    background?: string;',
+        '    /** 是否参与展示，默认 true */',
+        '    visible?: boolean;',
+        '}',
+        '',
+        '/** FloatWindow.update 的 patch 参数 @see {@link ' + DOC + '/v2/floatWindow.html#floatwindow-updateid-patch ' + DOC_LABEL + '} */',
+        'interface DeekeFloatWindowMenuPatch {',
+        '    icon?: string;',
+        '    label?: string;',
+        '    background?: string;',
+        '    show?: string;',
+        '    visible?: boolean;',
+        '    onTap?: string | DeekeFloatWindowMenuHandler;',
+        '}',
+        '',
+        '/** deekeScript.json → floatWindow @see {@link ' + DOC + '/v2/config.html ' + DOC_LABEL + '} */',
+        'interface DeekeFloatWindowConfig {',
+        '    /** 展开菜单项，最多 5 个；不写则连点两次停止任务 */',
+        '    menus?: DeekeFloatWindowMenuItem[];',
+        '}',
+        '',
+    ].join('\n');
+}
+
+/** 全局定时器（Rhino 注入，非 Http.setTimeout） */
+export function generateTimerGlobals(): string {
+    const doc = DOC + '/base/timer/timer.html';
+    return [
+        '// --- 全局定时器 ---',
+        '',
+        '/**',
+        ' * 延时执行一次',
+        ' * @see {@link ' + doc + ' ' + DOC_LABEL + '}',
+        ' */',
+        'declare function setTimeout(callback: () => void, delay: number, ...args: unknown[]): number;',
+        '',
+        '/**',
+        ' * 按间隔循环执行',
+        ' * @see {@link ' + doc + ' ' + DOC_LABEL + '}',
+        ' */',
+        'declare function setInterval(callback: () => void, delay: number, ...args: unknown[]): number;',
+        '',
+        '/** @see {@link ' + doc + ' ' + DOC_LABEL + '} */',
+        'declare function clearTimeout(id: number): void;',
+        '',
+        '/** @see {@link ' + doc + ' ' + DOC_LABEL + '} */',
+        'declare function clearInterval(id: number): void;',
+        '',
+    ].join('\n');
+}
+
 export function generateV2DtsContent(): string {
     return [
         '// --- V2 页面与自定义组件（Page / Component）---',

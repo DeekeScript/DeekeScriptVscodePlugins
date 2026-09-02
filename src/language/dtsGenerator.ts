@@ -1,13 +1,56 @@
 import { apiData, GlobalDef, MethodDef, ParamDef, PropertyDef } from './apiData';
-import { generateV2DtsContent } from './v2Dts';
+import { generateFloatWindowTypes, generateTimerGlobals, generateV2DtsContent } from './v2Dts';
 
 /** Pro 版 API 文档根地址 */
 const DOC_BASE = 'https://script.deeke.cn';
 const DOC_LINK_LABEL = 'DeekeScript Pro 文档';
 
+/** 文档不在 /base/{slug}/{slug}.html 下的 API（路径以 script.deeke.cn 为准） */
+const DOC_URL_OVERRIDES: Record<string, string> = {
+    Access: `${DOC_BASE}/access/access.html`,
+    Console: `${DOC_BASE}/base/console/console.html`,
+    console: `${DOC_BASE}/base/console/console.html`,
+    Cos: `${DOC_BASE}/base/cos/cos.html`,
+    DeekeScript: `${DOC_BASE}/base/deekeScript/deekeScript.html`,
+    DeviceApp: `${DOC_BASE}/do/deviceApp.html`,
+    DeviceHardware: `${DOC_BASE}/do/deviceHardware.html`,
+    DeviceKiosk: `${DOC_BASE}/do/deviceKiosk.html`,
+    DevicePolicy: `${DOC_BASE}/do/devicePolicy.html`,
+    Dialogs: `${DOC_BASE}/advance/dialogs.html`,
+    Encrypt: `${DOC_BASE}/advance/encryption.html`,
+    Engines: `${DOC_BASE}/advance/engines/engines.html`,
+    FloatDialogs: `${DOC_BASE}/advance/dialogs.html`,
+    FloatWindow: `${DOC_BASE}/v2/floatWindow.html`,
+    ForegroundServiceBridge: `${DOC_BASE}/advance/foreground.html`,
+    Hid: `${DOC_BASE}/hid/method.html`,
+    Images: `${DOC_BASE}/advance/photoAndColor.html`,
+    JavaImporter: `${DOC_BASE}/advance/extension/extension.html`,
+    KeyBoards: `${DOC_BASE}/inputMethod/method.html`,
+    NotificationBridge: `${DOC_BASE}/advance/notification.html`,
+    SocketIoClient: `${DOC_BASE}/base/socket/client.html`,
+    socketIoClient: `${DOC_BASE}/base/socket/client.html`,
+    System: `${DOC_BASE}/base/system/funcs.html`,
+    Threads: `${DOC_BASE}/advance/threads.html`,
+    setTimeout: `${DOC_BASE}/base/timer/timer.html`,
+    setInterval: `${DOC_BASE}/base/timer/timer.html`,
+    clearTimeout: `${DOC_BASE}/base/timer/timer.html`,
+    clearInterval: `${DOC_BASE}/base/timer/timer.html`,
+};
+
 function buildDocUrl(globalName: string): string {
+    const override = DOC_URL_OVERRIDES[globalName];
+    if (override) {
+        return override;
+    }
     const slug = globalName.charAt(0).toLowerCase() + globalName.slice(1);
     return `${DOC_BASE}/base/${slug}/${slug}.html`;
+}
+
+function buildFloatWindowMethodAnchor(method: MethodDef): string {
+    if (method.name === 'stopTask') {
+        return 'floatwindow-stoptask';
+    }
+    return `floatwindow-${method.name.toLowerCase()}`;
 }
 
 /** VitePress 锚点：## launch(packageName) → #launch-packagename */
@@ -19,7 +62,14 @@ function buildMethodAnchor(method: MethodDef): string {
 }
 
 function buildMethodDocUrl(globalName: string, method: MethodDef): string {
-    return `${buildDocUrl(globalName)}#${buildMethodAnchor(method)}`;
+    const base = buildDocUrl(globalName);
+    if (globalName === 'FloatWindow') {
+        return `${base}#${buildFloatWindowMethodAnchor(method)}`;
+    }
+    if (globalName === 'Engines' && method.name === 'closeAll') {
+        return `${base}#closeall`;
+    }
+    return `${base}#${buildMethodAnchor(method)}`;
 }
 
 function buildDtsParamSig(p: ParamDef): string {
@@ -199,6 +249,9 @@ export function generateDtsContent(): string {
 
         switch (def.kind) {
             case 'object':
+                if (name === 'FloatWindow') {
+                    lines.push(generateFloatWindowTypes());
+                }
                 appendJSDocLines(lines, buildGlobalJSDoc(def, name), '');
                 lines.push(`interface ${name} {`);
                 for (const m of def.methods) {
@@ -269,6 +322,7 @@ export function generateDtsContent(): string {
         }
     }
 
+    lines.push(generateTimerGlobals());
     lines.push(generateV2DtsContent());
 
     return lines.join('\n');

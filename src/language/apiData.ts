@@ -1527,21 +1527,14 @@ export const apiData: Record<string, GlobalDef> = {
             },
             {
                 name: 'closeAll',
-                description: '关闭当前线程和子线程所有脚本（包含定时器、socket、Hid等；不会关闭hooks脚本）',
+                description: '关闭当前任务脚本及其子脚本（须在 tasks/*.js 执行线程内调用）。悬浮窗菜单回调不在该线程，停任务请用 FloatWindow.stopTask()',
                 params: [
                 ],
                 returns: 'void',
             },
             {
                 name: 'closeOther',
-                description: '关闭当前线程之外的其他线程和子线程（包含定时器、socket、Hid等；不会关闭hooks脚本）',
-                params: [
-                ],
-                returns: 'void',
-            },
-            {
-                name: 'closeHook',
-                description: '关闭hooks脚本',
+                description: '关闭当前线程之外的其他线程和子线程（包含定时器、socket、Hid 等）',
                 params: [
                 ],
                 returns: 'void',
@@ -1983,6 +1976,59 @@ export const apiData: Record<string, GlobalDef> = {
                     { name: 'callback', type: '(dialog: FloatDialog) => boolean | void' },
                 ],
                 returns: 'boolean',
+            },
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+    },
+    'FloatWindow': {
+        kind: 'object',
+        description: '项目悬浮窗展开菜单（点「运行」进入项目后，或打包 App）。未配置 floatWindow.menus 时与开发器一致：连点两次停止任务',
+        methods: [
+            {
+                name: 'setMenus',
+                description: '运行时替换菜单。最多 5 个；传空数组表示运行时无菜单\n@param menus 菜单项数组',
+                params: [
+                    { name: 'menus', type: 'DeekeFloatWindowMenuItem[]' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'on',
+                description: '绑定菜单项点击回调。传入对象可一次绑定多个 id → function\n@param handlers 回调映射，或菜单 id\n@param fn 单个 id 对应的回调（可选）',
+                params: [
+                    { name: 'handlers', type: 'Record<string, DeekeFloatWindowMenuHandler> | string' },
+                    { name: 'fn', type: 'DeekeFloatWindowMenuHandler', optional: true },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'update',
+                description: '修改某个菜单项的 label / icon / background / show / visible 等，展开时会立刻刷新\n@param id 菜单 id\n@param patch 要修改的字段',
+                params: [
+                    { name: 'id', type: 'string' },
+                    { name: 'patch', type: 'DeekeFloatWindowMenuPatch' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'collapse',
+                description: '收起展开的扇形菜单',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'stopTask',
+                description: '从悬浮窗停止整项项目任务并恢复悬浮球 UI。菜单里手动停任务用本方法；Engines.closeAll() 在菜单回调线程无效',
+                params: [
+                ],
+                returns: 'void',
             },
         ],
         properties: [
