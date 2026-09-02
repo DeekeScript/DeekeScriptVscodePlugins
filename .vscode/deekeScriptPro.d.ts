@@ -5486,9 +5486,6 @@ interface storage {
  */
 interface webSocket {
     /**
-     * 静态关闭所有连接 */
-     * static closeAll(): void;
-     * /**
      * 连接成功
      * @see {@link https://script.deeke.cn/base/webSocket/webSocket.html#onopen DeekeScript Pro 文档}
      */
@@ -5698,14 +5695,26 @@ interface DeekeComponentOptions {
     detached?(): void;
 }
 
+/** Page 方法内 this（含 Page({ data }) 推断出的 data 字段） @see {@link https://script.deeke.cn/v2/events.html#页面方法 DeekeScript Pro 文档} */
+type DeekePageInstanceWithData<TData extends Record<string, unknown>> = Omit<DeekePageInstance, "data" | "setData"> & {
+    data: TData;
+    setData(patch: Partial<TData>): void;
+};
+
+/** Component 方法内 this（含 Component({ data }) 推断出的 data 字段） @see {@link https://script.deeke.cn/v2/component.html DeekeScript Pro 文档} */
+type DeekeComponentInstanceWithData<TData extends Record<string, unknown>> = Omit<DeekeComponentInstance, "data" | "setData"> & {
+    data: TData;
+    setData(patch: Partial<TData>): void;
+};
+
 /**
  * 注册页面逻辑（写在 page.js）
  * @see {@link https://script.deeke.cn/v2/page.html DeekeScript Pro 文档}
  */
-declare function Page(options: DeekePageOptions & ThisType<DeekePageInstance> & Record<string, unknown>): void;
+declare function Page<TData extends Record<string, unknown> = Record<string, unknown>>(options: Omit<DeekePageOptions, "data"> & { data?: TData } & ThisType<DeekePageInstanceWithData<TData>> & Record<string, unknown>): void;
 
 /**
  * 注册自定义组件逻辑（写在 component.js）
  * @see {@link https://script.deeke.cn/v2/component.html DeekeScript Pro 文档}
  */
-declare function Component(options: DeekeComponentOptions & ThisType<DeekeComponentInstance> & Record<string, unknown>): void;
+declare function Component<TData extends Record<string, unknown> = Record<string, unknown>>(options: Omit<DeekeComponentOptions, "data"> & { data?: TData } & ThisType<DeekeComponentInstanceWithData<TData>> & Record<string, unknown>): void;

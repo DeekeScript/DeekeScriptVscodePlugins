@@ -6015,7 +6015,7 @@ export const apiData: Record<string, GlobalDef> = {
         methods: [
             {
                 name: 'onOpen',
-                description: '静态关闭所有连接 */\n    static closeAll(): void;\n\n    /**\n连接成功',
+                description: '连接成功',
                 params: [
                 ],
                 returns: 'void',
