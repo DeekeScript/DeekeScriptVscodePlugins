@@ -74,6 +74,40 @@ export function generateTimerGlobals(): string {
     ].join('\n');
 }
 
+/**
+ * DeekeScript 的 require / module（Rhino CommonJS，非 Node）。
+ * 配合 jsconfig baseUrl="."，使 require('app/a.js') 按项目根解析并有跳转/提示。
+ */
+export function generateRequireGlobals(): string {
+    const doc = DOC + '/v2/require.html';
+    return [
+        '// --- require / module（项目根相对路径）---',
+        '',
+        '/**',
+        ' * 加载工程内 JS 模块（Rhino CommonJS）。',
+        ' * - 以 ./ 或 ../ 开头：相对当前文件',
+        ' * - 其它写法：相对项目根，如 require(\'common/permission.js\')、require(\'app/a.js\')',
+        ' * 必须带 .js 后缀。导出方用 module.exports。',
+        ' * @param id 模块路径',
+        ' * @returns 被引入文件的 module.exports',
+        ' * @see {@link ' + doc + ' ' + DOC_LABEL + '}',
+        ' */',
+        'declare function require(id: string): any;',
+        '',
+        '/** CommonJS 模块对象（当前文件） @see {@link ' + doc + ' ' + DOC_LABEL + '} */',
+        'interface DeekeModule {',
+        '    exports: any;',
+        '}',
+        '',
+        '/** 当前模块；导出写 module.exports = { ... } */',
+        'declare var module: DeekeModule;',
+        '',
+        '/** 等同于 module.exports 的初始引用 */',
+        'declare var exports: any;',
+        '',
+    ].join('\n');
+}
+
 export function generateV2DtsContent(): string {
     return [
         '// --- V2 页面与自定义组件（Page / Component）---',

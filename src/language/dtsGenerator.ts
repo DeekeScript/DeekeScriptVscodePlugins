@@ -1,5 +1,5 @@
 import { apiData, GlobalDef, MethodDef, ParamDef, PropertyDef } from './apiData';
-import { generateFloatWindowTypes, generateTimerGlobals, generateV2DtsContent } from './v2Dts';
+import { generateFloatWindowTypes, generateRequireGlobals, generateTimerGlobals, generateV2DtsContent } from './v2Dts';
 
 /** Pro 版 API 文档根地址 */
 const DOC_BASE = 'https://script.deeke.cn';
@@ -322,6 +322,7 @@ export function generateDtsContent(): string {
         }
     }
 
+    lines.push(generateRequireGlobals());
     lines.push(generateTimerGlobals());
     lines.push(generateV2DtsContent());
 

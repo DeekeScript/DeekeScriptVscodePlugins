@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { setupWorkspaceTypeChecking } from './workspaceSetup';
 import { clearDeekeScriptProjectCache, hasAnyDeekeScriptProject } from './utils';
+import { registerRequirePathCompletion } from './requireCompletion';
 
 async function applyDeekeScriptEditorSettings(): Promise<void> {
     const config = vscode.workspace.getConfiguration();
@@ -25,6 +26,7 @@ async function setupDeekeScriptLanguageSupport(): Promise<void> {
 }
 
 export function activateLanguageFeatures(context: vscode.ExtensionContext): void {
+    registerRequirePathCompletion(context);
     void setupDeekeScriptLanguageSupport();
 
     context.subscriptions.push(

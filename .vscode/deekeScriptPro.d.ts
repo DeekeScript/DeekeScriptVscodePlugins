@@ -5522,6 +5522,30 @@ interface webSocket {
     close(): void;
 }
 
+// --- require / module（项目根相对路径）---
+
+/**
+ * 加载工程内 JS 模块（Rhino CommonJS）。
+ * - 以 ./ 或 ../ 开头：相对当前文件
+ * - 其它写法：相对项目根，如 require('common/permission.js')、require('app/a.js')
+ * 必须带 .js 后缀。导出方用 module.exports。
+ * @param id 模块路径
+ * @returns 被引入文件的 module.exports
+ * @see {@link https://script.deeke.cn/v2/require.html DeekeScript Pro 文档}
+ */
+declare function require(id: string): any;
+
+/** CommonJS 模块对象（当前文件） @see {@link https://script.deeke.cn/v2/require.html DeekeScript Pro 文档} */
+interface DeekeModule {
+    exports: any;
+}
+
+/** 当前模块；导出写 module.exports = { ... } */
+declare var module: DeekeModule;
+
+/** 等同于 module.exports 的初始引用 */
+declare var exports: any;
+
 // --- 全局定时器 ---
 
 /**

@@ -25,6 +25,13 @@ async function ensureJsConfig(workspaceFolder: vscode.Uri): Promise<void> {
         existing.compilerOptions.target = 'ES2022';
     }
 
+    // DeekeScript require('app/a.js') 相对项目根（非 Node node_modules）。
+    // baseUrl 让语言服务把非 ./ ../ 的路径解析到工程根，从而有跳转与补全。
+    existing.compilerOptions.baseUrl = '.';
+    if (!existing.compilerOptions.module) {
+        existing.compilerOptions.module = 'commonjs';
+    }
+
     // Remove @types/node — DeekeScript runs on Android Rhino, not Node.js.
     // @types/node (>=22) ships web-globals shims (Storage, WebSocket, etc.)
     // whose constructor-type declarations conflict with DeekeScript globals.
