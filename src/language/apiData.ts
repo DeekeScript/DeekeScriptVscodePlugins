@@ -3222,6 +3222,92 @@ export const apiData: Record<string, GlobalDef> = {
         ],
         funcReturns: '',
     },
+    'ScreenRecord': {
+        kind: 'object',
+        description: '屏幕录制。与 Images.capture 共用 MediaProjection 权限；录屏走 MediaRecorder（无图片处理），截图单独走图片处理。',
+        methods: [
+            {
+                name: 'start',
+                description: '开始录屏，输出到应用缓存目录（screen_时间戳.mp4）\n@returns 是否启动成功',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'start',
+                description: '开始录屏\n@param outputPath 输出 mp4 路径（绝对路径 / project:// / 相对项目根）；空则写缓存目录\n@returns 是否启动成功',
+                params: [
+                    { name: 'outputPath', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'start',
+                description: '开始录屏\n@param outputPath 输出路径\n@param bitRate 视频码率（bps），<=0 时默认约 6000000\n@returns 是否启动成功',
+                params: [
+                    { name: 'outputPath', type: 'string' },
+                    { name: 'bitRate', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'start',
+                description: '开始录屏\n@param outputPath 输出路径\n@param bitRate 码率（bps），<=0 用默认\n@param frameRate 帧率，<=0 时默认 30\n@returns 是否启动成功',
+                params: [
+                    { name: 'outputPath', type: 'string' },
+                    { name: 'bitRate', type: 'number' },
+                    { name: 'frameRate', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'start',
+                description: '开始录屏\n@param outputPath 输出路径\n@param bitRate 码率（bps）\n@param frameRate 帧率\n@param withAudio 是否录制麦克风（需 RECORD_AUDIO 权限）\n@returns 是否启动成功',
+                params: [
+                    { name: 'outputPath', type: 'string' },
+                    { name: 'bitRate', type: 'number' },
+                    { name: 'frameRate', type: 'number' },
+                    { name: 'withAudio', type: 'boolean' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'stop',
+                description: '停止录屏\n@returns 输出文件路径；失败（如录制过短）返回 null',
+                params: [
+                ],
+                returns: 'string | null',
+            },
+            {
+                name: 'isRecording',
+                description: '是否正在录屏\n@returns 是否正在录屏',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'getOutputPath',
+                description: '当前或最近一次录屏输出路径\n@returns 输出路径',
+                params: [
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'hasRecordAudioPermission',
+                description: '是否已授予麦克风权限（withAudio 为 true 时需要）\n@returns 是否有 RECORD_AUDIO 权限',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+    },
     'SocketIoClient': {
         kind: 'object',
         description: '',

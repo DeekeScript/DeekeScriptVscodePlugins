@@ -3060,6 +3060,78 @@ declare class Rect {
 }
 
 /**
+ * 屏幕录制。与 Images.capture 共用 MediaProjection 权限；录屏走 MediaRecorder（无图片处理），截图单独走图片处理。
+ * @see {@link https://script.deeke.cn/base/screenRecord/screenRecord.html DeekeScript Pro 文档}
+ */
+interface ScreenRecord {
+    /**
+     * 开始录屏，输出到应用缓存目录（screen_时间戳.mp4）
+     * @returns {boolean} 是否启动成功
+     * @see {@link https://script.deeke.cn/base/screenRecord/screenRecord.html#start DeekeScript Pro 文档}
+     */
+    start(): boolean;
+    /**
+     * 开始录屏
+     * @param {string} outputPath 输出 mp4 路径（绝对路径 / project:// / 相对项目根）；空则写缓存目录
+     * @returns {boolean} 是否启动成功
+     * @see {@link https://script.deeke.cn/base/screenRecord/screenRecord.html#start-outputpath DeekeScript Pro 文档}
+     */
+    start(outputPath: string): boolean;
+    /**
+     * 开始录屏
+     * @param {string} outputPath 输出路径
+     * @param {number} bitRate 视频码率（bps），<=0 时默认约 6000000
+     * @returns {boolean} 是否启动成功
+     * @see {@link https://script.deeke.cn/base/screenRecord/screenRecord.html#start-outputpath-bitrate DeekeScript Pro 文档}
+     */
+    start(outputPath: string, bitRate: number): boolean;
+    /**
+     * 开始录屏
+     * @param {string} outputPath 输出路径
+     * @param {number} bitRate 码率（bps），<=0 用默认
+     * @param {number} frameRate 帧率，<=0 时默认 30
+     * @returns {boolean} 是否启动成功
+     * @see {@link https://script.deeke.cn/base/screenRecord/screenRecord.html#start-outputpath-bitrate-framerate DeekeScript Pro 文档}
+     */
+    start(outputPath: string, bitRate: number, frameRate: number): boolean;
+    /**
+     * 开始录屏
+     * @param {string} outputPath 输出路径
+     * @param {number} bitRate 码率（bps）
+     * @param {number} frameRate 帧率
+     * @param {boolean} withAudio 是否录制麦克风（需 RECORD_AUDIO 权限）
+     * @returns {boolean} 是否启动成功
+     * @see {@link https://script.deeke.cn/base/screenRecord/screenRecord.html#start-outputpath-bitrate-framerate-withaudio DeekeScript Pro 文档}
+     */
+    start(outputPath: string, bitRate: number, frameRate: number, withAudio: boolean): boolean;
+    /**
+     * 停止录屏
+     * @returns {string | null} 输出文件路径；失败（如录制过短）返回 null
+     * @see {@link https://script.deeke.cn/base/screenRecord/screenRecord.html#stop DeekeScript Pro 文档}
+     */
+    stop(): string | null;
+    /**
+     * 是否正在录屏
+     * @returns {boolean} 是否正在录屏
+     * @see {@link https://script.deeke.cn/base/screenRecord/screenRecord.html#isrecording DeekeScript Pro 文档}
+     */
+    isRecording(): boolean;
+    /**
+     * 当前或最近一次录屏输出路径
+     * @returns {string} 输出路径
+     * @see {@link https://script.deeke.cn/base/screenRecord/screenRecord.html#getoutputpath DeekeScript Pro 文档}
+     */
+    getOutputPath(): string;
+    /**
+     * 是否已授予麦克风权限（withAudio 为 true 时需要）
+     * @returns {boolean} 是否有 RECORD_AUDIO 权限
+     * @see {@link https://script.deeke.cn/base/screenRecord/screenRecord.html#hasrecordaudiopermission DeekeScript Pro 文档}
+     */
+    hasRecordAudioPermission(): boolean;
+}
+declare var ScreenRecord: ScreenRecord;
+
+/**
  * @see {@link https://script.deeke.cn/base/socket/client.html DeekeScript Pro 文档}
  */
 interface SocketIoClient {
