@@ -21,6 +21,7 @@ const DOC_URL_OVERRIDES: Record<string, string> = {
     Engines: `${DOC_BASE}/advance/engines/engines.html`,
     FloatDialogs: `${DOC_BASE}/advance/dialogs.html`,
     FloatWindow: `${DOC_BASE}/v2/floatWindow.html`,
+    FloatPage: `${DOC_BASE}/v2/floatPage.html`,
     ForegroundServiceBridge: `${DOC_BASE}/advance/foreground.html`,
     Hid: `${DOC_BASE}/hid/method.html`,
     Images: `${DOC_BASE}/advance/photoAndColor.html`,

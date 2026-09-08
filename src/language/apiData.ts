@@ -1988,7 +1988,7 @@ export const apiData: Record<string, GlobalDef> = {
     },
     'FloatWindow': {
         kind: 'object',
-        description: '项目悬浮窗展开菜单（点「运行」进入项目后，或打包 App）。未配置 floatWindow.menus 时与开发器一致：连点两次停止任务',
+        description: '项目悬浮球展开菜单（点「运行」进入项目后，或打包 App）。未配置 floatWindow.menus 时与开发器一致：连点两次停止任务。JSON 悬浮窗请用 FloatPage',
         methods: [
             {
                 name: 'setMenus',
@@ -2029,6 +2029,196 @@ export const apiData: Record<string, GlobalDef> = {
                 params: [
                 ],
                 returns: 'void',
+            },
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+    },
+    'FloatPage': {
+        kind: 'object',
+        description: '悬浮窗：用 floats/<id>/page.json + page.js 描述内容，脚本可 setData 控制。与 FloatWindow 悬浮球菜单不同',
+        methods: [
+            {
+                name: 'show',
+                description: '显示悬浮窗。id 为实例名；可用 path 指定加载的 floats 目录（多开可共用同一套 page）。width/height 默认约 80% 屏宽、高 500px；opacity 默认 0.5；touchable:false 点击穿透\n@param floatId 悬浮窗实例 id\n@param options 可选：x,y,width,height,path,opacity,background,draggable,focusable,touchable',
+                params: [
+                    { name: 'floatId', type: 'string' },
+                    { name: 'options', type: '{ x?: number; y?: number; width?: number; height?: number; path?: string; opacity?: number; background?: string; draggable?: boolean; focusable?: boolean; touchable?: boolean }', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'hide',
+                description: '隐藏悬浮窗，实例与数据保留\n@param floatId 悬浮窗 id',
+                params: [
+                    { name: 'floatId', type: 'string' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'close',
+                description: '销毁悬浮窗：移除实例并清空面板数据；下次 show 同一 id 为新建\n@param floatId 悬浮窗 id',
+                params: [
+                    { name: 'floatId', type: 'string' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'closeAll',
+                description: '销毁全部悬浮窗并清空各自数据',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'exists',
+                description: '悬浮窗实例是否存在（含已 hide）\n@param floatId 悬浮窗 id',
+                params: [
+                    { name: 'floatId', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'isShowing',
+                description: '悬浮窗是否正在显示\n@param floatId 悬浮窗 id',
+                params: [
+                    { name: 'floatId', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'setData',
+                description: '按悬浮窗 id 写入数据并刷新界面\n@param floatId 悬浮窗 id\n@param data 要合并的数据对象',
+                params: [
+                    { name: 'floatId', type: 'string' },
+                    { name: 'data', type: 'Record<string, any>' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'getData',
+                description: '读取悬浮窗数据\n@param floatId 悬浮窗 id\n@param selector 可选字段名',
+                params: [
+                    { name: 'floatId', type: 'string' },
+                    { name: 'selector', type: 'string', optional: true },
+                ],
+                returns: 'any',
+            },
+            {
+                name: 'setPosition',
+                description: '设置悬浮窗位置（px）\n@param floatId 悬浮窗 id\n@param x 左边距\n@param y 上边距',
+                params: [
+                    { name: 'floatId', type: 'string' },
+                    { name: 'x', type: 'number' },
+                    { name: 'y', type: 'number' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'getPosition',
+                description: '读取悬浮窗位置\n@param floatId 悬浮窗 id',
+                params: [
+                    { name: 'floatId', type: 'string' },
+                ],
+                returns: '{ x: number; y: number } | null',
+            },
+            {
+                name: 'setSize',
+                description: '设置悬浮窗宽高（px）\n@param floatId 悬浮窗 id\n@param width 宽度\n@param height 高度',
+                params: [
+                    { name: 'floatId', type: 'string' },
+                    { name: 'width', type: 'number' },
+                    { name: 'height', type: 'number' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'getSize',
+                description: '读取悬浮窗宽高\n@param floatId 悬浮窗 id',
+                params: [
+                    { name: 'floatId', type: 'string' },
+                ],
+                returns: '{ width: number; height: number } | null',
+            },
+            {
+                name: 'setOpacity',
+                description: '设置悬浮窗外壳透明度（0~1，仅影响外壳底色，不淡化文字）\n@param floatId 悬浮窗 id\n@param opacity 透明度，0 全透明，1 不透明',
+                params: [
+                    { name: 'floatId', type: 'string' },
+                    { name: 'opacity', type: 'number' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'getOpacity',
+                description: '读取外壳透明度\n@param floatId 悬浮窗 id',
+                params: [
+                    { name: 'floatId', type: 'string' },
+                ],
+                returns: 'number | null',
+            },
+            {
+                name: 'setBackground',
+                description: '设置外壳底色（如 #000000、#006A65），透明度仍由 opacity 控制\n@param floatId 悬浮窗 id\n@param color 颜色字符串',
+                params: [
+                    { name: 'floatId', type: 'string' },
+                    { name: 'color', type: 'string' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'getBackground',
+                description: '读取外壳底色（#RRGGBB）\n@param floatId 悬浮窗 id',
+                params: [
+                    { name: 'floatId', type: 'string' },
+                ],
+                returns: 'string | null',
+            },
+            {
+                name: 'setTouchable',
+                description: '设置悬浮窗是否接收点击。false 时点击穿透到下层应用\n@param floatId 悬浮窗 id\n@param touchable 是否可点击',
+                params: [
+                    { name: 'floatId', type: 'string' },
+                    { name: 'touchable', type: 'boolean' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'isTouchable',
+                description: '是否接收点击\n@param floatId 悬浮窗 id',
+                params: [
+                    { name: 'floatId', type: 'string' },
+                ],
+                returns: 'boolean | null',
+            },
+            {
+                name: 'setDraggable',
+                description: '设置是否可通过顶部细条拖动\n@param floatId 悬浮窗 id\n@param draggable 是否可拖',
+                params: [
+                    { name: 'floatId', type: 'string' },
+                    { name: 'draggable', type: 'boolean' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'isDraggable',
+                description: '是否可拖动\n@param floatId 悬浮窗 id',
+                params: [
+                    { name: 'floatId', type: 'string' },
+                ],
+                returns: 'boolean | null',
+            },
+            {
+                name: 'selfId',
+                description: '在 floats 的 page.js 回调中返回当前悬浮窗实例 id（多开时与 path 可能不同）；非浮层返回 null',
+                params: [
+                ],
+                returns: 'string | null',
             },
         ],
         properties: [

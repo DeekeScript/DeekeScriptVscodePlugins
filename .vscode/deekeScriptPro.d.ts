@@ -2044,7 +2044,7 @@ interface DeekeFloatWindowConfig {
 }
 
 /**
- * 项目悬浮窗展开菜单（点「运行」进入项目后，或打包 App）。未配置 floatWindow.menus 时与开发器一致：连点两次停止任务
+ * 项目悬浮球展开菜单（点「运行」进入项目后，或打包 App）。未配置 floatWindow.menus 时与开发器一致：连点两次停止任务。JSON 悬浮窗请用 FloatPage
  * @see {@link https://script.deeke.cn/v2/floatWindow.html DeekeScript Pro 文档}
  */
 interface FloatWindow {
@@ -2080,6 +2080,62 @@ interface FloatWindow {
     stopTask(): void;
 }
 declare var FloatWindow: FloatWindow;
+
+/**
+ * 悬浮窗：用 floats/<id>/page.json + page.js 描述内容，脚本可 setData 控制。与 FloatWindow 悬浮球菜单不同
+ * @see {@link https://script.deeke.cn/v2/floatPage.html DeekeScript Pro 文档}
+ */
+interface FloatPage {
+    /**
+     * 显示悬浮窗。id 对应 floats/<id>/；无权限、目录不存在或超过 3 个时返回 false
+     * @param {string} floatId 悬浮窗 id 或路径
+     * @param {{ x?: number; y?: number; width?: number; height?: number; opacity?: number; background?: string; draggable?: boolean; focusable?: boolean; touchable?: boolean }} options 可选布局与外观
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/v2/floatPage.html#show-floatid-options DeekeScript Pro 文档}
+     */
+    show(floatId: string, options?: { x?: number; y?: number; width?: number; height?: number; opacity?: number; background?: string; draggable?: boolean; focusable?: boolean; touchable?: boolean }): boolean;
+    /** 隐藏悬浮窗，实例与数据保留 */
+    hide(floatId: string): void;
+    /** 销毁悬浮窗 */
+    close(floatId: string): void;
+    /** 销毁全部悬浮窗 */
+    closeAll(): void;
+    /** 实例是否存在（含已 hide） */
+    exists(floatId: string): boolean;
+    /** 是否正在显示 */
+    isShowing(floatId: string): boolean;
+    /** 写入数据并刷新 */
+    setData(floatId: string, data: Record<string, any>): void;
+    /** 读取面板数据 */
+    getData(floatId: string, selector?: string): any;
+    /** 设置位置（px） */
+    setPosition(floatId: string, x: number, y: number): void;
+    /** 读取位置 */
+    getPosition(floatId: string): { x: number; y: number } | null;
+    /** 设置宽高（px） */
+    setSize(floatId: string, width: number, height: number): void;
+    /** 读取宽高 */
+    getSize(floatId: string): { width: number; height: number } | null;
+    /** 设置外壳透明度 0~1 */
+    setOpacity(floatId: string, opacity: number): void;
+    /** 读取外壳透明度 */
+    getOpacity(floatId: string): number | null;
+    /** 设置外壳底色，如 #000000 */
+    setBackground(floatId: string, color: string): void;
+    /** 读取外壳底色 #RRGGBB */
+    getBackground(floatId: string): string | null;
+    /** false 时点击穿透 */
+    setTouchable(floatId: string, touchable: boolean): void;
+    /** 是否接收点击 */
+    isTouchable(floatId: string): boolean | null;
+    /** 是否可拖动 */
+    setDraggable(floatId: string, draggable: boolean): void;
+    /** 是否可拖动 */
+    isDraggable(floatId: string): boolean | null;
+    /** 当前悬浮窗实例 id（floats/page.js 内）；非浮层为 null */
+    selfId(): string | null;
+}
+declare var FloatPage: FloatPage;
 
 /**
  * @see {@link https://script.deeke.cn/advance/foreground.html DeekeScript Pro 文档}
