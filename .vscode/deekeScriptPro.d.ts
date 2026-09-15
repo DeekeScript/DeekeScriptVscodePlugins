@@ -734,6 +734,88 @@ interface Console {
 }
 
 /**
+ * 基于 OpenCV 的颜色查找（Mat）。日常找色优先用 Images。
+ * @see {@link https://script.deeke.cn/base/colors/colors.html DeekeScript Pro 文档}
+ */
+interface Colors {
+    /**
+     * 从项目存储目录读取图片为 Mat
+     * @param {string} file 相对项目存储根的路径
+     * @returns {Mat} Mat
+     * @see {@link https://script.deeke.cn/base/colors/colors.html#getmat-file DeekeScript Pro 文档}
+     */
+    getMat(file: string): Mat;
+    /**
+     * 从 assets 示例目录读取图片为 Mat
+     * @param {string} file 文件名
+     * @returns {Mat} Mat
+     * @see {@link https://script.deeke.cn/base/colors/colors.html#getmatbyassetsfile-file DeekeScript Pro 文档}
+     */
+    getMatByAssetsFile(file: string): Mat;
+    /**
+     * 从 assets 路径读取图片为 Mat
+     * @param {string} file assets 内路径
+     * @returns {Mat} Mat
+     * @see {@link https://script.deeke.cn/base/colors/colors.html#getmatbyassetfile-file DeekeScript Pro 文档}
+     */
+    getMatByAssetFile(file: string): Mat;
+    /**
+     * 在 Mat 中查找十六进制颜色（#RRGGBB 或 RRGGBB）
+     * @param {Mat} source 源图 Mat
+     * @param {string} hexColor 颜色
+     * @param {Rect} rect 可选搜索区域（Android Rect）（可选）
+     * @returns {Point[]} 匹配点数组
+     * @see {@link https://script.deeke.cn/base/colors/colors.html#find-source-hexcolor-rect DeekeScript Pro 文档}
+     */
+    find(source: Mat, hexColor: string, rect?: Rect): Point[];
+    /**
+     * 调试输出 Mat 像素（打日志）
+     * @param {Mat} image Mat
+     * @see {@link https://script.deeke.cn/base/colors/colors.html#show-image DeekeScript Pro 文档}
+     */
+    show(image: Mat): void;
+}
+declare var Colors: Colors;
+
+/**
+ * 腾讯云对象存储（COS）上传
+ * @see {@link https://script.deeke.cn/base/cos/cos.html DeekeScript Pro 文档}
+ */
+interface Cos {
+    /**
+     * 设置密钥并初始化客户端
+     * @param {string} secretId SecretId
+     * @param {string} secretKey SecretKey
+     * @param {string} region 地域，如 ap-guangzhou
+     * @param {string} bucket 桶名
+     * @see {@link https://script.deeke.cn/base/cos/cos.html#setconfig-secretid-secretkey-region-bucket DeekeScript Pro 文档}
+     */
+    setConfig(secretId: string, secretKey: string, region: string, bucket: string): void;
+    /**
+     * 同步上传。返回 [url, error]，成功时 error 为 null
+     * @param {string} localPath 本地文件路径
+     * @param {string} cosKey COS 对象键（可选，省略则自动生成）（可选）
+     * @returns {[string | null, string | null]} [url, error]
+     * @see {@link https://script.deeke.cn/base/cos/cos.html#upload-localpath-coskey DeekeScript Pro 文档}
+     */
+    upload(localPath: string, cosKey?: string): [string | null, string | null];
+    /**
+     * 异步上传
+     * @param {string} localPath 本地路径
+     * @param {string | { success: (url: string) => void; fail: (error: string) => void }} cosKeyOrCallback COS 键，或直接传 callback
+     * @param {{ success: (url: string) => void; fail: (error: string) => void }} callback 含 success(url)、fail(error)（可选）
+     * @see {@link https://script.deeke.cn/base/cos/cos.html#uploadasync-localpath-coskeyorcallback-callback DeekeScript Pro 文档}
+     */
+    uploadAsync(localPath: string, cosKeyOrCallback: string | { success: (url: string) => void; fail: (error: string) => void }, callback?: { success: (url: string) => void; fail: (error: string) => void }): void;
+    /**
+     * 关闭客户端，释放网络资源
+     * @see {@link https://script.deeke.cn/base/cos/cos.html#shutdown DeekeScript Pro 文档}
+     */
+    shutdown(): void;
+}
+declare var Cos: Cos;
+
+/**
  * @see {@link https://script.deeke.cn/base/deekeBounds/deekeBounds.html DeekeScript Pro 文档}
  */
 interface DeekeBounds {
@@ -1649,6 +1731,63 @@ interface Engines {
 declare var Engines: Engines;
 
 /**
+ * 应用目录句柄（返回 java.io.File）。日常路径字符串优先用 Files.getFilesPath 等。
+ * @see {@link https://script.deeke.cn/base/env/env.html DeekeScript Pro 文档}
+ */
+interface Env {
+    /**
+     * 应用私有 files 目录
+     * @returns {any} java.io.File
+     * @see {@link https://script.deeke.cn/base/env/env.html#getfilesdir DeekeScript Pro 文档}
+     */
+    getFilesDir(): any;
+    /**
+     * 应用缓存目录
+     * @returns {any} java.io.File
+     * @see {@link https://script.deeke.cn/base/env/env.html#getcachedir DeekeScript Pro 文档}
+     */
+    getCacheDir(): any;
+    /**
+     * 应用 data 目录
+     * @returns {any} java.io.File
+     * @see {@link https://script.deeke.cn/base/env/env.html#getdatadir DeekeScript Pro 文档}
+     */
+    getDataDir(): any;
+    /**
+     * 应用外部私有目录
+     * @param {string | null} dir 子目录名，可为 null
+     * @returns {any} java.io.File
+     * @see {@link https://script.deeke.cn/base/env/env.html#getexternalfilesdir-dir DeekeScript Pro 文档}
+     */
+    getExternalFilesDir(dir: string | null): any;
+    /**
+     * 应用外部缓存目录
+     * @returns {any} java.io.File
+     * @see {@link https://script.deeke.cn/base/env/env.html#getexternalcachedir DeekeScript Pro 文档}
+     */
+    getExternalCacheDir(): any;
+    /**
+     * 应用外部媒体目录列表
+     * @returns {any[]} java.io.File[]
+     * @see {@link https://script.deeke.cn/base/env/env.html#getexternalmediadirs DeekeScript Pro 文档}
+     */
+    getExternalMediaDirs(): any[];
+    /**
+     * 系统 Download 公共目录
+     * @returns {any} java.io.File
+     * @see {@link https://script.deeke.cn/base/env/env.html#getdownloaddir DeekeScript Pro 文档}
+     */
+    getDownloadDir(): any;
+    /**
+     * 系统 DCIM 公共目录
+     * @returns {any} java.io.File
+     * @see {@link https://script.deeke.cn/base/env/env.html#getdcimdir DeekeScript Pro 文档}
+     */
+    getDcimDir(): any;
+}
+declare var Env: Env;
+
+/**
  * @see {@link https://script.deeke.cn/base/files/files.html DeekeScript Pro 文档}
  */
 interface Files {
@@ -2087,52 +2226,150 @@ declare var FloatWindow: FloatWindow;
  */
 interface FloatPage {
     /**
-     * 显示悬浮窗。id 对应 floats/<id>/；无权限、目录不存在或超过 3 个时返回 false
-     * @param {string} floatId 悬浮窗 id 或路径
-     * @param {{ x?: number; y?: number; width?: number; height?: number; opacity?: number; background?: string; draggable?: boolean; focusable?: boolean; touchable?: boolean }} options 可选布局与外观
+     * 显示悬浮窗。id 为实例名；可用 path 指定加载的 floats 目录（多开可共用同一套 page）。width/height 默认约 80% 屏宽、高 500px；opacity 默认 0.5；touchable:false 点击穿透
+     * @param {string} floatId 悬浮窗实例 id
+     * @param {{ x?: number; y?: number; width?: number; height?: number; path?: string; opacity?: number; background?: string; draggable?: boolean; focusable?: boolean; touchable?: boolean }} options 可选：x,y,width,height,path,opacity,background,draggable,focusable,touchable（可选）
      * @returns {boolean} boolean
      * @see {@link https://script.deeke.cn/v2/floatPage.html#show-floatid-options DeekeScript Pro 文档}
      */
-    show(floatId: string, options?: { x?: number; y?: number; width?: number; height?: number; opacity?: number; background?: string; draggable?: boolean; focusable?: boolean; touchable?: boolean }): boolean;
-    /** 隐藏悬浮窗，实例与数据保留 */
+    show(floatId: string, options?: { x?: number; y?: number; width?: number; height?: number; path?: string; opacity?: number; background?: string; draggable?: boolean; focusable?: boolean; touchable?: boolean }): boolean;
+    /**
+     * 隐藏悬浮窗，实例与数据保留
+     * @param {string} floatId 悬浮窗 id
+     * @see {@link https://script.deeke.cn/v2/floatPage.html#hide-floatid DeekeScript Pro 文档}
+     */
     hide(floatId: string): void;
-    /** 销毁悬浮窗 */
+    /**
+     * 销毁悬浮窗：移除实例并清空面板数据；下次 show 同一 id 为新建
+     * @param {string} floatId 悬浮窗 id
+     * @see {@link https://script.deeke.cn/v2/floatPage.html#close-floatid DeekeScript Pro 文档}
+     */
     close(floatId: string): void;
-    /** 销毁全部悬浮窗 */
+    /**
+     * 销毁全部悬浮窗并清空各自数据
+     * @see {@link https://script.deeke.cn/v2/floatPage.html#closeall DeekeScript Pro 文档}
+     */
     closeAll(): void;
-    /** 实例是否存在（含已 hide） */
+    /**
+     * 悬浮窗实例是否存在（含已 hide）
+     * @param {string} floatId 悬浮窗 id
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/v2/floatPage.html#exists-floatid DeekeScript Pro 文档}
+     */
     exists(floatId: string): boolean;
-    /** 是否正在显示 */
+    /**
+     * 悬浮窗是否正在显示
+     * @param {string} floatId 悬浮窗 id
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/v2/floatPage.html#isshowing-floatid DeekeScript Pro 文档}
+     */
     isShowing(floatId: string): boolean;
-    /** 写入数据并刷新 */
+    /**
+     * 按悬浮窗 id 写入数据并刷新界面
+     * @param {string} floatId 悬浮窗 id
+     * @param {Record<string, any>} data 要合并的数据对象
+     * @see {@link https://script.deeke.cn/v2/floatPage.html#setdata-floatid-data DeekeScript Pro 文档}
+     */
     setData(floatId: string, data: Record<string, any>): void;
-    /** 读取面板数据 */
+    /**
+     * 读取悬浮窗数据
+     * @param {string} floatId 悬浮窗 id
+     * @param {string} selector 可选字段名（可选）
+     * @returns {any} any
+     * @see {@link https://script.deeke.cn/v2/floatPage.html#getdata-floatid-selector DeekeScript Pro 文档}
+     */
     getData(floatId: string, selector?: string): any;
-    /** 设置位置（px） */
+    /**
+     * 设置悬浮窗位置（px）
+     * @param {string} floatId 悬浮窗 id
+     * @param {number} x 左边距
+     * @param {number} y 上边距
+     * @see {@link https://script.deeke.cn/v2/floatPage.html#setposition-floatid-x-y DeekeScript Pro 文档}
+     */
     setPosition(floatId: string, x: number, y: number): void;
-    /** 读取位置 */
+    /**
+     * 读取悬浮窗位置
+     * @param {string} floatId 悬浮窗 id
+     * @returns {{ x: number; y: number } | null} { x: number; y: number } | null
+     * @see {@link https://script.deeke.cn/v2/floatPage.html#getposition-floatid DeekeScript Pro 文档}
+     */
     getPosition(floatId: string): { x: number; y: number } | null;
-    /** 设置宽高（px） */
+    /**
+     * 设置悬浮窗宽高（px）
+     * @param {string} floatId 悬浮窗 id
+     * @param {number} width 宽度
+     * @param {number} height 高度
+     * @see {@link https://script.deeke.cn/v2/floatPage.html#setsize-floatid-width-height DeekeScript Pro 文档}
+     */
     setSize(floatId: string, width: number, height: number): void;
-    /** 读取宽高 */
+    /**
+     * 读取悬浮窗宽高
+     * @param {string} floatId 悬浮窗 id
+     * @returns {{ width: number; height: number } | null} { width: number; height: number } | null
+     * @see {@link https://script.deeke.cn/v2/floatPage.html#getsize-floatid DeekeScript Pro 文档}
+     */
     getSize(floatId: string): { width: number; height: number } | null;
-    /** 设置外壳透明度 0~1 */
+    /**
+     * 设置悬浮窗外壳透明度（0~1，仅影响外壳底色，不淡化文字）
+     * @param {string} floatId 悬浮窗 id
+     * @param {number} opacity 透明度，0 全透明，1 不透明
+     * @see {@link https://script.deeke.cn/v2/floatPage.html#setopacity-floatid-opacity DeekeScript Pro 文档}
+     */
     setOpacity(floatId: string, opacity: number): void;
-    /** 读取外壳透明度 */
+    /**
+     * 读取外壳透明度
+     * @param {string} floatId 悬浮窗 id
+     * @returns {number | null} number | null
+     * @see {@link https://script.deeke.cn/v2/floatPage.html#getopacity-floatid DeekeScript Pro 文档}
+     */
     getOpacity(floatId: string): number | null;
-    /** 设置外壳底色，如 #000000 */
+    /**
+     * 设置外壳底色（如 #000000、#006A65），透明度仍由 opacity 控制
+     * @param {string} floatId 悬浮窗 id
+     * @param {string} color 颜色字符串
+     * @see {@link https://script.deeke.cn/v2/floatPage.html#setbackground-floatid-color DeekeScript Pro 文档}
+     */
     setBackground(floatId: string, color: string): void;
-    /** 读取外壳底色 #RRGGBB */
+    /**
+     * 读取外壳底色（#RRGGBB）
+     * @param {string} floatId 悬浮窗 id
+     * @returns {string | null} string | null
+     * @see {@link https://script.deeke.cn/v2/floatPage.html#getbackground-floatid DeekeScript Pro 文档}
+     */
     getBackground(floatId: string): string | null;
-    /** false 时点击穿透 */
+    /**
+     * 设置悬浮窗是否接收点击。false 时点击穿透到下层应用
+     * @param {string} floatId 悬浮窗 id
+     * @param {boolean} touchable 是否可点击
+     * @see {@link https://script.deeke.cn/v2/floatPage.html#settouchable-floatid-touchable DeekeScript Pro 文档}
+     */
     setTouchable(floatId: string, touchable: boolean): void;
-    /** 是否接收点击 */
+    /**
+     * 是否接收点击
+     * @param {string} floatId 悬浮窗 id
+     * @returns {boolean | null} boolean | null
+     * @see {@link https://script.deeke.cn/v2/floatPage.html#istouchable-floatid DeekeScript Pro 文档}
+     */
     isTouchable(floatId: string): boolean | null;
-    /** 是否可拖动 */
+    /**
+     * 设置是否可通过顶部细条拖动
+     * @param {string} floatId 悬浮窗 id
+     * @param {boolean} draggable 是否可拖
+     * @see {@link https://script.deeke.cn/v2/floatPage.html#setdraggable-floatid-draggable DeekeScript Pro 文档}
+     */
     setDraggable(floatId: string, draggable: boolean): void;
-    /** 是否可拖动 */
+    /**
+     * 是否可拖动
+     * @param {string} floatId 悬浮窗 id
+     * @returns {boolean | null} boolean | null
+     * @see {@link https://script.deeke.cn/v2/floatPage.html#isdraggable-floatid DeekeScript Pro 文档}
+     */
     isDraggable(floatId: string): boolean | null;
-    /** 当前悬浮窗实例 id（floats/page.js 内）；非浮层为 null */
+    /**
+     * 在 floats 的 page.js 回调中返回当前悬浮窗实例 id（多开时与 path 可能不同）；非浮层返回 null
+     * @returns {string | null} string | null
+     * @see {@link https://script.deeke.cn/v2/floatPage.html#selfid DeekeScript Pro 文档}
+     */
     selfId(): string | null;
 }
 declare var FloatPage: FloatPage;
@@ -3264,6 +3501,172 @@ interface SocketIoClient {
     setReconnect(bool: boolean): void;
 }
 declare var SocketIoClient: SocketIoClient;
+
+/**
+ * 本地 SQLite 数据库。写入时按对象字段自动建表、自动补列，无需手动 CREATE TABLE。
+ * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html DeekeScript Pro 文档}
+ */
+interface Sqlite {
+    /**
+     * 打开或创建指定名称的数据库，返回实例
+     * @param {string} name 数据库名称（可省略 .db 后缀）
+     * @returns {Sqlite} Sqlite 实例
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#create-name DeekeScript Pro 文档}
+     */
+    create(name: string): Sqlite;
+    /**
+     * 插入一行。表不存在则按对象字段自动创建；缺列则自动补列。默认自增主键 id
+     * @param {string} table 表名
+     * @param {object} data 行数据对象
+     * @returns {number} 新行 id，失败返回 -1
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#insert-table-data DeekeScript Pro 文档}
+     */
+    insert(table: string, data: object): number;
+    /**
+     * 按条件更新。where 可传 {}，但须带 options.limit（防误改全表）。options 支持 limit/offset/orderBy
+     * @param {string} table 表名
+     * @param {object} data 要更新的字段
+     * @param {object} where 条件对象，可为空对象
+     * @param {{ limit?: number; offset?: number; orderBy?: string }} options 可选 { limit?, offset?, orderBy? }（可选）
+     * @returns {number} 影响行数，失败返回 -1
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#update-table-data-where-options DeekeScript Pro 文档}
+     */
+    update(table: string, data: object, where: object, options?: { limit?: number; offset?: number; orderBy?: string }): number;
+    /**
+     * 按条件删除。where 可传 {}，但须带 options.limit（防误删全表；清空用 clear）。options 支持 limit/offset/orderBy
+     * @param {string} table 表名
+     * @param {object} where 条件对象，可为空对象
+     * @param {{ limit?: number; offset?: number; orderBy?: string }} options 可选 { limit?, offset?, orderBy? }（可选）
+     * @returns {number} 影响行数，失败返回 -1
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#delete-table-where-options DeekeScript Pro 文档}
+     */
+    delete(table: string, where: object, options?: { limit?: number; offset?: number; orderBy?: string }): number;
+    /**
+     * 查询多行。不传 where 或空对象则查全部。options：limit/offset/orderBy；第二参数也可只传 options
+     * @param {string} table 表名
+     * @param {object} where 可选条件对象（可选）
+     * @param {{ limit?: number; offset?: number; orderBy?: string }} options 可选 { limit?, offset?, orderBy? }（可选）
+     * @returns {Array} 行对象数组
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#find-table-where-options DeekeScript Pro 文档}
+     */
+    find(table: string, where?: object, options?: { limit?: number; offset?: number; orderBy?: string }): Array;
+    /**
+     * 查询第一行。where 可空；第二参数也可只传 options（如 orderBy）
+     * @param {string} table 表名
+     * @param {object} where 可选条件对象（可选）
+     * @param {{ orderBy?: string; offset?: number }} options 可选 { orderBy?, offset? }（limit 固定为 1）（可选）
+     * @returns {object | null} 行对象，没有则 null
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#findone-table-where-options DeekeScript Pro 文档}
+     */
+    findOne(table: string, where?: object, options?: { orderBy?: string; offset?: number }): object | null;
+    /**
+     * 统计行数；where 可空表示全表
+     * @param {string} table 表名
+     * @param {object} where 可选条件对象（可选）
+     * @returns {number} 行数
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#count-table-where DeekeScript Pro 文档}
+     */
+    count(table: string, where?: object): number;
+    /**
+     * 对列求和；where 可空；无数据返回 0
+     * @param {string} table 表名
+     * @param {string} column 列名
+     * @param {object} where 可选条件（可选）
+     * @returns {number} 合计
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#sum-table-column-where DeekeScript Pro 文档}
+     */
+    sum(table: string, column: string, where?: object): number;
+    /**
+     * 对列求平均；where 可空；无数据返回 0
+     * @param {string} table 表名
+     * @param {string} column 列名
+     * @param {object} where 可选条件（可选）
+     * @returns {number} 平均值
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#avg-table-column-where DeekeScript Pro 文档}
+     */
+    avg(table: string, column: string, where?: object): number;
+    /**
+     * 列最大值；where 可空；无数据返回 null
+     * @param {string} table 表名
+     * @param {string} column 列名
+     * @param {object} where 可选条件（可选）
+     * @returns {number | string | null} number | string | null
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#max-table-column-where DeekeScript Pro 文档}
+     */
+    max(table: string, column: string, where?: object): number | string | null;
+    /**
+     * 列最小值；where 可空；无数据返回 null
+     * @param {string} table 表名
+     * @param {string} column 列名
+     * @param {object} where 可选条件（可选）
+     * @returns {number | string | null} number | string | null
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#min-table-column-where DeekeScript Pro 文档}
+     */
+    min(table: string, column: string, where?: object): number | string | null;
+    /**
+     * 分组聚合。spec.by 必填；where 可空。可选 count/sum/avg/max/min/where/orderBy/limit/offset
+     * @param {string} table 表名
+     * @param {{ by: string | string[]; count?: boolean; sum?: string; avg?: string; max?: string; min?: string; where?: object; orderBy?: string; limit?: number; offset?: number }} spec 如 { by: "status", count: true, sum: "amount", where: {...} }
+     * @returns {Array} 每组一行的数组，字段含分组列与 count/sum/avg/max/min
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#group-table-spec DeekeScript Pro 文档}
+     */
+    group(table: string, spec: { by: string | string[]; count?: boolean; sum?: string; avg?: string; max?: string; min?: string; where?: object; orderBy?: string; limit?: number; offset?: number }): Array;
+    /**
+     * 清空表全部行，保留表结构
+     * @param {string} table 表名
+     * @returns {boolean} 是否成功
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#clear-table DeekeScript Pro 文档}
+     */
+    clear(table: string): boolean;
+    /**
+     * 删除整张表
+     * @param {string} table 表名
+     * @returns {boolean} 是否成功
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#drop-table DeekeScript Pro 文档}
+     */
+    drop(table: string): boolean;
+    /**
+     * 列出当前库中的所有表名
+     * @returns {string[]} 表名数组
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#tables DeekeScript Pro 文档}
+     */
+    tables(): string[];
+    /**
+     * 表是否存在
+     * @param {string} table 表名
+     * @returns {boolean} 是否存在
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#exists-table DeekeScript Pro 文档}
+     */
+    exists(table: string): boolean;
+    /**
+     * 执行原始 SELECT
+     * @param {string} sql SELECT 语句，可用 ? 占位符
+     * @param {Array} args 可选绑定参数数组（可选）
+     * @returns {Array} 行对象数组
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#query-sql-args DeekeScript Pro 文档}
+     */
+    query(sql: string, args?: Array): Array;
+    /**
+     * 执行非查询 SQL（INSERT/UPDATE/DELETE/DDL 等）
+     * @param {string} sql SQL 语句
+     * @param {Array} args 可选绑定参数数组（可选）
+     * @returns {boolean} 是否成功
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#exec-sql-args DeekeScript Pro 文档}
+     */
+    exec(sql: string, args?: Array): boolean;
+    /**
+     * 关闭数据库连接。之后再读写会自动重新打开
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#close DeekeScript Pro 文档}
+     */
+    close(): void;
+    /**
+     * 获取当前库文件名
+     * @returns {string} 库文件名
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#getname DeekeScript Pro 文档}
+     */
+    getName(): string;
+}
+declare var Sqlite: Sqlite;
 
 /**
  * @see {@link https://script.deeke.cn/base/storage/storage.html DeekeScript Pro 文档}
@@ -5477,6 +5880,171 @@ interface socketIoClient {
      * @see {@link https://script.deeke.cn/base/socket/client.html#setreconnect-bool DeekeScript Pro 文档}
      */
     setReconnect(bool: boolean): void;
+}
+
+/**
+ * 本地 SQLite 数据库。写入时按对象字段自动建表、自动补列，无需手动 CREATE TABLE。
+ * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html DeekeScript Pro 文档}
+ */
+interface sqlite {
+    /**
+     * 打开或创建指定名称的数据库，返回实例
+     * @param {string} name 数据库名称（可省略 .db 后缀）
+     * @returns {Sqlite} Sqlite 实例
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#create-name DeekeScript Pro 文档}
+     */
+    create(name: string): Sqlite;
+    /**
+     * 插入一行。表不存在则按对象字段自动创建；缺列则自动补列。默认自增主键 id
+     * @param {string} table 表名
+     * @param {object} data 行数据对象
+     * @returns {number} 新行 id，失败返回 -1
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#insert-table-data DeekeScript Pro 文档}
+     */
+    insert(table: string, data: object): number;
+    /**
+     * 按条件更新。where 可传 {}，但须带 options.limit（防误改全表）。options 支持 limit/offset/orderBy
+     * @param {string} table 表名
+     * @param {object} data 要更新的字段
+     * @param {object} where 条件对象，可为空对象
+     * @param {{ limit?: number; offset?: number; orderBy?: string }} options 可选 { limit?, offset?, orderBy? }（可选）
+     * @returns {number} 影响行数，失败返回 -1
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#update-table-data-where-options DeekeScript Pro 文档}
+     */
+    update(table: string, data: object, where: object, options?: { limit?: number; offset?: number; orderBy?: string }): number;
+    /**
+     * 按条件删除。where 可传 {}，但须带 options.limit（防误删全表；清空用 clear）。options 支持 limit/offset/orderBy
+     * @param {string} table 表名
+     * @param {object} where 条件对象，可为空对象
+     * @param {{ limit?: number; offset?: number; orderBy?: string }} options 可选 { limit?, offset?, orderBy? }（可选）
+     * @returns {number} 影响行数，失败返回 -1
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#delete-table-where-options DeekeScript Pro 文档}
+     */
+    delete(table: string, where: object, options?: { limit?: number; offset?: number; orderBy?: string }): number;
+    /**
+     * 查询多行。不传 where 或空对象则查全部。options：limit/offset/orderBy；第二参数也可只传 options
+     * @param {string} table 表名
+     * @param {object} where 可选条件对象（可选）
+     * @param {{ limit?: number; offset?: number; orderBy?: string }} options 可选 { limit?, offset?, orderBy? }（可选）
+     * @returns {Array} 行对象数组
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#find-table-where-options DeekeScript Pro 文档}
+     */
+    find(table: string, where?: object, options?: { limit?: number; offset?: number; orderBy?: string }): Array;
+    /**
+     * 查询第一行。where 可空；第二参数也可只传 options（如 orderBy）
+     * @param {string} table 表名
+     * @param {object} where 可选条件对象（可选）
+     * @param {{ orderBy?: string; offset?: number }} options 可选 { orderBy?, offset? }（limit 固定为 1）（可选）
+     * @returns {object | null} 行对象，没有则 null
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#findone-table-where-options DeekeScript Pro 文档}
+     */
+    findOne(table: string, where?: object, options?: { orderBy?: string; offset?: number }): object | null;
+    /**
+     * 统计行数；where 可空表示全表
+     * @param {string} table 表名
+     * @param {object} where 可选条件对象（可选）
+     * @returns {number} 行数
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#count-table-where DeekeScript Pro 文档}
+     */
+    count(table: string, where?: object): number;
+    /**
+     * 对列求和；where 可空；无数据返回 0
+     * @param {string} table 表名
+     * @param {string} column 列名
+     * @param {object} where 可选条件（可选）
+     * @returns {number} 合计
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#sum-table-column-where DeekeScript Pro 文档}
+     */
+    sum(table: string, column: string, where?: object): number;
+    /**
+     * 对列求平均；where 可空；无数据返回 0
+     * @param {string} table 表名
+     * @param {string} column 列名
+     * @param {object} where 可选条件（可选）
+     * @returns {number} 平均值
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#avg-table-column-where DeekeScript Pro 文档}
+     */
+    avg(table: string, column: string, where?: object): number;
+    /**
+     * 列最大值；where 可空；无数据返回 null
+     * @param {string} table 表名
+     * @param {string} column 列名
+     * @param {object} where 可选条件（可选）
+     * @returns {number | string | null} number | string | null
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#max-table-column-where DeekeScript Pro 文档}
+     */
+    max(table: string, column: string, where?: object): number | string | null;
+    /**
+     * 列最小值；where 可空；无数据返回 null
+     * @param {string} table 表名
+     * @param {string} column 列名
+     * @param {object} where 可选条件（可选）
+     * @returns {number | string | null} number | string | null
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#min-table-column-where DeekeScript Pro 文档}
+     */
+    min(table: string, column: string, where?: object): number | string | null;
+    /**
+     * 分组聚合。spec.by 必填；where 可空。可选 count/sum/avg/max/min/where/orderBy/limit/offset
+     * @param {string} table 表名
+     * @param {{ by: string | string[]; count?: boolean; sum?: string; avg?: string; max?: string; min?: string; where?: object; orderBy?: string; limit?: number; offset?: number }} spec 如 { by: "status", count: true, sum: "amount", where: {...} }
+     * @returns {Array} 每组一行的数组，字段含分组列与 count/sum/avg/max/min
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#group-table-spec DeekeScript Pro 文档}
+     */
+    group(table: string, spec: { by: string | string[]; count?: boolean; sum?: string; avg?: string; max?: string; min?: string; where?: object; orderBy?: string; limit?: number; offset?: number }): Array;
+    /**
+     * 清空表全部行，保留表结构
+     * @param {string} table 表名
+     * @returns {boolean} 是否成功
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#clear-table DeekeScript Pro 文档}
+     */
+    clear(table: string): boolean;
+    /**
+     * 删除整张表
+     * @param {string} table 表名
+     * @returns {boolean} 是否成功
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#drop-table DeekeScript Pro 文档}
+     */
+    drop(table: string): boolean;
+    /**
+     * 列出当前库中的所有表名
+     * @returns {string[]} 表名数组
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#tables DeekeScript Pro 文档}
+     */
+    tables(): string[];
+    /**
+     * 表是否存在
+     * @param {string} table 表名
+     * @returns {boolean} 是否存在
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#exists-table DeekeScript Pro 文档}
+     */
+    exists(table: string): boolean;
+    /**
+     * 执行原始 SELECT
+     * @param {string} sql SELECT 语句，可用 ? 占位符
+     * @param {Array} args 可选绑定参数数组（可选）
+     * @returns {Array} 行对象数组
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#query-sql-args DeekeScript Pro 文档}
+     */
+    query(sql: string, args?: Array): Array;
+    /**
+     * 执行非查询 SQL（INSERT/UPDATE/DELETE/DDL 等）
+     * @param {string} sql SQL 语句
+     * @param {Array} args 可选绑定参数数组（可选）
+     * @returns {boolean} 是否成功
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#exec-sql-args DeekeScript Pro 文档}
+     */
+    exec(sql: string, args?: Array): boolean;
+    /**
+     * 关闭数据库连接。之后再读写会自动重新打开
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#close DeekeScript Pro 文档}
+     */
+    close(): void;
+    /**
+     * 获取当前库文件名
+     * @returns {string} 库文件名
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#getname DeekeScript Pro 文档}
+     */
+    getName(): string;
 }
 
 /**

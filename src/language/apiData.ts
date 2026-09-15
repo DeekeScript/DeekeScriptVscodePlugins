@@ -743,6 +743,111 @@ export const apiData: Record<string, GlobalDef> = {
         funcReturns: '',
         typeOnly: true,
     },
+    'Colors': {
+        kind: 'object',
+        description: '基于 OpenCV 的颜色查找（Mat）。日常找色优先用 Images。',
+        methods: [
+            {
+                name: 'getMat',
+                description: '从项目存储目录读取图片为 Mat\n@param file 相对项目存储根的路径\n@return Mat',
+                params: [
+                    { name: 'file', type: 'string' },
+                ],
+                returns: 'Mat',
+            },
+            {
+                name: 'getMatByAssetsFile',
+                description: '从 assets 示例目录读取图片为 Mat\n@param file 文件名\n@return Mat',
+                params: [
+                    { name: 'file', type: 'string' },
+                ],
+                returns: 'Mat',
+            },
+            {
+                name: 'getMatByAssetFile',
+                description: '从 assets 路径读取图片为 Mat\n@param file assets 内路径\n@return Mat',
+                params: [
+                    { name: 'file', type: 'string' },
+                ],
+                returns: 'Mat',
+            },
+            {
+                name: 'find',
+                description: '在 Mat 中查找十六进制颜色（#RRGGBB 或 RRGGBB）\n@param source 源图 Mat\n@param hexColor 颜色\n@param rect 可选搜索区域（Android Rect）\n@return 匹配点数组',
+                params: [
+                    { name: 'source', type: 'Mat' },
+                    { name: 'hexColor', type: 'string' },
+                    { name: 'rect', type: 'Rect', optional: true },
+                ],
+                returns: 'Point[]',
+            },
+            {
+                name: 'show',
+                description: '调试输出 Mat 像素（打日志）\n@param image Mat',
+                params: [
+                    { name: 'image', type: 'Mat' },
+                ],
+                returns: 'void',
+            },
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+    },
+    'Cos': {
+        kind: 'object',
+        description: '腾讯云对象存储（COS）上传',
+        methods: [
+            {
+                name: 'setConfig',
+                description: '设置密钥并初始化客户端\n@param secretId SecretId\n@param secretKey SecretKey\n@param region 地域，如 ap-guangzhou\n@param bucket 桶名',
+                params: [
+                    { name: 'secretId', type: 'string' },
+                    { name: 'secretKey', type: 'string' },
+                    { name: 'region', type: 'string' },
+                    { name: 'bucket', type: 'string' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'upload',
+                description: '同步上传。返回 [url, error]，成功时 error 为 null\n@param localPath 本地文件路径\n@param cosKey COS 对象键（可选，省略则自动生成）\n@return [url, error]',
+                params: [
+                    { name: 'localPath', type: 'string' },
+                    { name: 'cosKey', type: 'string', optional: true },
+                ],
+                returns: '[string | null, string | null]',
+            },
+            {
+                name: 'uploadAsync',
+                description: '异步上传\n@param localPath 本地路径\n@param cosKeyOrCallback COS 键，或直接传 callback\n@param callback 含 success(url)、fail(error)',
+                params: [
+                    { name: 'localPath', type: 'string' },
+                    { name: 'cosKeyOrCallback', type: 'string | { success: (url: string) => void; fail: (error: string) => void }' },
+                    { name: 'callback', type: '{ success: (url: string) => void; fail: (error: string) => void }', optional: true },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'shutdown',
+                description: '关闭客户端，释放网络资源',
+                params: [
+                ],
+                returns: 'void',
+            },
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+    },
     'DeekeBounds': {
         kind: 'object',
         description: '',
@@ -1545,6 +1650,76 @@ export const apiData: Record<string, GlobalDef> = {
                 params: [
                 ],
                 returns: 'number',
+            },
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+    },
+    'Env': {
+        kind: 'object',
+        description: '应用目录句柄（返回 java.io.File）。日常路径字符串优先用 Files.getFilesPath 等。',
+        methods: [
+            {
+                name: 'getFilesDir',
+                description: '应用私有 files 目录\n@return java.io.File',
+                params: [
+                ],
+                returns: 'any',
+            },
+            {
+                name: 'getCacheDir',
+                description: '应用缓存目录\n@return java.io.File',
+                params: [
+                ],
+                returns: 'any',
+            },
+            {
+                name: 'getDataDir',
+                description: '应用 data 目录\n@return java.io.File',
+                params: [
+                ],
+                returns: 'any',
+            },
+            {
+                name: 'getExternalFilesDir',
+                description: '应用外部私有目录\n@param dir 子目录名，可为 null\n@return java.io.File',
+                params: [
+                    { name: 'dir', type: 'string | null' },
+                ],
+                returns: 'any',
+            },
+            {
+                name: 'getExternalCacheDir',
+                description: '应用外部缓存目录\n@return java.io.File',
+                params: [
+                ],
+                returns: 'any',
+            },
+            {
+                name: 'getExternalMediaDirs',
+                description: '应用外部媒体目录列表\n@return java.io.File[]',
+                params: [
+                ],
+                returns: 'any[]',
+            },
+            {
+                name: 'getDownloadDir',
+                description: '系统 Download 公共目录\n@return java.io.File',
+                params: [
+                ],
+                returns: 'any',
+            },
+            {
+                name: 'getDcimDir',
+                description: '系统 DCIM 公共目录\n@return java.io.File',
+                params: [
+                ],
+                returns: 'any',
             },
         ],
         properties: [
@@ -3592,6 +3767,198 @@ export const apiData: Record<string, GlobalDef> = {
                     { name: 'bool', type: 'boolean' },
                 ],
                 returns: 'void',
+            },
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+    },
+    'Sqlite': {
+        kind: 'object',
+        description: '本地 SQLite 数据库。写入时按对象字段自动建表、自动补列，无需手动 CREATE TABLE。',
+        methods: [
+            {
+                name: 'create',
+                description: '打开或创建指定名称的数据库，返回实例\n@param name 数据库名称（可省略 .db 后缀）\n@return Sqlite 实例',
+                params: [
+                    { name: 'name', type: 'string' },
+                ],
+                returns: 'Sqlite',
+            },
+            {
+                name: 'insert',
+                description: '插入一行。表不存在则按对象字段自动创建；缺列则自动补列。默认自增主键 id\n@param table 表名\n@param data 行数据对象\n@return 新行 id，失败返回 -1',
+                params: [
+                    { name: 'table', type: 'string' },
+                    { name: 'data', type: 'object' },
+                ],
+                returns: 'number',
+            },
+            {
+                name: 'update',
+                description: '按条件更新。where 可传 {}，但须带 options.limit（防误改全表）。options 支持 limit/offset/orderBy\n@param table 表名\n@param data 要更新的字段\n@param where 条件对象，可为空对象\n@param options 可选 { limit?, offset?, orderBy? }\n@return 影响行数，失败返回 -1',
+                params: [
+                    { name: 'table', type: 'string' },
+                    { name: 'data', type: 'object' },
+                    { name: 'where', type: 'object' },
+                    { name: 'options', type: '{ limit?: number; offset?: number; orderBy?: string }', optional: true },
+                ],
+                returns: 'number',
+            },
+            {
+                name: 'delete',
+                description: '按条件删除。where 可传 {}，但须带 options.limit（防误删全表；清空用 clear）。options 支持 limit/offset/orderBy\n@param table 表名\n@param where 条件对象，可为空对象\n@param options 可选 { limit?, offset?, orderBy? }\n@return 影响行数，失败返回 -1',
+                params: [
+                    { name: 'table', type: 'string' },
+                    { name: 'where', type: 'object' },
+                    { name: 'options', type: '{ limit?: number; offset?: number; orderBy?: string }', optional: true },
+                ],
+                returns: 'number',
+            },
+            {
+                name: 'find',
+                description: '查询多行。不传 where 或空对象则查全部。options：limit/offset/orderBy；第二参数也可只传 options\n@param table 表名\n@param where 可选条件对象\n@param options 可选 { limit?, offset?, orderBy? }\n@return 行对象数组',
+                params: [
+                    { name: 'table', type: 'string' },
+                    { name: 'where', type: 'object', optional: true },
+                    { name: 'options', type: '{ limit?: number; offset?: number; orderBy?: string }', optional: true },
+                ],
+                returns: 'Array',
+            },
+            {
+                name: 'findOne',
+                description: '查询第一行。where 可空；第二参数也可只传 options（如 orderBy）\n@param table 表名\n@param where 可选条件对象\n@param options 可选 { orderBy?, offset? }（limit 固定为 1）\n@return 行对象，没有则 null',
+                params: [
+                    { name: 'table', type: 'string' },
+                    { name: 'where', type: 'object', optional: true },
+                    { name: 'options', type: '{ orderBy?: string; offset?: number }', optional: true },
+                ],
+                returns: 'object | null',
+            },
+            {
+                name: 'count',
+                description: '统计行数；where 可空表示全表\n@param table 表名\n@param where 可选条件对象\n@return 行数',
+                params: [
+                    { name: 'table', type: 'string' },
+                    { name: 'where', type: 'object', optional: true },
+                ],
+                returns: 'number',
+            },
+            {
+                name: 'sum',
+                description: '对列求和；where 可空；无数据返回 0\n@param table 表名\n@param column 列名\n@param where 可选条件\n@return 合计',
+                params: [
+                    { name: 'table', type: 'string' },
+                    { name: 'column', type: 'string' },
+                    { name: 'where', type: 'object', optional: true },
+                ],
+                returns: 'number',
+            },
+            {
+                name: 'avg',
+                description: '对列求平均；where 可空；无数据返回 0\n@param table 表名\n@param column 列名\n@param where 可选条件\n@return 平均值',
+                params: [
+                    { name: 'table', type: 'string' },
+                    { name: 'column', type: 'string' },
+                    { name: 'where', type: 'object', optional: true },
+                ],
+                returns: 'number',
+            },
+            {
+                name: 'max',
+                description: '列最大值；where 可空；无数据返回 null\n@param table 表名\n@param column 列名\n@param where 可选条件\n@return number | string | null',
+                params: [
+                    { name: 'table', type: 'string' },
+                    { name: 'column', type: 'string' },
+                    { name: 'where', type: 'object', optional: true },
+                ],
+                returns: 'number | string | null',
+            },
+            {
+                name: 'min',
+                description: '列最小值；where 可空；无数据返回 null\n@param table 表名\n@param column 列名\n@param where 可选条件\n@return number | string | null',
+                params: [
+                    { name: 'table', type: 'string' },
+                    { name: 'column', type: 'string' },
+                    { name: 'where', type: 'object', optional: true },
+                ],
+                returns: 'number | string | null',
+            },
+            {
+                name: 'group',
+                description: '分组聚合。spec.by 必填；where 可空。可选 count/sum/avg/max/min/where/orderBy/limit/offset\n@param table 表名\n@param spec 如 { by: \"status\", count: true, sum: \"amount\", where: {...} }\n@return 每组一行的数组，字段含分组列与 count/sum/avg/max/min',
+                params: [
+                    { name: 'table', type: 'string' },
+                    { name: 'spec', type: '{ by: string | string[]; count?: boolean; sum?: string; avg?: string; max?: string; min?: string; where?: object; orderBy?: string; limit?: number; offset?: number }' },
+                ],
+                returns: 'Array',
+            },
+            {
+                name: 'clear',
+                description: '清空表全部行，保留表结构\n@param table 表名\n@return 是否成功',
+                params: [
+                    { name: 'table', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'drop',
+                description: '删除整张表\n@param table 表名\n@return 是否成功',
+                params: [
+                    { name: 'table', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'tables',
+                description: '列出当前库中的所有表名\n@return 表名数组',
+                params: [
+                ],
+                returns: 'string[]',
+            },
+            {
+                name: 'exists',
+                description: '表是否存在\n@param table 表名\n@return 是否存在',
+                params: [
+                    { name: 'table', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'query',
+                description: '执行原始 SELECT\n@param sql SELECT 语句，可用 ? 占位符\n@param args 可选绑定参数数组\n@return 行对象数组',
+                params: [
+                    { name: 'sql', type: 'string' },
+                    { name: 'args', type: 'Array', optional: true },
+                ],
+                returns: 'Array',
+            },
+            {
+                name: 'exec',
+                description: '执行非查询 SQL（INSERT/UPDATE/DELETE/DDL 等）\n@param sql SQL 语句\n@param args 可选绑定参数数组\n@return 是否成功',
+                params: [
+                    { name: 'sql', type: 'string' },
+                    { name: 'args', type: 'Array', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'close',
+                description: '关闭数据库连接。之后再读写会自动重新打开',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'getName',
+                description: '获取当前库文件名\n@return 库文件名',
+                params: [
+                ],
+                returns: 'string',
             },
         ],
         properties: [
@@ -6119,6 +6486,199 @@ export const apiData: Record<string, GlobalDef> = {
                     { name: 'bool', type: 'boolean' },
                 ],
                 returns: 'void',
+            },
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+        typeOnly: true,
+    },
+    'sqlite': {
+        kind: 'object',
+        description: '本地 SQLite 数据库。写入时按对象字段自动建表、自动补列，无需手动 CREATE TABLE。',
+        methods: [
+            {
+                name: 'create',
+                description: '打开或创建指定名称的数据库，返回实例\n@param name 数据库名称（可省略 .db 后缀）\n@return Sqlite 实例',
+                params: [
+                    { name: 'name', type: 'string' },
+                ],
+                returns: 'Sqlite',
+            },
+            {
+                name: 'insert',
+                description: '插入一行。表不存在则按对象字段自动创建；缺列则自动补列。默认自增主键 id\n@param table 表名\n@param data 行数据对象\n@return 新行 id，失败返回 -1',
+                params: [
+                    { name: 'table', type: 'string' },
+                    { name: 'data', type: 'object' },
+                ],
+                returns: 'number',
+            },
+            {
+                name: 'update',
+                description: '按条件更新。where 可传 {}，但须带 options.limit（防误改全表）。options 支持 limit/offset/orderBy\n@param table 表名\n@param data 要更新的字段\n@param where 条件对象，可为空对象\n@param options 可选 { limit?, offset?, orderBy? }\n@return 影响行数，失败返回 -1',
+                params: [
+                    { name: 'table', type: 'string' },
+                    { name: 'data', type: 'object' },
+                    { name: 'where', type: 'object' },
+                    { name: 'options', type: '{ limit?: number; offset?: number; orderBy?: string }', optional: true },
+                ],
+                returns: 'number',
+            },
+            {
+                name: 'delete',
+                description: '按条件删除。where 可传 {}，但须带 options.limit（防误删全表；清空用 clear）。options 支持 limit/offset/orderBy\n@param table 表名\n@param where 条件对象，可为空对象\n@param options 可选 { limit?, offset?, orderBy? }\n@return 影响行数，失败返回 -1',
+                params: [
+                    { name: 'table', type: 'string' },
+                    { name: 'where', type: 'object' },
+                    { name: 'options', type: '{ limit?: number; offset?: number; orderBy?: string }', optional: true },
+                ],
+                returns: 'number',
+            },
+            {
+                name: 'find',
+                description: '查询多行。不传 where 或空对象则查全部。options：limit/offset/orderBy；第二参数也可只传 options\n@param table 表名\n@param where 可选条件对象\n@param options 可选 { limit?, offset?, orderBy? }\n@return 行对象数组',
+                params: [
+                    { name: 'table', type: 'string' },
+                    { name: 'where', type: 'object', optional: true },
+                    { name: 'options', type: '{ limit?: number; offset?: number; orderBy?: string }', optional: true },
+                ],
+                returns: 'Array',
+            },
+            {
+                name: 'findOne',
+                description: '查询第一行。where 可空；第二参数也可只传 options（如 orderBy）\n@param table 表名\n@param where 可选条件对象\n@param options 可选 { orderBy?, offset? }（limit 固定为 1）\n@return 行对象，没有则 null',
+                params: [
+                    { name: 'table', type: 'string' },
+                    { name: 'where', type: 'object', optional: true },
+                    { name: 'options', type: '{ orderBy?: string; offset?: number }', optional: true },
+                ],
+                returns: 'object | null',
+            },
+            {
+                name: 'count',
+                description: '统计行数；where 可空表示全表\n@param table 表名\n@param where 可选条件对象\n@return 行数',
+                params: [
+                    { name: 'table', type: 'string' },
+                    { name: 'where', type: 'object', optional: true },
+                ],
+                returns: 'number',
+            },
+            {
+                name: 'sum',
+                description: '对列求和；where 可空；无数据返回 0\n@param table 表名\n@param column 列名\n@param where 可选条件\n@return 合计',
+                params: [
+                    { name: 'table', type: 'string' },
+                    { name: 'column', type: 'string' },
+                    { name: 'where', type: 'object', optional: true },
+                ],
+                returns: 'number',
+            },
+            {
+                name: 'avg',
+                description: '对列求平均；where 可空；无数据返回 0\n@param table 表名\n@param column 列名\n@param where 可选条件\n@return 平均值',
+                params: [
+                    { name: 'table', type: 'string' },
+                    { name: 'column', type: 'string' },
+                    { name: 'where', type: 'object', optional: true },
+                ],
+                returns: 'number',
+            },
+            {
+                name: 'max',
+                description: '列最大值；where 可空；无数据返回 null\n@param table 表名\n@param column 列名\n@param where 可选条件\n@return number | string | null',
+                params: [
+                    { name: 'table', type: 'string' },
+                    { name: 'column', type: 'string' },
+                    { name: 'where', type: 'object', optional: true },
+                ],
+                returns: 'number | string | null',
+            },
+            {
+                name: 'min',
+                description: '列最小值；where 可空；无数据返回 null\n@param table 表名\n@param column 列名\n@param where 可选条件\n@return number | string | null',
+                params: [
+                    { name: 'table', type: 'string' },
+                    { name: 'column', type: 'string' },
+                    { name: 'where', type: 'object', optional: true },
+                ],
+                returns: 'number | string | null',
+            },
+            {
+                name: 'group',
+                description: '分组聚合。spec.by 必填；where 可空。可选 count/sum/avg/max/min/where/orderBy/limit/offset\n@param table 表名\n@param spec 如 { by: \"status\", count: true, sum: \"amount\", where: {...} }\n@return 每组一行的数组，字段含分组列与 count/sum/avg/max/min',
+                params: [
+                    { name: 'table', type: 'string' },
+                    { name: 'spec', type: '{ by: string | string[]; count?: boolean; sum?: string; avg?: string; max?: string; min?: string; where?: object; orderBy?: string; limit?: number; offset?: number }' },
+                ],
+                returns: 'Array',
+            },
+            {
+                name: 'clear',
+                description: '清空表全部行，保留表结构\n@param table 表名\n@return 是否成功',
+                params: [
+                    { name: 'table', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'drop',
+                description: '删除整张表\n@param table 表名\n@return 是否成功',
+                params: [
+                    { name: 'table', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'tables',
+                description: '列出当前库中的所有表名\n@return 表名数组',
+                params: [
+                ],
+                returns: 'string[]',
+            },
+            {
+                name: 'exists',
+                description: '表是否存在\n@param table 表名\n@return 是否存在',
+                params: [
+                    { name: 'table', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'query',
+                description: '执行原始 SELECT\n@param sql SELECT 语句，可用 ? 占位符\n@param args 可选绑定参数数组\n@return 行对象数组',
+                params: [
+                    { name: 'sql', type: 'string' },
+                    { name: 'args', type: 'Array', optional: true },
+                ],
+                returns: 'Array',
+            },
+            {
+                name: 'exec',
+                description: '执行非查询 SQL（INSERT/UPDATE/DELETE/DDL 等）\n@param sql SQL 语句\n@param args 可选绑定参数数组\n@return 是否成功',
+                params: [
+                    { name: 'sql', type: 'string' },
+                    { name: 'args', type: 'Array', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'close',
+                description: '关闭数据库连接。之后再读写会自动重新打开',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'getName',
+                description: '获取当前库文件名\n@return 库文件名',
+                params: [
+                ],
+                returns: 'string',
             },
         ],
         properties: [
