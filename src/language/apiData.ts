@@ -204,6 +204,41 @@ export const apiData: Record<string, GlobalDef> = {
                 ],
                 returns: 'void',
             },
+            {
+                name: 'hasSmsPermission',
+                description: '是否已授予短信接收权限（RECEIVE_SMS）',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'requestSmsPermission',
+                description: '申请短信接收/读取权限。异步，需在前台 Activity 调用',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'isSmsPermissionPermanentlyDenied',
+                description: '短信权限是否被永久拒绝',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'canWriteSettings',
+                description: '是否已允许修改系统设置（亮度等）',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'openWriteSettings',
+                description: '打开「允许修改系统设置」页面',
+                params: [
+                ],
+                returns: 'void',
+            },
         ],
         properties: [
         ],
@@ -1252,6 +1287,79 @@ export const apiData: Record<string, GlobalDef> = {
                 ],
                 returns: 'Array<{\n        packageName: string;\n        appName: string;\n        versionName: string;\n        versionCode: number;\n    }>',
             },
+            {
+                name: 'getBattery',
+                description: '获取电量与充电状态\n@returns level 0-100；isCharging；status；plugged(ac/usb/wireless/none)；temperature(℃)；voltage(mV)',
+                params: [
+                ],
+                returns: '{\n        level: number;\n        isCharging: boolean;\n        status: string;\n        plugged: string;\n        temperature: number;\n        voltage: number;\n    }',
+            },
+            {
+                name: 'isScreenOn',
+                description: '屏幕是否亮着',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'wakeUp',
+                description: '点亮屏幕。可传保持毫秒数，默认约 3000。不保证解锁',
+                params: [
+                    { name: 'millis', type: 'number', optional: true },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'getMemoryInfo',
+                description: '内存概况\n@returns totalMem/availMem/threshold 字节；lowMemory 是否低内存',
+                params: [
+                ],
+                returns: '{\n        totalMem: number;\n        availMem: number;\n        threshold: number;\n        lowMemory: boolean;\n    }',
+            },
+            {
+                name: 'getBrightness',
+                description: '系统亮度 0-255；失败返回 -1',
+                params: [
+                ],
+                returns: 'number',
+            },
+            {
+                name: 'setBrightness',
+                description: '设置系统亮度 0-255。需 Access.canWriteSettings / openWriteSettings',
+                params: [
+                    { name: 'value', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'isAutomaticBrightness',
+                description: '是否自动亮度',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'setAutomaticBrightness',
+                description: '开关自动亮度。需修改系统设置权限',
+                params: [
+                    { name: 'automatic', type: 'boolean' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'canWriteSettings',
+                description: '是否已允许修改系统设置',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'openWriteSettings',
+                description: '打开「允许修改系统设置」页',
+                params: [
+                ],
+                returns: 'void',
+            },
         ],
         properties: [
             { name: 'ipv4', type: 'string', description: '' },
@@ -2048,6 +2156,24 @@ export const apiData: Record<string, GlobalDef> = {
                     { name: 'path', type: 'string' },
                 ],
                 returns: 'string',
+            },
+            {
+                name: 'zip',
+                description: '压缩文件或目录为 zip\n@param sourcePath 源路径\n@param zipPath 目标 zip 路径',
+                params: [
+                    { name: 'sourcePath', type: 'string' },
+                    { name: 'zipPath', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'unzip',
+                description: '解压 zip 到目录\n@param zipPath zip 路径\n@param destDir 目标目录',
+                params: [
+                    { name: 'zipPath', type: 'string' },
+                    { name: 'destDir', type: 'string' },
+                ],
+                returns: 'boolean',
             },
         ],
         properties: [
@@ -3777,6 +3903,43 @@ export const apiData: Record<string, GlobalDef> = {
         ],
         funcReturns: '',
     },
+    'Sms': {
+        kind: 'object',
+        description: '短信监听（验证码等）。需 Access.requestSmsPermission。验证码也可优先用 NotificationBridge。',
+        methods: [
+            {
+                name: 'startListening',
+                description: '开始监听短信\n@param onSms 回调 (address, body) => void',
+                params: [
+                    { name: 'onSms', type: '(address: string, body: string) => void' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'stopListening',
+                description: '停止监听',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'extractCode',
+                description: '从正文提取数字验证码。length 省略则匹配 4-8 位',
+                params: [
+                    { name: 'body', type: 'string' },
+                    { name: 'length', type: 'number', optional: true },
+                ],
+                returns: 'string',
+            },
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+    },
     'Sqlite': {
         kind: 'object',
         description: '本地 SQLite 数据库。写入时按对象字段自动建表、自动补列，无需手动 CREATE TABLE。',
@@ -4237,32 +4400,6 @@ export const apiData: Record<string, GlobalDef> = {
                 returns: 'void',
             },
             {
-                name: 'AiSpeechToken',
-                description: '获取智能话术token\n@param key 智能话术key\n@param secret 智能话术secret',
-                params: [
-                    { name: 'key', type: 'string' },
-                    { name: 'secret', type: 'string' },
-                ],
-                returns: 'string',
-            },
-            {
-                name: 'generateWindowElements',
-                description: '生成窗口元素，使用App的上传日志，可以拿到文件',
-                params: [
-                ],
-                returns: 'void',
-            },
-            {
-                name: 'getDataFrom',
-                description: '获取接口返回的内容\n@param key \n@param dataForm \n@param content',
-                params: [
-                    { name: 'key', type: 'string' },
-                    { name: 'dataForm', type: 'string' },
-                    { name: 'content', type: 'string' },
-                ],
-                returns: 'string | null',
-            },
-            {
                 name: 'setTimeWindowShow',
                 description: '是否显示时间悬浮窗窗口\n@param show 是否显示',
                 params: [
@@ -4292,6 +4429,71 @@ export const apiData: Record<string, GlobalDef> = {
                 params: [
                 ],
                 returns: '{\n        language: string;\n        country: string;\n        tag: string;\n    }',
+            },
+            {
+                name: 'vibrate',
+                description: '振动。单参数为毫秒；也可 vibrate(pattern, repeat)，pattern 为 [等待,振,...]，repeat=-1 不重复',
+                params: [
+                    { name: 'millisOrPattern', type: 'number | number[]' },
+                    { name: 'repeat', type: 'number', optional: true },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'cancelVibrate',
+                description: '取消振动',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'getVolume',
+                description: '当前音量。stream: music/ring/notification/alarm/system/voice，默认 music',
+                params: [
+                    { name: 'stream', type: 'string', optional: true },
+                ],
+                returns: 'number',
+            },
+            {
+                name: 'getMaxVolume',
+                description: '最大音量。stream 同 getVolume',
+                params: [
+                    { name: 'stream', type: 'string', optional: true },
+                ],
+                returns: 'number',
+            },
+            {
+                name: 'setVolume',
+                description: '设置音量。setVolume(volume) 或 setVolume(stream, volume)',
+                params: [
+                    { name: 'streamOrVolume', type: 'string | number' },
+                    { name: 'volume', type: 'number', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'getRingerMode',
+                description: '响铃模式：0 静音，1 振动，2 正常',
+                params: [
+                ],
+                returns: 'number',
+            },
+            {
+                name: 'setRingerMode',
+                description: '设置响铃模式。部分机型受勿扰限制可能失败',
+                params: [
+                    { name: 'mode', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'shell',
+                description: '执行 shell。返回 {code, result, error}。root=true 时用 su -c；超时 30s',
+                params: [
+                    { name: 'cmd', type: 'string' },
+                    { name: 'root', type: 'boolean', optional: true },
+                ],
+                returns: '{\n        code: number;\n        result: string;\n        error: string;\n    }',
             },
         ],
         properties: [
@@ -5274,6 +5476,41 @@ export const apiData: Record<string, GlobalDef> = {
                 ],
                 returns: 'void',
             },
+            {
+                name: 'hasSmsPermission',
+                description: '是否已授予短信接收权限（RECEIVE_SMS）',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'requestSmsPermission',
+                description: '申请短信接收/读取权限。异步，需在前台 Activity 调用',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'isSmsPermissionPermanentlyDenied',
+                description: '短信权限是否被永久拒绝',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'canWriteSettings',
+                description: '是否已允许修改系统设置（亮度等）',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'openWriteSettings',
+                description: '打开「允许修改系统设置」页面',
+                params: [
+                ],
+                returns: 'void',
+            },
         ],
         properties: [
         ],
@@ -5861,6 +6098,24 @@ export const apiData: Record<string, GlobalDef> = {
                     { name: 'path', type: 'string' },
                 ],
                 returns: 'string',
+            },
+            {
+                name: 'zip',
+                description: '压缩文件或目录为 zip\n@param sourcePath 源路径\n@param zipPath 目标 zip 路径',
+                params: [
+                    { name: 'sourcePath', type: 'string' },
+                    { name: 'zipPath', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'unzip',
+                description: '解压 zip 到目录\n@param zipPath zip 路径\n@param destDir 目标目录',
+                params: [
+                    { name: 'zipPath', type: 'string' },
+                    { name: 'destDir', type: 'string' },
+                ],
+                returns: 'boolean',
             },
         ],
         properties: [

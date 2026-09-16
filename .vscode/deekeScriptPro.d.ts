@@ -173,6 +173,34 @@ interface Access {
      * @see {@link https://script.deeke.cn/access/access.html#openbluetoothpermissionsettings DeekeScript Pro 文档}
      */
     openBluetoothPermissionSettings(): void;
+    /**
+     * 是否已授予短信接收权限（RECEIVE_SMS）
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/access/access.html#hassmspermission DeekeScript Pro 文档}
+     */
+    hasSmsPermission(): boolean;
+    /**
+     * 申请短信接收/读取权限。异步，需在前台 Activity 调用
+     * @see {@link https://script.deeke.cn/access/access.html#requestsmspermission DeekeScript Pro 文档}
+     */
+    requestSmsPermission(): void;
+    /**
+     * 短信权限是否被永久拒绝
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/access/access.html#issmspermissionpermanentlydenied DeekeScript Pro 文档}
+     */
+    isSmsPermissionPermanentlyDenied(): boolean;
+    /**
+     * 是否已允许修改系统设置（亮度等）
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/access/access.html#canwritesettings DeekeScript Pro 文档}
+     */
+    canWriteSettings(): boolean;
+    /**
+     * 打开「允许修改系统设置」页面
+     * @see {@link https://script.deeke.cn/access/access.html#openwritesettings DeekeScript Pro 文档}
+     */
+    openWriteSettings(): void;
 }
 declare var Access: Access;
 
@@ -1234,6 +1262,91 @@ interface Device {
         versionCode: number;
     }>;
     /**
+     * 获取电量与充电状态
+     * @returns {{
+        level: number;
+        isCharging: boolean;
+        status: string;
+        plugged: string;
+        temperature: number;
+        voltage: number;
+    }} level 0-100；isCharging；status；plugged(ac/usb/wireless/none)；temperature(℃)；voltage(mV)
+     * @see {@link https://script.deeke.cn/base/device/device.html#getbattery DeekeScript Pro 文档}
+     */
+    getBattery(): {
+        level: number;
+        isCharging: boolean;
+        status: string;
+        plugged: string;
+        temperature: number;
+        voltage: number;
+    };
+    /**
+     * 屏幕是否亮着
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/device/device.html#isscreenon DeekeScript Pro 文档}
+     */
+    isScreenOn(): boolean;
+    /**
+     * 点亮屏幕。可传保持毫秒数，默认约 3000。不保证解锁
+     * @param {number} millis millis（可选）
+     * @see {@link https://script.deeke.cn/base/device/device.html#wakeup-millis DeekeScript Pro 文档}
+     */
+    wakeUp(millis?: number): void;
+    /**
+     * 内存概况
+     * @returns {{
+        totalMem: number;
+        availMem: number;
+        threshold: number;
+        lowMemory: boolean;
+    }} totalMem/availMem/threshold 字节；lowMemory 是否低内存
+     * @see {@link https://script.deeke.cn/base/device/device.html#getmemoryinfo DeekeScript Pro 文档}
+     */
+    getMemoryInfo(): {
+        totalMem: number;
+        availMem: number;
+        threshold: number;
+        lowMemory: boolean;
+    };
+    /**
+     * 系统亮度 0-255；失败返回 -1
+     * @returns {number} number
+     * @see {@link https://script.deeke.cn/base/device/device.html#getbrightness DeekeScript Pro 文档}
+     */
+    getBrightness(): number;
+    /**
+     * 设置系统亮度 0-255。需 Access.canWriteSettings / openWriteSettings
+     * @param {number} value value
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/device/device.html#setbrightness-value DeekeScript Pro 文档}
+     */
+    setBrightness(value: number): boolean;
+    /**
+     * 是否自动亮度
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/device/device.html#isautomaticbrightness DeekeScript Pro 文档}
+     */
+    isAutomaticBrightness(): boolean;
+    /**
+     * 开关自动亮度。需修改系统设置权限
+     * @param {boolean} automatic automatic
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/device/device.html#setautomaticbrightness-automatic DeekeScript Pro 文档}
+     */
+    setAutomaticBrightness(automatic: boolean): boolean;
+    /**
+     * 是否已允许修改系统设置
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/device/device.html#canwritesettings DeekeScript Pro 文档}
+     */
+    canWriteSettings(): boolean;
+    /**
+     * 打开「允许修改系统设置」页
+     * @see {@link https://script.deeke.cn/base/device/device.html#openwritesettings DeekeScript Pro 文档}
+     */
+    openWriteSettings(): void;
+    /**
      * ipv4
      * @see {@link https://script.deeke.cn/base/device/device.html DeekeScript Pro 文档}
      */
@@ -2066,6 +2179,22 @@ interface Files {
      * @see {@link https://script.deeke.cn/base/files/files.html#getnamewithoutextension-path DeekeScript Pro 文档}
      */
     getNameWithoutExtension(path: string): string;
+    /**
+     * 压缩文件或目录为 zip
+     * @param {string} sourcePath 源路径
+     * @param {string} zipPath 目标 zip 路径
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/files/files.html#zip-sourcepath-zippath DeekeScript Pro 文档}
+     */
+    zip(sourcePath: string, zipPath: string): boolean;
+    /**
+     * 解压 zip 到目录
+     * @param {string} zipPath zip 路径
+     * @param {string} destDir 目标目录
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/files/files.html#unzip-zippath-destdir DeekeScript Pro 文档}
+     */
+    unzip(zipPath: string, destDir: string): boolean;
 }
 declare var Files: Files;
 
@@ -3503,6 +3632,33 @@ interface SocketIoClient {
 declare var SocketIoClient: SocketIoClient;
 
 /**
+ * 短信监听（验证码等）。需 Access.requestSmsPermission。验证码也可优先用 NotificationBridge。
+ * @see {@link https://script.deeke.cn/base/sms/sms.html DeekeScript Pro 文档}
+ */
+interface Sms {
+    /**
+     * 开始监听短信
+     * @param {(address: string, body: string) => void} onSms 回调 (address, body) => void
+     * @see {@link https://script.deeke.cn/base/sms/sms.html#startlistening-onsms DeekeScript Pro 文档}
+     */
+    startListening(onSms: (address: string, body: string) => void): void;
+    /**
+     * 停止监听
+     * @see {@link https://script.deeke.cn/base/sms/sms.html#stoplistening DeekeScript Pro 文档}
+     */
+    stopListening(): void;
+    /**
+     * 从正文提取数字验证码。length 省略则匹配 4-8 位
+     * @param {string} body body
+     * @param {number} length length（可选）
+     * @returns {string} string
+     * @see {@link https://script.deeke.cn/base/sms/sms.html#extractcode-body-length DeekeScript Pro 文档}
+     */
+    extractCode(body: string, length?: number): string;
+}
+declare var Sms: Sms;
+
+/**
  * 本地 SQLite 数据库。写入时按对象字段自动建表、自动补列，无需手动 CREATE TABLE。
  * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html DeekeScript Pro 文档}
  */
@@ -3893,28 +4049,6 @@ interface System {
      */
     cleanUp(): void;
     /**
-     * 获取智能话术token
-     * @param {string} key 智能话术key
-     * @param {string} secret 智能话术secret
-     * @returns {string} string
-     * @see {@link https://script.deeke.cn/base/system/funcs.html#aispeechtoken-key-secret DeekeScript Pro 文档}
-     */
-    AiSpeechToken(key: string, secret: string): string;
-    /**
-     * 生成窗口元素，使用App的上传日志，可以拿到文件
-     * @see {@link https://script.deeke.cn/base/system/funcs.html#generatewindowelements DeekeScript Pro 文档}
-     */
-    generateWindowElements(): void;
-    /**
-     * 获取接口返回的内容
-     * @param {string} key key
-     * @param {string} dataForm dataForm
-     * @param {string} content content
-     * @returns {string | null} string | null
-     * @see {@link https://script.deeke.cn/base/system/funcs.html#getdatafrom-key-dataform-content DeekeScript Pro 文档}
-     */
-    getDataFrom(key: string, dataForm: string, content: string): string | null;
-    /**
      * 是否显示时间悬浮窗窗口
      * @param {boolean} show 是否显示
      * @see {@link https://script.deeke.cn/base/system/funcs.html#settimewindowshow-show DeekeScript Pro 文档}
@@ -3945,6 +4079,73 @@ interface System {
         language: string;
         country: string;
         tag: string;
+    };
+    /**
+     * 振动。单参数为毫秒；也可 vibrate(pattern, repeat)，pattern 为 [等待,振,...]，repeat=-1 不重复
+     * @param {number | number[]} millisOrPattern millisOrPattern
+     * @param {number} repeat repeat（可选）
+     * @see {@link https://script.deeke.cn/base/system/funcs.html#vibrate-millisorpattern-repeat DeekeScript Pro 文档}
+     */
+    vibrate(millisOrPattern: number | number[], repeat?: number): void;
+    /**
+     * 取消振动
+     * @see {@link https://script.deeke.cn/base/system/funcs.html#cancelvibrate DeekeScript Pro 文档}
+     */
+    cancelVibrate(): void;
+    /**
+     * 当前音量。stream: music/ring/notification/alarm/system/voice，默认 music
+     * @param {string} stream stream（可选）
+     * @returns {number} number
+     * @see {@link https://script.deeke.cn/base/system/funcs.html#getvolume-stream DeekeScript Pro 文档}
+     */
+    getVolume(stream?: string): number;
+    /**
+     * 最大音量。stream 同 getVolume
+     * @param {string} stream stream（可选）
+     * @returns {number} number
+     * @see {@link https://script.deeke.cn/base/system/funcs.html#getmaxvolume-stream DeekeScript Pro 文档}
+     */
+    getMaxVolume(stream?: string): number;
+    /**
+     * 设置音量。setVolume(volume) 或 setVolume(stream, volume)
+     * @param {string | number} streamOrVolume streamOrVolume
+     * @param {number} volume volume（可选）
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/system/funcs.html#setvolume-streamorvolume-volume DeekeScript Pro 文档}
+     */
+    setVolume(streamOrVolume: string | number, volume?: number): boolean;
+    /**
+     * 响铃模式：0 静音，1 振动，2 正常
+     * @returns {number} number
+     * @see {@link https://script.deeke.cn/base/system/funcs.html#getringermode DeekeScript Pro 文档}
+     */
+    getRingerMode(): number;
+    /**
+     * 设置响铃模式。部分机型受勿扰限制可能失败
+     * @param {number} mode mode
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/system/funcs.html#setringermode-mode DeekeScript Pro 文档}
+     */
+    setRingerMode(mode: number): boolean;
+    /**
+     * 执行 shell。返回 {code, result, error}。root=true 时用 su -c；超时 30s
+     * @param {string} cmd cmd
+     * @param {boolean} root root（可选）
+     * @returns {{
+        code: number;
+        result: string;
+        error: string;
+    }} {
+        code: number;
+        result: string;
+        error: string;
+    }
+     * @see {@link https://script.deeke.cn/base/system/funcs.html#shell-cmd-root DeekeScript Pro 文档}
+     */
+    shell(cmd: string, root?: boolean): {
+        code: number;
+        result: string;
+        error: string;
     };
     /**
      * language
@@ -4764,6 +4965,34 @@ interface access {
      * @see {@link https://script.deeke.cn/base/access/access.html#openbluetoothpermissionsettings DeekeScript Pro 文档}
      */
     openBluetoothPermissionSettings(): void;
+    /**
+     * 是否已授予短信接收权限（RECEIVE_SMS）
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/access/access.html#hassmspermission DeekeScript Pro 文档}
+     */
+    hasSmsPermission(): boolean;
+    /**
+     * 申请短信接收/读取权限。异步，需在前台 Activity 调用
+     * @see {@link https://script.deeke.cn/base/access/access.html#requestsmspermission DeekeScript Pro 文档}
+     */
+    requestSmsPermission(): void;
+    /**
+     * 短信权限是否被永久拒绝
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/access/access.html#issmspermissionpermanentlydenied DeekeScript Pro 文档}
+     */
+    isSmsPermissionPermanentlyDenied(): boolean;
+    /**
+     * 是否已允许修改系统设置（亮度等）
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/access/access.html#canwritesettings DeekeScript Pro 文档}
+     */
+    canWriteSettings(): boolean;
+    /**
+     * 打开「允许修改系统设置」页面
+     * @see {@link https://script.deeke.cn/base/access/access.html#openwritesettings DeekeScript Pro 文档}
+     */
+    openWriteSettings(): void;
 }
 
 /**
@@ -5383,6 +5612,22 @@ interface files {
      * @see {@link https://script.deeke.cn/base/files/files.html#getnamewithoutextension-path DeekeScript Pro 文档}
      */
     getNameWithoutExtension(path: string): string;
+    /**
+     * 压缩文件或目录为 zip
+     * @param {string} sourcePath 源路径
+     * @param {string} zipPath 目标 zip 路径
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/files/files.html#zip-sourcepath-zippath DeekeScript Pro 文档}
+     */
+    zip(sourcePath: string, zipPath: string): boolean;
+    /**
+     * 解压 zip 到目录
+     * @param {string} zipPath zip 路径
+     * @param {string} destDir 目标目录
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/files/files.html#unzip-zippath-destdir DeekeScript Pro 文档}
+     */
+    unzip(zipPath: string, destDir: string): boolean;
 }
 
 /**
