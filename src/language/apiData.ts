@@ -226,6 +226,48 @@ export const apiData: Record<string, GlobalDef> = {
                 returns: 'boolean',
             },
             {
+                name: 'hasCameraPermission',
+                description: '是否已授予摄像头权限（CAMERA）。Images.takePhoto 需要',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'requestCameraPermission',
+                description: '申请摄像头权限。异步，需在前台 Activity 调用',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'isCameraPermissionPermanentlyDenied',
+                description: '摄像头权限是否被永久拒绝',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'hasRecordAudioPermission',
+                description: '是否已授予麦克风权限（RECORD_AUDIO）。Audio.startRecord 需要',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'requestRecordAudioPermission',
+                description: '申请麦克风录音权限。异步，需在前台 Activity 调用',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'isRecordAudioPermissionPermanentlyDenied',
+                description: '麦克风权限是否被永久拒绝',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
                 name: 'canWriteSettings',
                 description: '是否已允许修改系统设置（亮度等）',
                 params: [
@@ -508,6 +550,35 @@ export const apiData: Record<string, GlobalDef> = {
                 params: [
                 ],
                 returns: 'boolean',
+            },
+            {
+                name: 'startRecord',
+                description: '开始录音，需 RECORD_AUDIO',
+                params: [
+                    { name: 'path', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'stopRecord',
+                description: '停止录音，返回文件路径',
+                params: [
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'isRecording',
+                description: '是否正在录音',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'getRecordingPath',
+                description: '当前录音路径',
+                params: [
+                ],
+                returns: 'string',
             },
         ],
         properties: [
@@ -2639,6 +2710,45 @@ export const apiData: Record<string, GlobalDef> = {
                 ],
                 returns: 'boolean',
             },
+            {
+                name: 'pressQuick',
+                description: '派发按压后立即返回',
+                params: [
+                    { name: 'x', type: 'number' },
+                    { name: 'y', type: 'number' },
+                    { name: 'duration', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'swipeHuman',
+                description: '仿人手滑动',
+                params: [
+                    { name: 'sx', type: 'number' },
+                    { name: 'sy', type: 'number' },
+                    { name: 'ex', type: 'number' },
+                    { name: 'ey', type: 'number' },
+                    { name: 'duration', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'gesture',
+                description: '单指路径手势',
+                params: [
+                    { name: 'duration', type: 'number' },
+                    { name: 'points', type: 'number[][]' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'gestures',
+                description: '多指/组合手势',
+                params: [
+                    { name: 'strokes', type: 'any' },
+                ],
+                returns: 'boolean',
+            },
         ],
         properties: [
         ],
@@ -3198,6 +3308,14 @@ export const apiData: Record<string, GlobalDef> = {
                 returns: 'string',
             },
             {
+                name: 'takePhoto',
+                description: '后置摄像头静默拍照，需 CAMERA（Access.hasCameraPermission / requestCameraPermission）',
+                params: [
+                    { name: 'path', type: 'string' },
+                ],
+                returns: 'string',
+            },
+            {
                 name: 'getColor',
                 description: '',
                 params: [
@@ -3285,24 +3403,56 @@ export const apiData: Record<string, GlobalDef> = {
         ],
         funcReturns: '',
     },
+    'Events': {
+        kind: 'object',
+        description: '统一事件总线（按键、亮灭屏、无障碍、窗口切换；可用 emit 自定义）',
+        methods: [
+            { name: 'observeKey', description: '开始观察按键', params: [], returns: 'void' },
+            { name: 'ignoreKey', description: '停止观察按键', params: [], returns: 'void' },
+            { name: 'isObservingKey', description: '', params: [], returns: 'boolean' },
+            { name: 'on', description: '监听事件（系统或自定义名）', params: [{ name: 'event', type: 'string' }, { name: 'callback', type: 'Function' }], returns: 'void' },
+            { name: 'once', description: '只监听一次', params: [{ name: 'event', type: 'string' }, { name: 'callback', type: 'Function' }], returns: 'void' },
+            { name: 'emit', description: '派发事件（系统名或自定义名），参数原样传给回调', params: [{ name: 'event', type: 'string' }, { name: '...args', type: 'any' }], returns: 'void' },
+            { name: 'off', description: '移除监听', params: [{ name: 'event', type: 'string' }], returns: 'void' },
+            { name: 'removeAllListeners', description: '清空全部监听', params: [], returns: 'void' },
+        ],
+        properties: [],
+        constructorParams: [],
+        funcParams: [],
+        funcReturns: '',
+    },
+    'Sensors': {
+        kind: 'object',
+        description: '传感器（list=本机可用；catalog=类型说明目录）',
+        methods: [
+            { name: 'list', description: '本机可用传感器别名', params: [], returns: 'string[]' },
+            { name: 'catalog', description: '已知类型目录（type/aliases/description/values）', params: [], returns: 'object[]' },
+            { name: 'has', description: '是否存在该类型', params: [{ name: 'type', type: 'string' }], returns: 'boolean' },
+            { name: 'register', description: '注册监听', params: [{ name: 'type', type: 'string' }, { name: 'callback', type: 'Function' }, { name: 'delayMs', type: 'number' }], returns: 'boolean' },
+            { name: 'unregister', description: '取消指定类型', params: [{ name: 'type', type: 'string' }], returns: 'void' },
+            { name: 'unregisterAll', description: '取消全部', params: [], returns: 'void' },
+        ],
+        properties: [],
+        constructorParams: [],
+        funcParams: [],
+        funcReturns: '',
+    },
     'Intent': {
         kind: 'object',
-        description: '',
+        description: '通用 Intent 构造与启动',
         methods: [
-            {
-                name: 'open',
-                description: 'open',
-                params: [
-                ],
-                returns: 'void',
-            },
+            { name: 'create', description: '从配置对象创建 Android Intent', params: [{ name: 'options', type: 'object' }], returns: 'any' },
+            { name: 'startActivity', description: '启动 Activity', params: [{ name: 'options', type: 'object' }], returns: 'void' },
+            { name: 'startService', description: '启动 Service（显式 packageName+className；后台可能被系统限制，常驻用 ForegroundServiceBridge）', params: [{ name: 'options', type: 'object' }], returns: 'void' },
+            { name: 'sendBroadcast', description: '发送广播（接收方需 registerReceiver 或其它 App 的 Receiver）', params: [{ name: 'options', type: 'object' }], returns: 'void' },
+            { name: 'registerReceiver', description: '动态注册广播接收；回调 { action, data, type, extras, packageName }', params: [{ name: 'action', type: 'string|string[]' }, { name: 'callback', type: 'Function' }], returns: 'void' },
+            { name: 'unregisterReceiver', description: '取消指定 action 的接收', params: [{ name: 'action', type: 'string' }], returns: 'void' },
+            { name: 'unregisterAllReceivers', description: '取消全部动态广播接收', params: [], returns: 'void' },
+            { name: 'open', description: '无参打开应用详情；有 uri 时 VIEW 打开', params: [{ name: 'uri', type: 'string' }], returns: 'void' },
         ],
-        properties: [
-        ],
-        constructorParams: [
-        ],
-        funcParams: [
-        ],
+        properties: [],
+        constructorParams: [],
+        funcParams: [],
         funcReturns: '',
     },
     'JavaImporter': {
@@ -4761,6 +4911,23 @@ export const apiData: Record<string, GlobalDef> = {
                 returns: 'Rect',
             },
             {
+                name: 'highlight',
+                description: '框选本节点并闪烁（调试用）。后续参数均可省略。默认2秒、1dp、蓝色；阻塞到结束；新一次会清掉上一次。\n@param seconds 闪烁秒数，默认2\n@param strokeDp 线宽dp，默认1\n@param color 边框颜色：#RGB/#RRGGBB/#AARRGGBB、rgba(r,g,b,a) 或数字ARGB',
+                params: [
+                    { name: 'seconds', type: 'number', optional: true },
+                    { name: 'strokeDp', type: 'number', optional: true },
+                    { name: 'color', type: 'string | number', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'clearHighlight',
+                description: '立刻清除当前屏幕上的节点高亮',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
                 name: 'text',
                 description: '获取控件的文本内容',
                 params: [
@@ -4944,21 +5111,6 @@ export const apiData: Record<string, GlobalDef> = {
         description: '控件选择器',
         methods: [
             {
-                name: 'setLevel',
-                description: '',
-                params: [
-                    { name: 'level', type: 'number' },
-                ],
-                returns: 'UiSelector',
-            },
-            {
-                name: 'getLevel',
-                description: '',
-                params: [
-                ],
-                returns: 'number',
-            },
-            {
                 name: 'UiSelector',
                 description: '',
                 params: [
@@ -5004,22 +5156,6 @@ export const apiData: Record<string, GlobalDef> = {
                 returns: 'UiSelector',
             },
             {
-                name: 'textStartsWith',
-                description: '',
-                params: [
-                    { name: 'text', type: 'string' },
-                ],
-                returns: 'UiSelector',
-            },
-            {
-                name: 'textEndsWith',
-                description: '',
-                params: [
-                    { name: 'text', type: 'string' },
-                ],
-                returns: 'UiSelector',
-            },
-            {
                 name: 'desc',
                 description: '@param desc 控件描述内容',
                 params: [
@@ -5044,50 +5180,10 @@ export const apiData: Record<string, GlobalDef> = {
                 returns: 'UiSelector',
             },
             {
-                name: 'descStartsWith',
-                description: '',
-                params: [
-                    { name: 'desc', type: 'string' },
-                ],
-                returns: 'UiSelector',
-            },
-            {
-                name: 'descEndsWith',
-                description: '',
-                params: [
-                    { name: 'desc', type: 'string' },
-                ],
-                returns: 'UiSelector',
-            },
-            {
                 name: 'className',
                 description: '@param className 控件类名',
                 params: [
                     { name: 'className', type: 'string' },
-                ],
-                returns: 'UiSelector',
-            },
-            {
-                name: 'classNameMatches',
-                description: '',
-                params: [
-                    { name: 'className', type: 'string' },
-                ],
-                returns: 'UiSelector',
-            },
-            {
-                name: 'packageName',
-                description: '',
-                params: [
-                    { name: 'packageName', type: 'string' },
-                ],
-                returns: 'UiSelector',
-            },
-            {
-                name: 'packageNameMatches',
-                description: '',
-                params: [
-                    { name: 'packageName', type: 'string' },
                 ],
                 returns: 'UiSelector',
             },
@@ -5493,6 +5589,48 @@ export const apiData: Record<string, GlobalDef> = {
             {
                 name: 'isSmsPermissionPermanentlyDenied',
                 description: '短信权限是否被永久拒绝',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'hasCameraPermission',
+                description: '是否已授予摄像头权限（CAMERA）。Images.takePhoto 需要',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'requestCameraPermission',
+                description: '申请摄像头权限。异步，需在前台 Activity 调用',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'isCameraPermissionPermanentlyDenied',
+                description: '摄像头权限是否被永久拒绝',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'hasRecordAudioPermission',
+                description: '是否已授予麦克风权限（RECORD_AUDIO）。Audio.startRecord 需要',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'requestRecordAudioPermission',
+                description: '申请麦克风录音权限。异步，需在前台 Activity 调用',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'isRecordAudioPermissionPermanentlyDenied',
+                description: '麦克风权限是否被永久拒绝',
                 params: [
                 ],
                 returns: 'boolean',

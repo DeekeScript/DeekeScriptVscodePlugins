@@ -191,6 +191,30 @@ interface Access {
      */
     isSmsPermissionPermanentlyDenied(): boolean;
     /**
+     * 是否已授予摄像头权限（CAMERA）。Images.takePhoto 需要。
+     */
+    hasCameraPermission(): boolean;
+    /**
+     * 申请摄像头权限。异步，需在前台 Activity 调用。
+     */
+    requestCameraPermission(): void;
+    /**
+     * 摄像头权限是否被永久拒绝（需引导去 Access.openPermissionSettings）
+     */
+    isCameraPermissionPermanentlyDenied(): boolean;
+    /**
+     * 是否已授予麦克风权限（RECORD_AUDIO）。Audio.startRecord 需要。
+     */
+    hasRecordAudioPermission(): boolean;
+    /**
+     * 申请麦克风录音权限。异步，需在前台 Activity 调用。
+     */
+    requestRecordAudioPermission(): void;
+    /**
+     * 麦克风权限是否被永久拒绝
+     */
+    isRecordAudioPermissionPermanentlyDenied(): boolean;
+    /**
      * 是否已允许修改系统设置（亮度等）
      * @returns {boolean} boolean
      * @see {@link https://script.deeke.cn/access/access.html#canwritesettings DeekeScript Pro 文档}
@@ -421,6 +445,10 @@ interface Audio {
      * @see {@link https://script.deeke.cn/base/audio/audio.html#hasforegroundservicepermission DeekeScript Pro 文档}
      */
     hasForegroundServicePermission(): boolean;
+    startRecord(path?: string): boolean;
+    stopRecord(): string;
+    isRecording(): boolean;
+    getRecordingPath(): string;
 }
 declare var Audio: Audio;
 
@@ -2591,6 +2619,25 @@ interface Gesture {
      * @see {@link https://script.deeke.cn/base/gesture/gesture.html#recents DeekeScript Pro 文档}
      */
     recents(): boolean;
+    /**
+     * 派发按压后立即返回
+     */
+    pressQuick(x: number, y: number, duration: number): boolean;
+    /**
+     * 仿人手抛物线滑动
+     */
+    swipeHuman(sx: number, sy: number, ex: number, ey: number, duration: number): boolean;
+    /**
+     * 单指路径手势。points 为 [[x,y], ...]
+     */
+    gesture(duration: number, points: number[][] | Array<{ x: number; y: number }>): boolean;
+    /**
+     * 多指/组合手势。stroke: [startTime, duration, [x,y], ...] 或 { startTime, duration, points }
+     */
+    gestures(strokes: any[] | any): boolean;
+    gestures(stroke1: any, stroke2: any): boolean;
+    gestures(stroke1: any, stroke2: any, stroke3: any): boolean;
+    gestures(stroke1: any, stroke2: any, stroke3: any, stroke4: any): boolean;
 }
 declare var Gesture: Gesture;
 
@@ -3061,6 +3108,11 @@ interface Images {
      */
     capture(): string;
     /**
+     * 后置摄像头静默拍照，需 CAMERA 权限（Access.hasCameraPermission / requestCameraPermission）
+     * @see {@link https://doc.deeke.cn/access/access.html DeekeScript 权限}
+     */
+    takePhoto(path?: string): string;
+    /**
      * @param {string} imageFile imageFile
      * @param {number} pixelX pixelX
      * @param {number} pixelY pixelY
@@ -3132,14 +3184,86 @@ declare var Images: Images;
 /**
  * @see {@link https://script.deeke.cn/base/intent/intent.html DeekeScript Pro 文档}
  */
+interface IntentOptions {
+    action?: string;
+    data?: string;
+    type?: string;
+    packageName?: string;
+    package?: string;
+    className?: string;
+    categories?: string | string[];
+    flags?: number | string | Array<number | string>;
+    extras?: Record<string, any>;
+}
+
+/**
+ * 统一事件总线（按键、亮灭屏、无障碍、窗口切换；可用 emit 自定义）
+ */
+interface Events {
+    observeKey(): void;
+    ignoreKey(): void;
+    isObservingKey(): boolean;
+    on(event: string, callback: (...args: any[]) => void): void;
+    once(event: string, callback: (...args: any[]) => void): void;
+    /**
+     * 派发事件（系统名或自定义名均可），参数原样传给回调
+     */
+    emit(event: string, ...args: any[]): void;
+    off(event: string): void;
+    off(event: string, callback: (...args: any[]) => void): void;
+    removeAllListeners(): void;
+}
+declare var Events: Events;
+
+/**
+ * 传感器（list=本机可用；catalog=类型说明目录）
+ */
+interface Sensors {
+    /** 本机可用传感器别名 */
+    list(): string[];
+    /**
+     * 已知类型目录：{ type, aliases, description, values }[]
+     */
+    catalog(): Array<{ type: string; aliases: string[]; description: string; values: string }>;
+    has(type: string): boolean;
+    register(type: string, callback: (event: { values: number[]; timestamp: number; accuracy: number; type: string }) => void, delayMs?: number): boolean;
+    unregister(type: string): void;
+    unregisterAll(): void;
+}
+declare var Sensors: Sensors;
+
 interface Intent {
     /**
-     * open
-     * @see {@link https://script.deeke.cn/base/intent/intent.html#open DeekeScript Pro 文档}
+     * 从配置对象创建 Android Intent
+     */
+    create(options: IntentOptions | any): any;
+    /** 启动 Activity（打开界面） */
+    startActivity(options: IntentOptions | any): void;
+    /**
+     * 启动 Service。建议 packageName+className；后台可能被系统限制，常驻用 ForegroundServiceBridge
+     * @see {@link https://doc.deeke.cn/base/intent/intent.html#startserviceoptions DeekeScript 文档}
+     */
+    startService(options: IntentOptions | any): void;
+    /**
+     * 发送广播。接收方需已 registerReceiver 或其它 App 的 BroadcastReceiver
+     * @see {@link https://doc.deeke.cn/base/intent/intent.html#registerreceiveraction-callback DeekeScript 文档}
+     */
+    sendBroadcast(options: IntentOptions | any): void;
+    /**
+     * 动态注册广播接收。回调参数：{ action, data, type, extras, packageName }
+     * @see {@link https://doc.deeke.cn/base/intent/intent.html#registerreceiveraction-callback DeekeScript 文档}
+     */
+    registerReceiver(action: string | string[], callback: (intent: { action: string; data: string; type: string; extras: Record<string, any>; packageName: string }) => void): void;
+    unregisterReceiver(action: string): void;
+    unregisterAllReceivers(): void;
+    /**
+     * 无参打开应用详情；有 uri 时按 VIEW 打开
      */
     open(): void;
+    open(uri: string): void;
 }
 declare var Intent: Intent;
+
 
 /**
  * @param {any[]} packages packages（剩余参数）
@@ -4371,6 +4495,19 @@ interface UiObject {
      */
     bounds(): Rect;
     /**
+     * 在屏幕上框选本节点并闪烁（调试用）。后续参数均可省略。
+     * 默认约 2 秒、线宽 1dp、蓝色；会阻塞到结束。新一次会清掉上一次。
+     * 优先无障碍 Overlay，否则需悬浮窗权限。
+     * @param {number} [seconds=2] 闪烁秒数
+     * @param {number} [strokeDp=1] 线宽（dp）
+     * @param {string|number} [color='#FF3B82F6'] 边框颜色：#RGB/#RRGGBB/#AARRGGBB、rgba(r,g,b,a) 或数字 ARGB
+     */
+    highlight(seconds?: number, strokeDp?: number, color?: string | number): boolean;
+    /**
+     * 立刻清除当前屏幕上的节点高亮（若有）
+     */
+    clearHighlight(): boolean;
+    /**
      * 获取控件的文本内容
      * @returns {string} string
      * @see {@link https://script.deeke.cn/base/uiObject/uiObject.html#text DeekeScript Pro 文档}
@@ -4530,17 +4667,6 @@ declare function UiSelector(simpleMode?: boolean): UiSelector;
  */
 interface UiSelector {
     /**
-     * @param {number} level level
-     * @returns {UiSelector} UiSelector
-     * @see {@link https://script.deeke.cn/base/uiSelector/uiSelector.html#setlevel-level DeekeScript Pro 文档}
-     */
-    setLevel(level: number): UiSelector;
-    /**
-     * @returns {number} number
-     * @see {@link https://script.deeke.cn/base/uiSelector/uiSelector.html#getlevel DeekeScript Pro 文档}
-     */
-    getLevel(): number;
-    /**
      * @see {@link https://script.deeke.cn/base/uiSelector/uiSelector.html#uiselector DeekeScript Pro 文档}
      */
     UiSelector(): void;
@@ -4571,18 +4697,6 @@ interface UiSelector {
      */
     textMatches(text: string): UiSelector;
     /**
-     * @param {string} text text
-     * @returns {UiSelector} UiSelector
-     * @see {@link https://script.deeke.cn/base/uiSelector/uiSelector.html#textstartswith-text DeekeScript Pro 文档}
-     */
-    textStartsWith(text: string): UiSelector;
-    /**
-     * @param {string} text text
-     * @returns {UiSelector} UiSelector
-     * @see {@link https://script.deeke.cn/base/uiSelector/uiSelector.html#textendswith-text DeekeScript Pro 文档}
-     */
-    textEndsWith(text: string): UiSelector;
-    /**
      * @param {string} desc 控件描述内容
      * @returns {UiSelector} UiSelector
      * @see {@link https://script.deeke.cn/base/uiSelector/uiSelector.html#desc-desc DeekeScript Pro 文档}
@@ -4601,41 +4715,11 @@ interface UiSelector {
      */
     descMatches(desc: string): UiSelector;
     /**
-     * @param {string} desc desc
-     * @returns {UiSelector} UiSelector
-     * @see {@link https://script.deeke.cn/base/uiSelector/uiSelector.html#descstartswith-desc DeekeScript Pro 文档}
-     */
-    descStartsWith(desc: string): UiSelector;
-    /**
-     * @param {string} desc desc
-     * @returns {UiSelector} UiSelector
-     * @see {@link https://script.deeke.cn/base/uiSelector/uiSelector.html#descendswith-desc DeekeScript Pro 文档}
-     */
-    descEndsWith(desc: string): UiSelector;
-    /**
      * @param {string} className 控件类名
      * @returns {UiSelector} UiSelector
      * @see {@link https://script.deeke.cn/base/uiSelector/uiSelector.html#classname-classname DeekeScript Pro 文档}
      */
     className(className: string): UiSelector;
-    /**
-     * @param {string} className className
-     * @returns {UiSelector} UiSelector
-     * @see {@link https://script.deeke.cn/base/uiSelector/uiSelector.html#classnamematches-classname DeekeScript Pro 文档}
-     */
-    classNameMatches(className: string): UiSelector;
-    /**
-     * @param {string} packageName packageName
-     * @returns {UiSelector} UiSelector
-     * @see {@link https://script.deeke.cn/base/uiSelector/uiSelector.html#packagename-packagename DeekeScript Pro 文档}
-     */
-    packageName(packageName: string): UiSelector;
-    /**
-     * @param {string} packageName packageName
-     * @returns {UiSelector} UiSelector
-     * @see {@link https://script.deeke.cn/base/uiSelector/uiSelector.html#packagenamematches-packagename DeekeScript Pro 文档}
-     */
-    packageNameMatches(packageName: string): UiSelector;
     /**
      * @param {string} id 控件ID
      * @returns {UiSelector} UiSelector
@@ -4793,6 +4877,8 @@ interface WebSocket {
     closeAll(): void;
 }
 declare var WebSocket: WebSocket;
+
+
 
 /**
  * @see {@link https://script.deeke.cn/base/access/access.html DeekeScript Pro 文档}
