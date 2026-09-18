@@ -879,11 +879,12 @@ export const apiData: Record<string, GlobalDef> = {
             },
             {
                 name: 'find',
-                description: '在 Mat 中查找十六进制颜色（#RRGGBB 或 RRGGBB）\n@param source 源图 Mat\n@param hexColor 颜色\n@param rect 可选搜索区域（Android Rect）\n@return 匹配点数组',
+                description: '在 Mat 中查找十六进制颜色（#RRGGBB 或 RRGGBB）。自动处理 BGR/RGBA。\n@param source 源图 Mat\n@param hexColor 颜色\n@param rect 可选搜索区域（Android Rect）\n@param tolerance 通道容差（默认0）\n@return 匹配点数组',
                 params: [
                     { name: 'source', type: 'Mat' },
                     { name: 'hexColor', type: 'string' },
                     { name: 'rect', type: 'Rect', optional: true },
+                    { name: 'tolerance', type: 'number', optional: true },
                 ],
                 returns: 'Point[]',
             },
@@ -3142,6 +3143,199 @@ export const apiData: Record<string, GlobalDef> = {
                 ],
                 returns: 'boolean',
             },
+            {
+                name: 'press',
+                description: '按住指定毫秒后抬起。\n@param x X坐标\n@param y Y坐标\n@param durationMs 按住毫秒（默认约800）\n@returns 是否成功',
+                params: [
+                    { name: 'x', type: 'number' },
+                    { name: 'y', type: 'number' },
+                    { name: 'durationMs', type: 'number', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'longClick',
+                description: '长按。\n@param x X坐标\n@param y Y坐标\n@returns 是否成功',
+                params: [
+                    { name: 'x', type: 'number' },
+                    { name: 'y', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'doubleTap',
+                description: '双击。\n@param x X坐标\n@param y Y坐标\n@returns 是否成功',
+                params: [
+                    { name: 'x', type: 'number' },
+                    { name: 'y', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'tapRandom',
+                description: '带随机偏移点击。\n@param x X坐标\n@param y Y坐标\n@param rx X随机半径（默认5）\n@param ry Y随机半径（默认5）\n@returns 是否成功',
+                params: [
+                    { name: 'x', type: 'number' },
+                    { name: 'y', type: 'number' },
+                    { name: 'rx', type: 'number', optional: true },
+                    { name: 'ry', type: 'number', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'type',
+                description: '整串输入。ASCII 尽量逐键，中文等走剪贴板粘贴。\n@param text 文本\n@returns 是否成功',
+                params: [
+                    { name: 'text', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'paste',
+                description: '写入剪贴板并粘贴。\n@param text 文本\n@returns 是否成功',
+                params: [
+                    { name: 'text', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'clear',
+                description: '全选并删除（清空输入框）。\n@returns 是否成功',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'tapImage',
+                description: '截屏找图后点击中心。\n@param templateFile 模板图路径\n@param threshold 匹配阈值（默认0.8）\n@returns 匹配结果或 null',
+                params: [
+                    { name: 'templateFile', type: 'string' },
+                    { name: 'threshold', type: 'number', optional: true },
+                ],
+                returns: 'ImageMatch | null',
+            },
+            {
+                name: 'pressImage',
+                description: '找图后长按。\n@param templateFile 模板图路径\n@param durationMs 按住毫秒（默认800）\n@param threshold 匹配阈值（默认0.8）\n@returns 匹配结果或 null',
+                params: [
+                    { name: 'templateFile', type: 'string' },
+                    { name: 'durationMs', type: 'number', optional: true },
+                    { name: 'threshold', type: 'number', optional: true },
+                ],
+                returns: 'ImageMatch | null',
+            },
+            {
+                name: 'tapColor',
+                description: '截屏找色后点击色块中心。\n@param color rgba/rgb/#RRGGBB\n@param tolerance 通道容差（默认0）\n@returns 坐标或 null',
+                params: [
+                    { name: 'color', type: 'string' },
+                    { name: 'tolerance', type: 'number', optional: true },
+                ],
+                returns: 'Point | null',
+            },
+            {
+                name: 'waitImage',
+                description: '等待图出现。\n@param templateFile 模板图路径\n@param timeoutMs 超时毫秒（默认10000）\n@param intervalMs 轮询间隔（默认500）\n@param threshold 匹配阈值（默认0.8）\n@returns 匹配结果或 null',
+                params: [
+                    { name: 'templateFile', type: 'string' },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                    { name: 'intervalMs', type: 'number', optional: true },
+                    { name: 'threshold', type: 'number', optional: true },
+                ],
+                returns: 'ImageMatch | null',
+            },
+            {
+                name: 'waitColor',
+                description: '等待颜色出现。\n@param color 颜色\n@param timeoutMs 超时毫秒（默认10000）\n@param intervalMs 轮询间隔（默认500）\n@param tolerance 通道容差（默认0）\n@returns 坐标或 null',
+                params: [
+                    { name: 'color', type: 'string' },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                    { name: 'intervalMs', type: 'number', optional: true },
+                    { name: 'tolerance', type: 'number', optional: true },
+                ],
+                returns: 'Point | null',
+            },
+            {
+                name: 'waitImageGone',
+                description: '等待图消失。\n@param templateFile 模板图路径\n@param timeoutMs 超时毫秒（默认10000）\n@param intervalMs 轮询间隔（默认500）\n@param threshold 匹配阈值（默认0.8）\n@returns 是否在超时前消失',
+                params: [
+                    { name: 'templateFile', type: 'string' },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                    { name: 'intervalMs', type: 'number', optional: true },
+                    { name: 'threshold', type: 'number', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'clickText',
+                description: 'OCR 找字后点击。\n@param keyword 关键字\n@param timeoutMs 超时毫秒（默认10000）\n@param mode contains|exact|regex（默认 contains）\n@returns 点击的区域或 null',
+                params: [
+                    { name: 'keyword', type: 'string' },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                    { name: 'mode', type: 'string', optional: true },
+                ],
+                returns: 'Rect | null',
+            },
+            {
+                name: 'waitText',
+                description: '等待文字出现。\n@param keyword 关键字\n@param timeoutMs 超时毫秒（默认10000）\n@param intervalMs 轮询间隔（默认500）\n@param mode contains|exact|regex\n@returns TextAndRegion 或 null',
+                params: [
+                    { name: 'keyword', type: 'string' },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                    { name: 'intervalMs', type: 'number', optional: true },
+                    { name: 'mode', type: 'string', optional: true },
+                ],
+                returns: 'TextAndRegion | null',
+            },
+            {
+                name: 'waitTextGone',
+                description: '等待文字消失。\n@param keyword 关键字\n@param timeoutMs 超时毫秒（默认10000）\n@param intervalMs 轮询间隔（默认500）\n@param mode contains|exact|regex\n@returns 是否在超时前消失',
+                params: [
+                    { name: 'keyword', type: 'string' },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                    { name: 'intervalMs', type: 'number', optional: true },
+                    { name: 'mode', type: 'string', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'connectAndWait',
+                description: '连接并等待就绪。\n@param autoconnect 是否自动连接（默认true）\n@param index 设备索引（默认0）\n@param timeoutMs 超时毫秒（默认10000）\n@returns 是否已连接',
+                params: [
+                    { name: 'autoconnect', type: 'boolean', optional: true },
+                    { name: 'index', type: 'number', optional: true },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'ensureConnected',
+                description: '未连接则自动连接。\n@returns 是否已连接',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'isConnected',
+                description: '是否已连接（真实布尔）。\n@returns 是否已连接',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'swipeUntilImage',
+                description: '滑动直到出现目标图。\n@param x1 起点X\n@param y1 起点Y\n@param x2 终点X\n@param y2 终点Y\n@param templateFile 模板图路径\n@param maxTimes 最大滑动次数（默认10）\n@param threshold 匹配阈值（默认0.8）\n@returns 匹配结果或 null',
+                params: [
+                    { name: 'x1', type: 'number' },
+                    { name: 'y1', type: 'number' },
+                    { name: 'x2', type: 'number' },
+                    { name: 'y2', type: 'number' },
+                    { name: 'templateFile', type: 'string' },
+                    { name: 'maxTimes', type: 'number', optional: true },
+                    { name: 'threshold', type: 'number', optional: true },
+                ],
+                returns: 'ImageMatch | null',
+            },
         ],
         properties: [
         ],
@@ -3270,11 +3464,11 @@ export const apiData: Record<string, GlobalDef> = {
     },
     'Images': {
         kind: 'object',
-        description: '',
+        description: '截图、找图、找色、OCR。日常图色优先本模块。',
         methods: [
             {
                 name: 'getMat',
-                description: '',
+                description: '读取图片为 Mat',
                 params: [
                     { name: 'imageFile', type: 'string' },
                 ],
@@ -3282,27 +3476,61 @@ export const apiData: Record<string, GlobalDef> = {
             },
             {
                 name: 'findOne',
-                description: '',
+                description: '找图最佳匹配（左上角），未达阈值返回 null。支持 Mat 或文件路径。',
                 params: [
-                    { name: 'source', type: 'Mat' },
-                    { name: 'template', type: 'Mat' },
-                    { name: 'threshold', type: 'number' },
+                    { name: 'source', type: 'Mat | string' },
+                    { name: 'template', type: 'Mat | string' },
+                    { name: 'threshold', type: 'number', optional: true },
                 ],
-                returns: 'Point',
+                returns: 'Point | null',
+            },
+            {
+                name: 'findOneMatch',
+                description: '找图并返回中心点与分数。',
+                params: [
+                    { name: 'sourceFile', type: 'string' },
+                    { name: 'templateFile', type: 'string' },
+                    { name: 'threshold', type: 'number', optional: true },
+                ],
+                returns: 'ImageMatch | null',
+            },
+            {
+                name: 'findOneInRegion',
+                description: '在指定区域内找图。',
+                params: [
+                    { name: 'sourceFile', type: 'string' },
+                    { name: 'templateFile', type: 'string' },
+                    { name: 'threshold', type: 'number' },
+                    { name: 'left', type: 'number' },
+                    { name: 'top', type: 'number' },
+                    { name: 'width', type: 'number' },
+                    { name: 'height', type: 'number' },
+                ],
+                returns: 'ImageMatch | null',
             },
             {
                 name: 'find',
-                description: '',
+                description: '多目标找图（含 NMS）。支持 Mat 或文件路径。',
                 params: [
-                    { name: 'source', type: 'Mat' },
-                    { name: 'template', type: 'Mat' },
+                    { name: 'source', type: 'Mat | string' },
+                    { name: 'template', type: 'Mat | string' },
                     { name: 'threshold', type: 'number' },
                 ],
                 returns: 'Point[]',
             },
             {
+                name: 'findMatches',
+                description: '多目标找图，返回含中心点与分数的结果。',
+                params: [
+                    { name: 'sourceFile', type: 'string' },
+                    { name: 'templateFile', type: 'string' },
+                    { name: 'threshold', type: 'number' },
+                ],
+                returns: 'ImageMatch[]',
+            },
+            {
                 name: 'capture',
-                description: '',
+                description: '屏幕截图，返回图片路径（需 MediaProjection）',
                 params: [
                 ],
                 returns: 'string',
@@ -3311,13 +3539,23 @@ export const apiData: Record<string, GlobalDef> = {
                 name: 'takePhoto',
                 description: '后置摄像头静默拍照，需 CAMERA（Access.hasCameraPermission / requestCameraPermission）',
                 params: [
-                    { name: 'path', type: 'string' },
+                    { name: 'path', type: 'string', optional: true },
                 ],
                 returns: 'string',
             },
             {
                 name: 'getColor',
-                description: '',
+                description: '取色，返回 rgba(...)',
+                params: [
+                    { name: 'imageFile', type: 'string' },
+                    { name: 'pixelX', type: 'number' },
+                    { name: 'pixelY', type: 'number' },
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'getColorHex',
+                description: '取色，返回 #RRGGBB',
                 params: [
                     { name: 'imageFile', type: 'string' },
                     { name: 'pixelX', type: 'number' },
@@ -3327,26 +3565,62 @@ export const apiData: Record<string, GlobalDef> = {
             },
             {
                 name: 'findColor',
-                description: '',
+                description: '找色。color 支持 rgba/rgb/#RRGGBB；第三参数可为 tolerance 或 endColor',
                 params: [
                     { name: 'imageFile', type: 'string' },
                     { name: 'color', type: 'string' },
+                    { name: 'toleranceOrEndColor', type: 'number | string', optional: true },
                 ],
                 returns: 'Point[]',
             },
             {
-                name: 'findColor',
-                description: '',
+                name: 'findColorInRegion',
+                description: '区域找色',
                 params: [
                     { name: 'imageFile', type: 'string' },
-                    { name: 'startColor', type: 'string' },
-                    { name: 'endColor', type: 'string' },
+                    { name: 'color', type: 'string' },
+                    { name: 'tolerance', type: 'number' },
+                    { name: 'left', type: 'number' },
+                    { name: 'top', type: 'number' },
+                    { name: 'width', type: 'number' },
+                    { name: 'height', type: 'number' },
                 ],
                 returns: 'Point[]',
+            },
+            {
+                name: 'findColorFirst',
+                description: '返回第一个匹配点',
+                params: [
+                    { name: 'imageFile', type: 'string' },
+                    { name: 'color', type: 'string' },
+                    { name: 'tolerance', type: 'number', optional: true },
+                ],
+                returns: 'Point | null',
+            },
+            {
+                name: 'findColorCenter',
+                description: '返回匹配色块中心',
+                params: [
+                    { name: 'imageFile', type: 'string' },
+                    { name: 'color', type: 'string' },
+                    { name: 'tolerance', type: 'number', optional: true },
+                ],
+                returns: 'Point | null',
+            },
+            {
+                name: 'findMultiColors',
+                description: '多点特征找色。offsets 为 [[dx,dy,color], ...]',
+                params: [
+                    { name: 'imageFile', type: 'string' },
+                    { name: 'firstColor', type: 'string' },
+                    { name: 'offsets', type: 'any' },
+                    { name: 'tolerance', type: 'number', optional: true },
+                ],
+                returns: 'Point | null',
             },
             {
                 name: 'crop',
-                description: '',
+                description: '裁剪图片',
                 params: [
                     { name: 'imageFile', type: 'string' },
                     { name: 'left', type: 'number' },
@@ -3358,7 +3632,7 @@ export const apiData: Record<string, GlobalDef> = {
             },
             {
                 name: 'scale',
-                description: '@param imageFile 图片文件路径\n@param multiple 缩放倍数\n@throws Error 当参数非法时或者图片文件不存在时抛出异常',
+                description: '缩放图片（multiple 支持小数）\n@param imageFile 图片文件路径\n@param multiple 缩放倍数',
                 params: [
                     { name: 'imageFile', type: 'string' },
                     { name: 'multiple', type: 'number' },
@@ -3367,24 +3641,13 @@ export const apiData: Record<string, GlobalDef> = {
             },
             {
                 name: 'getTextAndRegion',
-                description: '返回图片的文本和区域\n@param imageFile 图片文件路径\n@throws Error 当图像识别失败或参数非法时',
-                params: [
-                    { name: 'imageFile', type: 'string' },
-                ],
+                description: 'OCR：返回 text + rect + confidence',
+                params: [{ name: 'imageFile', type: 'string' }],
                 returns: 'TextAndRegion[]',
             },
             {
-                name: 'findTextPosition',
-                description: '查找文本位置\n@param imageFile 图片文件路径\n@param keyword 查找的文本\n@throws Error 当图像识别失败或参数非法时',
-                params: [
-                    { name: 'imageFile', type: 'string' },
-                    { name: 'keyword', type: 'string' },
-                ],
-                returns: 'Rect[]',
-            },
-            {
-                name: 'findTextInRegion',
-                description: '在指定区域内查找文本。\n@param imageFile 图片文件路径\n@param left 区域左边界\n@param top 区域上边界\n@param width 区域宽度\n@param height 区域高度\n@returns 识别出的文本数组\n@throws Error 当图像识别失败或参数非法时',
+                name: 'getTextAndRegionInRegion',
+                description: '区域内 OCR，返回带坐标结果',
                 params: [
                     { name: 'imageFile', type: 'string' },
                     { name: 'left', type: 'number' },
@@ -3392,7 +3655,157 @@ export const apiData: Record<string, GlobalDef> = {
                     { name: 'width', type: 'number' },
                     { name: 'height', type: 'number' },
                 ],
-                returns: 'string[]',
+                returns: 'TextAndRegion[]',
+            },
+            {
+                name: 'getText',
+                description: '拼接全部识别文字',
+                params: [{ name: 'imageFile', type: 'string' }],
+                returns: 'string',
+            },
+            {
+                name: 'getTextInRegion',
+                description: '区域内拼接识别文字',
+                params: [
+                    { name: 'imageFile', type: 'string' },
+                    { name: 'left', type: 'number' },
+                    { name: 'top', type: 'number' },
+                    { name: 'width', type: 'number' },
+                    { name: 'height', type: 'number' },
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'ocr',
+                description: '截屏后 OCR；可传 left,top,width,height 做区域识别',
+                params: [
+                    { name: 'left', type: 'number', optional: true },
+                    { name: 'top', type: 'number', optional: true },
+                    { name: 'width', type: 'number', optional: true },
+                    { name: 'height', type: 'number', optional: true },
+                ],
+                returns: 'TextAndRegion[]',
+            },
+            {
+                name: 'hasText',
+                description: '是否包含关键字',
+                params: [
+                    { name: 'imageFile', type: 'string' },
+                    { name: 'keyword', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'hasTextExact',
+                description: '是否存在精确匹配行',
+                params: [
+                    { name: 'imageFile', type: 'string' },
+                    { name: 'keyword', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'hasTextMatches',
+                description: '是否匹配正则',
+                params: [
+                    { name: 'imageFile', type: 'string' },
+                    { name: 'regex', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'findText',
+                description: '查找文字。mode: contains|exact|regex（默认 contains）',
+                params: [
+                    { name: 'imageFile', type: 'string' },
+                    { name: 'keyword', type: 'string' },
+                    { name: 'mode', type: 'string', optional: true },
+                ],
+                returns: 'TextAndRegion[]',
+            },
+            {
+                name: 'findTextExact',
+                description: '精确匹配文字行',
+                params: [
+                    { name: 'imageFile', type: 'string' },
+                    { name: 'keyword', type: 'string' },
+                ],
+                returns: 'TextAndRegion[]',
+            },
+            {
+                name: 'findTextMatches',
+                description: '正则匹配文字',
+                params: [
+                    { name: 'imageFile', type: 'string' },
+                    { name: 'regex', type: 'string' },
+                ],
+                returns: 'TextAndRegion[]',
+            },
+            {
+                name: 'findTextFirst',
+                description: '返回第一个匹配',
+                params: [
+                    { name: 'imageFile', type: 'string' },
+                    { name: 'keyword', type: 'string' },
+                    { name: 'mode', type: 'string', optional: true },
+                ],
+                returns: 'TextAndRegion | null',
+            },
+            {
+                name: 'findTextCenter',
+                description: '返回匹配文字中心点',
+                params: [
+                    { name: 'imageFile', type: 'string' },
+                    { name: 'keyword', type: 'string' },
+                    { name: 'mode', type: 'string', optional: true },
+                ],
+                returns: 'Point | null',
+            },
+            {
+                name: 'findTextPosition',
+                description: '查找文本位置 Rect 列表',
+                params: [
+                    { name: 'imageFile', type: 'string' },
+                    { name: 'keyword', type: 'string' },
+                    { name: 'mode', type: 'string', optional: true },
+                ],
+                returns: 'Rect[]',
+            },
+            {
+                name: 'findTextInRegion',
+                description: '旧：四参区域返回 string[]；新：带 keyword 返回 TextAndRegion[]',
+                params: [
+                    { name: 'imageFile', type: 'string' },
+                    { name: 'keywordOrLeft', type: 'string | number' },
+                    { name: 'modeOrTop', type: 'string | number', optional: true },
+                    { name: 'leftOrWidth', type: 'number', optional: true },
+                    { name: 'topOrHeight', type: 'number', optional: true },
+                    { name: 'width', type: 'number', optional: true },
+                    { name: 'height', type: 'number', optional: true },
+                ],
+                returns: 'string[] | TextAndRegion[]',
+            },
+            {
+                name: 'waitText',
+                description: '截屏等待文字出现',
+                params: [
+                    { name: 'keyword', type: 'string' },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                    { name: 'intervalMs', type: 'number', optional: true },
+                    { name: 'mode', type: 'string', optional: true },
+                ],
+                returns: 'TextAndRegion | null',
+            },
+            {
+                name: 'waitTextGone',
+                description: '截屏等待文字消失',
+                params: [
+                    { name: 'keyword', type: 'string' },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                    { name: 'intervalMs', type: 'number', optional: true },
+                    { name: 'mode', type: 'string', optional: true },
+                ],
+                returns: 'boolean',
             },
         ],
         properties: [
@@ -4663,8 +5076,30 @@ export const apiData: Record<string, GlobalDef> = {
         methods: [
         ],
         properties: [
-            { name: 'text', type: 'string', description: '' },
-            { name: 'rect', type: 'Rect', description: '' },
+            { name: 'text', type: 'string', description: '识别文本' },
+            { name: 'rect', type: 'Rect', description: '文字区域' },
+            { name: 'confidence', type: 'number', description: '置信度 0-1' },
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+        typeOnly: true,
+    },
+    'ImageMatch': {
+        kind: 'object',
+        description: '找图匹配结果（含中心点与分数）',
+        methods: [
+        ],
+        properties: [
+            { name: 'x', type: 'number', description: '左上角 X' },
+            { name: 'y', type: 'number', description: '左上角 Y' },
+            { name: 'centerX', type: 'number', description: '中心 X' },
+            { name: 'centerY', type: 'number', description: '中心 Y' },
+            { name: 'score', type: 'number', description: '匹配分数 0-1' },
+            { name: 'width', type: 'number', description: '模板宽度' },
+            { name: 'height', type: 'number', description: '模板高度' },
         ],
         constructorParams: [
         ],
@@ -6693,6 +7128,199 @@ export const apiData: Record<string, GlobalDef> = {
                 params: [
                 ],
                 returns: 'boolean',
+            },
+            {
+                name: 'press',
+                description: '按住指定毫秒后抬起。\n@param x X坐标\n@param y Y坐标\n@param durationMs 按住毫秒（默认约800）\n@returns 是否成功',
+                params: [
+                    { name: 'x', type: 'number' },
+                    { name: 'y', type: 'number' },
+                    { name: 'durationMs', type: 'number', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'longClick',
+                description: '长按。\n@param x X坐标\n@param y Y坐标\n@returns 是否成功',
+                params: [
+                    { name: 'x', type: 'number' },
+                    { name: 'y', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'doubleTap',
+                description: '双击。\n@param x X坐标\n@param y Y坐标\n@returns 是否成功',
+                params: [
+                    { name: 'x', type: 'number' },
+                    { name: 'y', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'tapRandom',
+                description: '带随机偏移点击。\n@param x X坐标\n@param y Y坐标\n@param rx X随机半径（默认5）\n@param ry Y随机半径（默认5）\n@returns 是否成功',
+                params: [
+                    { name: 'x', type: 'number' },
+                    { name: 'y', type: 'number' },
+                    { name: 'rx', type: 'number', optional: true },
+                    { name: 'ry', type: 'number', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'type',
+                description: '整串输入。ASCII 尽量逐键，中文等走剪贴板粘贴。\n@param text 文本\n@returns 是否成功',
+                params: [
+                    { name: 'text', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'paste',
+                description: '写入剪贴板并粘贴。\n@param text 文本\n@returns 是否成功',
+                params: [
+                    { name: 'text', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'clear',
+                description: '全选并删除（清空输入框）。\n@returns 是否成功',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'tapImage',
+                description: '截屏找图后点击中心。\n@param templateFile 模板图路径\n@param threshold 匹配阈值（默认0.8）\n@returns 匹配结果或 null',
+                params: [
+                    { name: 'templateFile', type: 'string' },
+                    { name: 'threshold', type: 'number', optional: true },
+                ],
+                returns: 'ImageMatch | null',
+            },
+            {
+                name: 'pressImage',
+                description: '找图后长按。\n@param templateFile 模板图路径\n@param durationMs 按住毫秒（默认800）\n@param threshold 匹配阈值（默认0.8）\n@returns 匹配结果或 null',
+                params: [
+                    { name: 'templateFile', type: 'string' },
+                    { name: 'durationMs', type: 'number', optional: true },
+                    { name: 'threshold', type: 'number', optional: true },
+                ],
+                returns: 'ImageMatch | null',
+            },
+            {
+                name: 'tapColor',
+                description: '截屏找色后点击色块中心。\n@param color rgba/rgb/#RRGGBB\n@param tolerance 通道容差（默认0）\n@returns 坐标或 null',
+                params: [
+                    { name: 'color', type: 'string' },
+                    { name: 'tolerance', type: 'number', optional: true },
+                ],
+                returns: 'Point | null',
+            },
+            {
+                name: 'waitImage',
+                description: '等待图出现。\n@param templateFile 模板图路径\n@param timeoutMs 超时毫秒（默认10000）\n@param intervalMs 轮询间隔（默认500）\n@param threshold 匹配阈值（默认0.8）\n@returns 匹配结果或 null',
+                params: [
+                    { name: 'templateFile', type: 'string' },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                    { name: 'intervalMs', type: 'number', optional: true },
+                    { name: 'threshold', type: 'number', optional: true },
+                ],
+                returns: 'ImageMatch | null',
+            },
+            {
+                name: 'waitColor',
+                description: '等待颜色出现。\n@param color 颜色\n@param timeoutMs 超时毫秒（默认10000）\n@param intervalMs 轮询间隔（默认500）\n@param tolerance 通道容差（默认0）\n@returns 坐标或 null',
+                params: [
+                    { name: 'color', type: 'string' },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                    { name: 'intervalMs', type: 'number', optional: true },
+                    { name: 'tolerance', type: 'number', optional: true },
+                ],
+                returns: 'Point | null',
+            },
+            {
+                name: 'waitImageGone',
+                description: '等待图消失。\n@param templateFile 模板图路径\n@param timeoutMs 超时毫秒（默认10000）\n@param intervalMs 轮询间隔（默认500）\n@param threshold 匹配阈值（默认0.8）\n@returns 是否在超时前消失',
+                params: [
+                    { name: 'templateFile', type: 'string' },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                    { name: 'intervalMs', type: 'number', optional: true },
+                    { name: 'threshold', type: 'number', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'clickText',
+                description: 'OCR 找字后点击。\n@param keyword 关键字\n@param timeoutMs 超时毫秒（默认10000）\n@param mode contains|exact|regex（默认 contains）\n@returns 点击的区域或 null',
+                params: [
+                    { name: 'keyword', type: 'string' },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                    { name: 'mode', type: 'string', optional: true },
+                ],
+                returns: 'Rect | null',
+            },
+            {
+                name: 'waitText',
+                description: '等待文字出现。',
+                params: [
+                    { name: 'keyword', type: 'string' },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                    { name: 'intervalMs', type: 'number', optional: true },
+                    { name: 'mode', type: 'string', optional: true },
+                ],
+                returns: 'TextAndRegion | null',
+            },
+            {
+                name: 'waitTextGone',
+                description: '等待文字消失。',
+                params: [
+                    { name: 'keyword', type: 'string' },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                    { name: 'intervalMs', type: 'number', optional: true },
+                    { name: 'mode', type: 'string', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'connectAndWait',
+                description: '连接并等待就绪。\n@param autoconnect 是否自动连接（默认true）\n@param index 设备索引（默认0）\n@param timeoutMs 超时毫秒（默认10000）\n@returns 是否已连接',
+                params: [
+                    { name: 'autoconnect', type: 'boolean', optional: true },
+                    { name: 'index', type: 'number', optional: true },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'ensureConnected',
+                description: '未连接则自动连接。\n@returns 是否已连接',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'isConnected',
+                description: '是否已连接（真实布尔）。\n@returns 是否已连接',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'swipeUntilImage',
+                description: '滑动直到出现目标图。\n@param x1 起点X\n@param y1 起点Y\n@param x2 终点X\n@param y2 终点Y\n@param templateFile 模板图路径\n@param maxTimes 最大滑动次数（默认10）\n@param threshold 匹配阈值（默认0.8）\n@returns 匹配结果或 null',
+                params: [
+                    { name: 'x1', type: 'number' },
+                    { name: 'y1', type: 'number' },
+                    { name: 'x2', type: 'number' },
+                    { name: 'y2', type: 'number' },
+                    { name: 'templateFile', type: 'string' },
+                    { name: 'maxTimes', type: 'number', optional: true },
+                    { name: 'threshold', type: 'number', optional: true },
+                ],
+                returns: 'ImageMatch | null',
             },
         ],
         properties: [

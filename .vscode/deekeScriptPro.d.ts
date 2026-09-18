@@ -191,27 +191,37 @@ interface Access {
      */
     isSmsPermissionPermanentlyDenied(): boolean;
     /**
-     * 是否已授予摄像头权限（CAMERA）。Images.takePhoto 需要。
+     * 是否已授予摄像头权限（CAMERA）。Images.takePhoto 需要
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/access/access.html#hascamerapermission DeekeScript Pro 文档}
      */
     hasCameraPermission(): boolean;
     /**
-     * 申请摄像头权限。异步，需在前台 Activity 调用。
+     * 申请摄像头权限。异步，需在前台 Activity 调用
+     * @see {@link https://script.deeke.cn/access/access.html#requestcamerapermission DeekeScript Pro 文档}
      */
     requestCameraPermission(): void;
     /**
-     * 摄像头权限是否被永久拒绝（需引导去 Access.openPermissionSettings）
+     * 摄像头权限是否被永久拒绝
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/access/access.html#iscamerapermissionpermanentlydenied DeekeScript Pro 文档}
      */
     isCameraPermissionPermanentlyDenied(): boolean;
     /**
-     * 是否已授予麦克风权限（RECORD_AUDIO）。Audio.startRecord 需要。
+     * 是否已授予麦克风权限（RECORD_AUDIO）。Audio.startRecord 需要
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/access/access.html#hasrecordaudiopermission DeekeScript Pro 文档}
      */
     hasRecordAudioPermission(): boolean;
     /**
-     * 申请麦克风录音权限。异步，需在前台 Activity 调用。
+     * 申请麦克风录音权限。异步，需在前台 Activity 调用
+     * @see {@link https://script.deeke.cn/access/access.html#requestrecordaudiopermission DeekeScript Pro 文档}
      */
     requestRecordAudioPermission(): void;
     /**
      * 麦克风权限是否被永久拒绝
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/access/access.html#isrecordaudiopermissionpermanentlydenied DeekeScript Pro 文档}
      */
     isRecordAudioPermissionPermanentlyDenied(): boolean;
     /**
@@ -445,9 +455,30 @@ interface Audio {
      * @see {@link https://script.deeke.cn/base/audio/audio.html#hasforegroundservicepermission DeekeScript Pro 文档}
      */
     hasForegroundServicePermission(): boolean;
-    startRecord(path?: string): boolean;
+    /**
+     * 开始录音，需 RECORD_AUDIO
+     * @param {string} path path
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/audio/audio.html#startrecord-path DeekeScript Pro 文档}
+     */
+    startRecord(path: string): boolean;
+    /**
+     * 停止录音，返回文件路径
+     * @returns {string} string
+     * @see {@link https://script.deeke.cn/base/audio/audio.html#stoprecord DeekeScript Pro 文档}
+     */
     stopRecord(): string;
+    /**
+     * 是否正在录音
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/audio/audio.html#isrecording DeekeScript Pro 文档}
+     */
     isRecording(): boolean;
+    /**
+     * 当前录音路径
+     * @returns {string} string
+     * @see {@link https://script.deeke.cn/base/audio/audio.html#getrecordingpath DeekeScript Pro 文档}
+     */
     getRecordingPath(): string;
 }
 declare var Audio: Audio;
@@ -816,14 +847,15 @@ interface Colors {
      */
     getMatByAssetFile(file: string): Mat;
     /**
-     * 在 Mat 中查找十六进制颜色（#RRGGBB 或 RRGGBB）
+     * 在 Mat 中查找十六进制颜色（#RRGGBB 或 RRGGBB）。自动处理 BGR/RGBA。
      * @param {Mat} source 源图 Mat
      * @param {string} hexColor 颜色
      * @param {Rect} rect 可选搜索区域（Android Rect）（可选）
+     * @param {number} tolerance 通道容差（默认0）（可选）
      * @returns {Point[]} 匹配点数组
-     * @see {@link https://script.deeke.cn/base/colors/colors.html#find-source-hexcolor-rect DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/base/colors/colors.html#find-source-hexcolor-rect-tolerance DeekeScript Pro 文档}
      */
-    find(source: Mat, hexColor: string, rect?: Rect): Point[];
+    find(source: Mat, hexColor: string, rect?: Rect, tolerance?: number): Point[];
     /**
      * 调试输出 Mat 像素（打日志）
      * @param {Mat} image Mat
@@ -2621,23 +2653,39 @@ interface Gesture {
     recents(): boolean;
     /**
      * 派发按压后立即返回
+     * @param {number} x x
+     * @param {number} y y
+     * @param {number} duration duration
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/gesture/gesture.html#pressquick-x-y-duration DeekeScript Pro 文档}
      */
     pressQuick(x: number, y: number, duration: number): boolean;
     /**
-     * 仿人手抛物线滑动
+     * 仿人手滑动
+     * @param {number} sx sx
+     * @param {number} sy sy
+     * @param {number} ex ex
+     * @param {number} ey ey
+     * @param {number} duration duration
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/gesture/gesture.html#swipehuman-sx-sy-ex-ey-duration DeekeScript Pro 文档}
      */
     swipeHuman(sx: number, sy: number, ex: number, ey: number, duration: number): boolean;
     /**
-     * 单指路径手势。points 为 [[x,y], ...]
+     * 单指路径手势
+     * @param {number} duration duration
+     * @param {number[][]} points points
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/gesture/gesture.html#gesture-duration-points DeekeScript Pro 文档}
      */
-    gesture(duration: number, points: number[][] | Array<{ x: number; y: number }>): boolean;
+    gesture(duration: number, points: number[][]): boolean;
     /**
-     * 多指/组合手势。stroke: [startTime, duration, [x,y], ...] 或 { startTime, duration, points }
+     * 多指/组合手势
+     * @param {any} strokes strokes
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/gesture/gesture.html#gestures-strokes DeekeScript Pro 文档}
      */
-    gestures(strokes: any[] | any): boolean;
-    gestures(stroke1: any, stroke2: any): boolean;
-    gestures(stroke1: any, stroke2: any, stroke3: any): boolean;
-    gestures(stroke1: any, stroke2: any, stroke3: any, stroke4: any): boolean;
+    gestures(strokes: any): boolean;
 }
 declare var Gesture: Gesture;
 
@@ -2978,6 +3026,179 @@ interface Hid {
      * @see {@link https://script.deeke.cn/hid/method.html#disconnect DeekeScript Pro 文档}
      */
     disconnect(): boolean;
+    /**
+     * 按住指定毫秒后抬起。
+     * @param {number} x X坐标
+     * @param {number} y Y坐标
+     * @param {number} durationMs 按住毫秒（默认约800）（可选）
+     * @returns {boolean} 是否成功
+     * @see {@link https://script.deeke.cn/hid/method.html#press-x-y-durationms DeekeScript Pro 文档}
+     */
+    press(x: number, y: number, durationMs?: number): boolean;
+    /**
+     * 长按。
+     * @param {number} x X坐标
+     * @param {number} y Y坐标
+     * @returns {boolean} 是否成功
+     * @see {@link https://script.deeke.cn/hid/method.html#longclick-x-y DeekeScript Pro 文档}
+     */
+    longClick(x: number, y: number): boolean;
+    /**
+     * 双击。
+     * @param {number} x X坐标
+     * @param {number} y Y坐标
+     * @returns {boolean} 是否成功
+     * @see {@link https://script.deeke.cn/hid/method.html#doubletap-x-y DeekeScript Pro 文档}
+     */
+    doubleTap(x: number, y: number): boolean;
+    /**
+     * 带随机偏移点击。
+     * @param {number} x X坐标
+     * @param {number} y Y坐标
+     * @param {number} rx X随机半径（默认5）（可选）
+     * @param {number} ry Y随机半径（默认5）（可选）
+     * @returns {boolean} 是否成功
+     * @see {@link https://script.deeke.cn/hid/method.html#taprandom-x-y-rx-ry DeekeScript Pro 文档}
+     */
+    tapRandom(x: number, y: number, rx?: number, ry?: number): boolean;
+    /**
+     * 整串输入。ASCII 尽量逐键，中文等走剪贴板粘贴。
+     * @param {string} text 文本
+     * @returns {boolean} 是否成功
+     * @see {@link https://script.deeke.cn/hid/method.html#type-text DeekeScript Pro 文档}
+     */
+    type(text: string): boolean;
+    /**
+     * 写入剪贴板并粘贴。
+     * @param {string} text 文本
+     * @returns {boolean} 是否成功
+     * @see {@link https://script.deeke.cn/hid/method.html#paste-text DeekeScript Pro 文档}
+     */
+    paste(text: string): boolean;
+    /**
+     * 全选并删除（清空输入框）。
+     * @returns {boolean} 是否成功
+     * @see {@link https://script.deeke.cn/hid/method.html#clear DeekeScript Pro 文档}
+     */
+    clear(): boolean;
+    /**
+     * 截屏找图后点击中心。
+     * @param {string} templateFile 模板图路径
+     * @param {number} threshold 匹配阈值（默认0.8）（可选）
+     * @returns {ImageMatch | null} 匹配结果或 null
+     * @see {@link https://script.deeke.cn/hid/method.html#tapimage-templatefile-threshold DeekeScript Pro 文档}
+     */
+    tapImage(templateFile: string, threshold?: number): ImageMatch | null;
+    /**
+     * 找图后长按。
+     * @param {string} templateFile 模板图路径
+     * @param {number} durationMs 按住毫秒（默认800）（可选）
+     * @param {number} threshold 匹配阈值（默认0.8）（可选）
+     * @returns {ImageMatch | null} 匹配结果或 null
+     * @see {@link https://script.deeke.cn/hid/method.html#pressimage-templatefile-durationms-threshold DeekeScript Pro 文档}
+     */
+    pressImage(templateFile: string, durationMs?: number, threshold?: number): ImageMatch | null;
+    /**
+     * 截屏找色后点击色块中心。
+     * @param {string} color rgba/rgb/#RRGGBB
+     * @param {number} tolerance 通道容差（默认0）（可选）
+     * @returns {Point | null} 坐标或 null
+     * @see {@link https://script.deeke.cn/hid/method.html#tapcolor-color-tolerance DeekeScript Pro 文档}
+     */
+    tapColor(color: string, tolerance?: number): Point | null;
+    /**
+     * 等待图出现。
+     * @param {string} templateFile 模板图路径
+     * @param {number} timeoutMs 超时毫秒（默认10000）（可选）
+     * @param {number} intervalMs 轮询间隔（默认500）（可选）
+     * @param {number} threshold 匹配阈值（默认0.8）（可选）
+     * @returns {ImageMatch | null} 匹配结果或 null
+     * @see {@link https://script.deeke.cn/hid/method.html#waitimage-templatefile-timeoutms-intervalms-threshold DeekeScript Pro 文档}
+     */
+    waitImage(templateFile: string, timeoutMs?: number, intervalMs?: number, threshold?: number): ImageMatch | null;
+    /**
+     * 等待颜色出现。
+     * @param {string} color 颜色
+     * @param {number} timeoutMs 超时毫秒（默认10000）（可选）
+     * @param {number} intervalMs 轮询间隔（默认500）（可选）
+     * @param {number} tolerance 通道容差（默认0）（可选）
+     * @returns {Point | null} 坐标或 null
+     * @see {@link https://script.deeke.cn/hid/method.html#waitcolor-color-timeoutms-intervalms-tolerance DeekeScript Pro 文档}
+     */
+    waitColor(color: string, timeoutMs?: number, intervalMs?: number, tolerance?: number): Point | null;
+    /**
+     * 等待图消失。
+     * @param {string} templateFile 模板图路径
+     * @param {number} timeoutMs 超时毫秒（默认10000）（可选）
+     * @param {number} intervalMs 轮询间隔（默认500）（可选）
+     * @param {number} threshold 匹配阈值（默认0.8）（可选）
+     * @returns {boolean} 是否在超时前消失
+     * @see {@link https://script.deeke.cn/hid/method.html#waitimagegone-templatefile-timeoutms-intervalms-threshold DeekeScript Pro 文档}
+     */
+    waitImageGone(templateFile: string, timeoutMs?: number, intervalMs?: number, threshold?: number): boolean;
+    /**
+     * OCR 找字后点击。
+     * @param {string} keyword 关键字
+     * @param {number} timeoutMs 超时毫秒（默认10000）（可选）
+     * @param {string} mode contains|exact|regex（默认 contains）（可选）
+     * @returns {Rect | null} 点击的区域或 null
+     * @see {@link https://script.deeke.cn/hid/method.html#clicktext-keyword-timeoutms-mode DeekeScript Pro 文档}
+     */
+    clickText(keyword: string, timeoutMs?: number, mode?: string): Rect | null;
+    /**
+     * 等待文字出现。
+     * @param {string} keyword 关键字
+     * @param {number} timeoutMs 超时毫秒（默认10000）（可选）
+     * @param {number} intervalMs 轮询间隔（默认500）（可选）
+     * @param {string} mode contains|exact|regex（可选）
+     * @returns {TextAndRegion | null} TextAndRegion 或 null
+     * @see {@link https://script.deeke.cn/hid/method.html#waittext-keyword-timeoutms-intervalms-mode DeekeScript Pro 文档}
+     */
+    waitText(keyword: string, timeoutMs?: number, intervalMs?: number, mode?: string): TextAndRegion | null;
+    /**
+     * 等待文字消失。
+     * @param {string} keyword 关键字
+     * @param {number} timeoutMs 超时毫秒（默认10000）（可选）
+     * @param {number} intervalMs 轮询间隔（默认500）（可选）
+     * @param {string} mode contains|exact|regex（可选）
+     * @returns {boolean} 是否在超时前消失
+     * @see {@link https://script.deeke.cn/hid/method.html#waittextgone-keyword-timeoutms-intervalms-mode DeekeScript Pro 文档}
+     */
+    waitTextGone(keyword: string, timeoutMs?: number, intervalMs?: number, mode?: string): boolean;
+    /**
+     * 连接并等待就绪。
+     * @param {boolean} autoconnect 是否自动连接（默认true）（可选）
+     * @param {number} index 设备索引（默认0）（可选）
+     * @param {number} timeoutMs 超时毫秒（默认10000）（可选）
+     * @returns {boolean} 是否已连接
+     * @see {@link https://script.deeke.cn/hid/method.html#connectandwait-autoconnect-index-timeoutms DeekeScript Pro 文档}
+     */
+    connectAndWait(autoconnect?: boolean, index?: number, timeoutMs?: number): boolean;
+    /**
+     * 未连接则自动连接。
+     * @returns {boolean} 是否已连接
+     * @see {@link https://script.deeke.cn/hid/method.html#ensureconnected DeekeScript Pro 文档}
+     */
+    ensureConnected(): boolean;
+    /**
+     * 是否已连接（真实布尔）。
+     * @returns {boolean} 是否已连接
+     * @see {@link https://script.deeke.cn/hid/method.html#isconnected DeekeScript Pro 文档}
+     */
+    isConnected(): boolean;
+    /**
+     * 滑动直到出现目标图。
+     * @param {number} x1 起点X
+     * @param {number} y1 起点Y
+     * @param {number} x2 终点X
+     * @param {number} y2 终点Y
+     * @param {string} templateFile 模板图路径
+     * @param {number} maxTimes 最大滑动次数（默认10）（可选）
+     * @param {number} threshold 匹配阈值（默认0.8）（可选）
+     * @returns {ImageMatch | null} 匹配结果或 null
+     * @see {@link https://script.deeke.cn/hid/method.html#swipeuntilimage-x1-y1-x2-y2-templatefile-maxtimes-threshold DeekeScript Pro 文档}
+     */
+    swipeUntilImage(x1: number, y1: number, x2: number, y2: number, templateFile: string, maxTimes?: number, threshold?: number): ImageMatch | null;
 }
 declare var Hid: Hid;
 
@@ -3077,42 +3298,81 @@ interface Http {
 declare var Http: Http;
 
 /**
+ * 截图、找图、找色、OCR。日常图色优先本模块。
  * @see {@link https://script.deeke.cn/advance/photoAndColor.html DeekeScript Pro 文档}
  */
 interface Images {
     /**
+     * 读取图片为 Mat
      * @param {string} imageFile imageFile
      * @returns {Mat} Mat
      * @see {@link https://script.deeke.cn/advance/photoAndColor.html#getmat-imagefile DeekeScript Pro 文档}
      */
     getMat(imageFile: string): Mat;
     /**
-     * @param {Mat} source source
-     * @param {Mat} template template
-     * @param {number} threshold threshold
-     * @returns {Point} Point
+     * 找图最佳匹配（左上角），未达阈值返回 null。支持 Mat 或文件路径。
+     * @param {Mat | string} source source
+     * @param {Mat | string} template template
+     * @param {number} threshold threshold（可选）
+     * @returns {Point | null} Point | null
      * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findone-source-template-threshold DeekeScript Pro 文档}
      */
-    findOne(source: Mat, template: Mat, threshold: number): Point;
+    findOne(source: Mat | string, template: Mat | string, threshold?: number): Point | null;
     /**
-     * @param {Mat} source source
-     * @param {Mat} template template
+     * 找图并返回中心点与分数。
+     * @param {string} sourceFile sourceFile
+     * @param {string} templateFile templateFile
+     * @param {number} threshold threshold（可选）
+     * @returns {ImageMatch | null} ImageMatch | null
+     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findonematch-sourcefile-templatefile-threshold DeekeScript Pro 文档}
+     */
+    findOneMatch(sourceFile: string, templateFile: string, threshold?: number): ImageMatch | null;
+    /**
+     * 在指定区域内找图。
+     * @param {string} sourceFile sourceFile
+     * @param {string} templateFile templateFile
+     * @param {number} threshold threshold
+     * @param {number} left left
+     * @param {number} top top
+     * @param {number} width width
+     * @param {number} height height
+     * @returns {ImageMatch | null} ImageMatch | null
+     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findoneinregion-sourcefile-templatefile-threshold-left-top-width-height DeekeScript Pro 文档}
+     */
+    findOneInRegion(sourceFile: string, templateFile: string, threshold: number, left: number, top: number, width: number, height: number): ImageMatch | null;
+    /**
+     * 多目标找图（含 NMS）。支持 Mat 或文件路径。
+     * @param {Mat | string} source source
+     * @param {Mat | string} template template
      * @param {number} threshold threshold
      * @returns {Point[]} Point[]
      * @see {@link https://script.deeke.cn/advance/photoAndColor.html#find-source-template-threshold DeekeScript Pro 文档}
      */
-    find(source: Mat, template: Mat, threshold: number): Point[];
+    find(source: Mat | string, template: Mat | string, threshold: number): Point[];
     /**
+     * 多目标找图，返回含中心点与分数的结果。
+     * @param {string} sourceFile sourceFile
+     * @param {string} templateFile templateFile
+     * @param {number} threshold threshold
+     * @returns {ImageMatch[]} ImageMatch[]
+     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findmatches-sourcefile-templatefile-threshold DeekeScript Pro 文档}
+     */
+    findMatches(sourceFile: string, templateFile: string, threshold: number): ImageMatch[];
+    /**
+     * 屏幕截图，返回图片路径（需 MediaProjection）
      * @returns {string} string
      * @see {@link https://script.deeke.cn/advance/photoAndColor.html#capture DeekeScript Pro 文档}
      */
     capture(): string;
     /**
-     * 后置摄像头静默拍照，需 CAMERA 权限（Access.hasCameraPermission / requestCameraPermission）
-     * @see {@link https://doc.deeke.cn/access/access.html DeekeScript 权限}
+     * 后置摄像头静默拍照，需 CAMERA（Access.hasCameraPermission / requestCameraPermission）
+     * @param {string} path path（可选）
+     * @returns {string} string
+     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#takephoto-path DeekeScript Pro 文档}
      */
     takePhoto(path?: string): string;
     /**
+     * 取色，返回 rgba(...)
      * @param {string} imageFile imageFile
      * @param {number} pixelX pixelX
      * @param {number} pixelY pixelY
@@ -3121,21 +3381,66 @@ interface Images {
      */
     getColor(imageFile: string, pixelX: number, pixelY: number): string;
     /**
+     * 取色，返回 #RRGGBB
+     * @param {string} imageFile imageFile
+     * @param {number} pixelX pixelX
+     * @param {number} pixelY pixelY
+     * @returns {string} string
+     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#getcolorhex-imagefile-pixelx-pixely DeekeScript Pro 文档}
+     */
+    getColorHex(imageFile: string, pixelX: number, pixelY: number): string;
+    /**
+     * 找色。color 支持 rgba/rgb/#RRGGBB；第三参数可为 tolerance 或 endColor
      * @param {string} imageFile imageFile
      * @param {string} color color
+     * @param {number | string} toleranceOrEndColor toleranceOrEndColor（可选）
      * @returns {Point[]} Point[]
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findcolor-imagefile-color DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findcolor-imagefile-color-toleranceorendcolor DeekeScript Pro 文档}
      */
-    findColor(imageFile: string, color: string): Point[];
+    findColor(imageFile: string, color: string, toleranceOrEndColor?: number | string): Point[];
     /**
+     * 区域找色
      * @param {string} imageFile imageFile
-     * @param {string} startColor startColor
-     * @param {string} endColor endColor
+     * @param {string} color color
+     * @param {number} tolerance tolerance
+     * @param {number} left left
+     * @param {number} top top
+     * @param {number} width width
+     * @param {number} height height
      * @returns {Point[]} Point[]
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findcolor-imagefile-startcolor-endcolor DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findcolorinregion-imagefile-color-tolerance-left-top-width-height DeekeScript Pro 文档}
      */
-    findColor(imageFile: string, startColor: string, endColor: string): Point[];
+    findColorInRegion(imageFile: string, color: string, tolerance: number, left: number, top: number, width: number, height: number): Point[];
     /**
+     * 返回第一个匹配点
+     * @param {string} imageFile imageFile
+     * @param {string} color color
+     * @param {number} tolerance tolerance（可选）
+     * @returns {Point | null} Point | null
+     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findcolorfirst-imagefile-color-tolerance DeekeScript Pro 文档}
+     */
+    findColorFirst(imageFile: string, color: string, tolerance?: number): Point | null;
+    /**
+     * 返回匹配色块中心
+     * @param {string} imageFile imageFile
+     * @param {string} color color
+     * @param {number} tolerance tolerance（可选）
+     * @returns {Point | null} Point | null
+     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findcolorcenter-imagefile-color-tolerance DeekeScript Pro 文档}
+     */
+    findColorCenter(imageFile: string, color: string, tolerance?: number): Point | null;
+    /**
+     * 多点特征找色。offsets 为 [[dx,dy,color], ...]
+     * @param {string} imageFile imageFile
+     * @param {string} firstColor firstColor
+     * @param {any} offsets offsets
+     * @param {number} tolerance tolerance（可选）
+     * @returns {Point | null} Point | null
+     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findmulticolors-imagefile-firstcolor-offsets-tolerance DeekeScript Pro 文档}
+     */
+    findMultiColors(imageFile: string, firstColor: string, offsets: any, tolerance?: number): Point | null;
+    /**
+     * 裁剪图片
      * @param {string} imageFile imageFile
      * @param {number} left left
      * @param {number} top top
@@ -3146,6 +3451,7 @@ interface Images {
      */
     crop(imageFile: string, left: number, top: number, width: number, height: number): string;
     /**
+     * 缩放图片（multiple 支持小数）
      * @param {string} imageFile 图片文件路径
      * @param {number} multiple 缩放倍数
      * @returns {string} string
@@ -3153,117 +3459,321 @@ interface Images {
      */
     scale(imageFile: string, multiple: number): string;
     /**
-     * 返回图片的文本和区域
-     * @param {string} imageFile 图片文件路径
+     * OCR：返回 text + rect + confidence
+     * @param {string} imageFile imageFile
      * @returns {TextAndRegion[]} TextAndRegion[]
      * @see {@link https://script.deeke.cn/advance/photoAndColor.html#gettextandregion-imagefile DeekeScript Pro 文档}
      */
     getTextAndRegion(imageFile: string): TextAndRegion[];
     /**
-     * 查找文本位置
-     * @param {string} imageFile 图片文件路径
-     * @param {string} keyword 查找的文本
-     * @returns {Rect[]} Rect[]
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findtextposition-imagefile-keyword DeekeScript Pro 文档}
+     * 区域内 OCR，返回带坐标结果
+     * @param {string} imageFile imageFile
+     * @param {number} left left
+     * @param {number} top top
+     * @param {number} width width
+     * @param {number} height height
+     * @returns {TextAndRegion[]} TextAndRegion[]
+     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#gettextandregioninregion-imagefile-left-top-width-height DeekeScript Pro 文档}
      */
-    findTextPosition(imageFile: string, keyword: string): Rect[];
+    getTextAndRegionInRegion(imageFile: string, left: number, top: number, width: number, height: number): TextAndRegion[];
     /**
-     * 在指定区域内查找文本。
-     * @param {string} imageFile 图片文件路径
-     * @param {number} left 区域左边界
-     * @param {number} top 区域上边界
-     * @param {number} width 区域宽度
-     * @param {number} height 区域高度
-     * @returns {string[]} 识别出的文本数组
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findtextinregion-imagefile-left-top-width-height DeekeScript Pro 文档}
+     * 拼接全部识别文字
+     * @param {string} imageFile imageFile
+     * @returns {string} string
+     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#gettext-imagefile DeekeScript Pro 文档}
      */
-    findTextInRegion(imageFile: string, left: number, top: number, width: number, height: number): string[];
+    getText(imageFile: string): string;
+    /**
+     * 区域内拼接识别文字
+     * @param {string} imageFile imageFile
+     * @param {number} left left
+     * @param {number} top top
+     * @param {number} width width
+     * @param {number} height height
+     * @returns {string} string
+     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#gettextinregion-imagefile-left-top-width-height DeekeScript Pro 文档}
+     */
+    getTextInRegion(imageFile: string, left: number, top: number, width: number, height: number): string;
+    /**
+     * 截屏后 OCR；可传 left,top,width,height 做区域识别
+     * @param {number} left left（可选）
+     * @param {number} top top（可选）
+     * @param {number} width width（可选）
+     * @param {number} height height（可选）
+     * @returns {TextAndRegion[]} TextAndRegion[]
+     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#ocr-left-top-width-height DeekeScript Pro 文档}
+     */
+    ocr(left?: number, top?: number, width?: number, height?: number): TextAndRegion[];
+    /**
+     * 是否包含关键字
+     * @param {string} imageFile imageFile
+     * @param {string} keyword keyword
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#hastext-imagefile-keyword DeekeScript Pro 文档}
+     */
+    hasText(imageFile: string, keyword: string): boolean;
+    /**
+     * 是否存在精确匹配行
+     * @param {string} imageFile imageFile
+     * @param {string} keyword keyword
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#hastextexact-imagefile-keyword DeekeScript Pro 文档}
+     */
+    hasTextExact(imageFile: string, keyword: string): boolean;
+    /**
+     * 是否匹配正则
+     * @param {string} imageFile imageFile
+     * @param {string} regex regex
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#hastextmatches-imagefile-regex DeekeScript Pro 文档}
+     */
+    hasTextMatches(imageFile: string, regex: string): boolean;
+    /**
+     * 查找文字。mode: contains|exact|regex（默认 contains）
+     * @param {string} imageFile imageFile
+     * @param {string} keyword keyword
+     * @param {string} mode mode（可选）
+     * @returns {TextAndRegion[]} TextAndRegion[]
+     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findtext-imagefile-keyword-mode DeekeScript Pro 文档}
+     */
+    findText(imageFile: string, keyword: string, mode?: string): TextAndRegion[];
+    /**
+     * 精确匹配文字行
+     * @param {string} imageFile imageFile
+     * @param {string} keyword keyword
+     * @returns {TextAndRegion[]} TextAndRegion[]
+     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findtextexact-imagefile-keyword DeekeScript Pro 文档}
+     */
+    findTextExact(imageFile: string, keyword: string): TextAndRegion[];
+    /**
+     * 正则匹配文字
+     * @param {string} imageFile imageFile
+     * @param {string} regex regex
+     * @returns {TextAndRegion[]} TextAndRegion[]
+     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findtextmatches-imagefile-regex DeekeScript Pro 文档}
+     */
+    findTextMatches(imageFile: string, regex: string): TextAndRegion[];
+    /**
+     * 返回第一个匹配
+     * @param {string} imageFile imageFile
+     * @param {string} keyword keyword
+     * @param {string} mode mode（可选）
+     * @returns {TextAndRegion | null} TextAndRegion | null
+     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findtextfirst-imagefile-keyword-mode DeekeScript Pro 文档}
+     */
+    findTextFirst(imageFile: string, keyword: string, mode?: string): TextAndRegion | null;
+    /**
+     * 返回匹配文字中心点
+     * @param {string} imageFile imageFile
+     * @param {string} keyword keyword
+     * @param {string} mode mode（可选）
+     * @returns {Point | null} Point | null
+     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findtextcenter-imagefile-keyword-mode DeekeScript Pro 文档}
+     */
+    findTextCenter(imageFile: string, keyword: string, mode?: string): Point | null;
+    /**
+     * 查找文本位置 Rect 列表
+     * @param {string} imageFile imageFile
+     * @param {string} keyword keyword
+     * @param {string} mode mode（可选）
+     * @returns {Rect[]} Rect[]
+     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findtextposition-imagefile-keyword-mode DeekeScript Pro 文档}
+     */
+    findTextPosition(imageFile: string, keyword: string, mode?: string): Rect[];
+    /**
+     * 旧：四参区域返回 string[]；新：带 keyword 返回 TextAndRegion[]
+     * @param {string} imageFile imageFile
+     * @param {string | number} keywordOrLeft keywordOrLeft
+     * @param {string | number} modeOrTop modeOrTop（可选）
+     * @param {number} leftOrWidth leftOrWidth（可选）
+     * @param {number} topOrHeight topOrHeight（可选）
+     * @param {number} width width（可选）
+     * @param {number} height height（可选）
+     * @returns {string[] | TextAndRegion[]} string[] | TextAndRegion[]
+     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findtextinregion-imagefile-keywordorleft-modeortop-leftorwidth-toporheight-width-height DeekeScript Pro 文档}
+     */
+    findTextInRegion(imageFile: string, keywordOrLeft: string | number, modeOrTop?: string | number, leftOrWidth?: number, topOrHeight?: number, width?: number, height?: number): string[] | TextAndRegion[];
+    /**
+     * 截屏等待文字出现
+     * @param {string} keyword keyword
+     * @param {number} timeoutMs timeoutMs（可选）
+     * @param {number} intervalMs intervalMs（可选）
+     * @param {string} mode mode（可选）
+     * @returns {TextAndRegion | null} TextAndRegion | null
+     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#waittext-keyword-timeoutms-intervalms-mode DeekeScript Pro 文档}
+     */
+    waitText(keyword: string, timeoutMs?: number, intervalMs?: number, mode?: string): TextAndRegion | null;
+    /**
+     * 截屏等待文字消失
+     * @param {string} keyword keyword
+     * @param {number} timeoutMs timeoutMs（可选）
+     * @param {number} intervalMs intervalMs（可选）
+     * @param {string} mode mode（可选）
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#waittextgone-keyword-timeoutms-intervalms-mode DeekeScript Pro 文档}
+     */
+    waitTextGone(keyword: string, timeoutMs?: number, intervalMs?: number, mode?: string): boolean;
 }
 declare var Images: Images;
 
 /**
- * @see {@link https://script.deeke.cn/base/intent/intent.html DeekeScript Pro 文档}
- */
-interface IntentOptions {
-    action?: string;
-    data?: string;
-    type?: string;
-    packageName?: string;
-    package?: string;
-    className?: string;
-    categories?: string | string[];
-    flags?: number | string | Array<number | string>;
-    extras?: Record<string, any>;
-}
-
-/**
  * 统一事件总线（按键、亮灭屏、无障碍、窗口切换；可用 emit 自定义）
+ * @see {@link https://script.deeke.cn/base/events/events.html DeekeScript Pro 文档}
  */
 interface Events {
-    observeKey(): void;
-    ignoreKey(): void;
-    isObservingKey(): boolean;
-    on(event: string, callback: (...args: any[]) => void): void;
-    once(event: string, callback: (...args: any[]) => void): void;
     /**
-     * 派发事件（系统名或自定义名均可），参数原样传给回调
+     * 开始观察按键
+     * @see {@link https://script.deeke.cn/base/events/events.html#observekey DeekeScript Pro 文档}
      */
-    emit(event: string, ...args: any[]): void;
+    observeKey(): void;
+    /**
+     * 停止观察按键
+     * @see {@link https://script.deeke.cn/base/events/events.html#ignorekey DeekeScript Pro 文档}
+     */
+    ignoreKey(): void;
+    /**
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/events/events.html#isobservingkey DeekeScript Pro 文档}
+     */
+    isObservingKey(): boolean;
+    /**
+     * 监听事件（系统或自定义名）
+     * @param {string} event event
+     * @param {Function} callback callback
+     * @see {@link https://script.deeke.cn/base/events/events.html#on-event-callback DeekeScript Pro 文档}
+     */
+    on(event: string, callback: Function): void;
+    /**
+     * 只监听一次
+     * @param {string} event event
+     * @param {Function} callback callback
+     * @see {@link https://script.deeke.cn/base/events/events.html#once-event-callback DeekeScript Pro 文档}
+     */
+    once(event: string, callback: Function): void;
+    /**
+     * 派发事件（系统名或自定义名），参数原样传给回调
+     * @param {string} event event
+     * @param {any} ...args ...args
+     * @see {@link https://script.deeke.cn/base/events/events.html#emit-event-...args DeekeScript Pro 文档}
+     */
+    emit(event: string, ...args: any): void;
+    /**
+     * 移除监听
+     * @param {string} event event
+     * @see {@link https://script.deeke.cn/base/events/events.html#off-event DeekeScript Pro 文档}
+     */
     off(event: string): void;
-    off(event: string, callback: (...args: any[]) => void): void;
+    /**
+     * 清空全部监听
+     * @see {@link https://script.deeke.cn/base/events/events.html#removealllisteners DeekeScript Pro 文档}
+     */
     removeAllListeners(): void;
 }
 declare var Events: Events;
 
 /**
  * 传感器（list=本机可用；catalog=类型说明目录）
+ * @see {@link https://script.deeke.cn/base/sensors/sensors.html DeekeScript Pro 文档}
  */
 interface Sensors {
-    /** 本机可用传感器别名 */
+    /**
+     * 本机可用传感器别名
+     * @returns {string[]} string[]
+     * @see {@link https://script.deeke.cn/base/sensors/sensors.html#list DeekeScript Pro 文档}
+     */
     list(): string[];
     /**
-     * 已知类型目录：{ type, aliases, description, values }[]
+     * 已知类型目录（type/aliases/description/values）
+     * @returns {object[]} object[]
+     * @see {@link https://script.deeke.cn/base/sensors/sensors.html#catalog DeekeScript Pro 文档}
      */
-    catalog(): Array<{ type: string; aliases: string[]; description: string; values: string }>;
+    catalog(): object[];
+    /**
+     * 是否存在该类型
+     * @param {string} type type
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/sensors/sensors.html#has-type DeekeScript Pro 文档}
+     */
     has(type: string): boolean;
-    register(type: string, callback: (event: { values: number[]; timestamp: number; accuracy: number; type: string }) => void, delayMs?: number): boolean;
+    /**
+     * 注册监听
+     * @param {string} type type
+     * @param {Function} callback callback
+     * @param {number} delayMs delayMs
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/sensors/sensors.html#register-type-callback-delayms DeekeScript Pro 文档}
+     */
+    register(type: string, callback: Function, delayMs: number): boolean;
+    /**
+     * 取消指定类型
+     * @param {string} type type
+     * @see {@link https://script.deeke.cn/base/sensors/sensors.html#unregister-type DeekeScript Pro 文档}
+     */
     unregister(type: string): void;
+    /**
+     * 取消全部
+     * @see {@link https://script.deeke.cn/base/sensors/sensors.html#unregisterall DeekeScript Pro 文档}
+     */
     unregisterAll(): void;
 }
 declare var Sensors: Sensors;
 
+/**
+ * 通用 Intent 构造与启动
+ * @see {@link https://script.deeke.cn/base/intent/intent.html DeekeScript Pro 文档}
+ */
 interface Intent {
     /**
      * 从配置对象创建 Android Intent
+     * @param {object} options options
+     * @returns {any} any
+     * @see {@link https://script.deeke.cn/base/intent/intent.html#create-options DeekeScript Pro 文档}
      */
-    create(options: IntentOptions | any): any;
-    /** 启动 Activity（打开界面） */
-    startActivity(options: IntentOptions | any): void;
+    create(options: object): any;
     /**
-     * 启动 Service。建议 packageName+className；后台可能被系统限制，常驻用 ForegroundServiceBridge
-     * @see {@link https://doc.deeke.cn/base/intent/intent.html#startserviceoptions DeekeScript 文档}
+     * 启动 Activity
+     * @param {object} options options
+     * @see {@link https://script.deeke.cn/base/intent/intent.html#startactivity-options DeekeScript Pro 文档}
      */
-    startService(options: IntentOptions | any): void;
+    startActivity(options: object): void;
     /**
-     * 发送广播。接收方需已 registerReceiver 或其它 App 的 BroadcastReceiver
-     * @see {@link https://doc.deeke.cn/base/intent/intent.html#registerreceiveraction-callback DeekeScript 文档}
+     * 启动 Service（显式 packageName+className；后台可能被系统限制，常驻用 ForegroundServiceBridge）
+     * @param {object} options options
+     * @see {@link https://script.deeke.cn/base/intent/intent.html#startservice-options DeekeScript Pro 文档}
      */
-    sendBroadcast(options: IntentOptions | any): void;
+    startService(options: object): void;
     /**
-     * 动态注册广播接收。回调参数：{ action, data, type, extras, packageName }
-     * @see {@link https://doc.deeke.cn/base/intent/intent.html#registerreceiveraction-callback DeekeScript 文档}
+     * 发送广播（接收方需 registerReceiver 或其它 App 的 Receiver）
+     * @param {object} options options
+     * @see {@link https://script.deeke.cn/base/intent/intent.html#sendbroadcast-options DeekeScript Pro 文档}
      */
-    registerReceiver(action: string | string[], callback: (intent: { action: string; data: string; type: string; extras: Record<string, any>; packageName: string }) => void): void;
+    sendBroadcast(options: object): void;
+    /**
+     * 动态注册广播接收；回调 { action, data, type, extras, packageName }
+     * @param {string|string[]} action action
+     * @param {Function} callback callback
+     * @see {@link https://script.deeke.cn/base/intent/intent.html#registerreceiver-action-callback DeekeScript Pro 文档}
+     */
+    registerReceiver(action: string|string[], callback: Function): void;
+    /**
+     * 取消指定 action 的接收
+     * @param {string} action action
+     * @see {@link https://script.deeke.cn/base/intent/intent.html#unregisterreceiver-action DeekeScript Pro 文档}
+     */
     unregisterReceiver(action: string): void;
+    /**
+     * 取消全部动态广播接收
+     * @see {@link https://script.deeke.cn/base/intent/intent.html#unregisterallreceivers DeekeScript Pro 文档}
+     */
     unregisterAllReceivers(): void;
     /**
-     * 无参打开应用详情；有 uri 时按 VIEW 打开
+     * 无参打开应用详情；有 uri 时 VIEW 打开
+     * @param {string} uri uri
+     * @see {@link https://script.deeke.cn/base/intent/intent.html#open-uri DeekeScript Pro 文档}
      */
-    open(): void;
     open(uri: string): void;
 }
 declare var Intent: Intent;
-
 
 /**
  * @param {any[]} packages packages（剩余参数）
@@ -4294,15 +4804,62 @@ declare var System: System;
  */
 interface TextAndRegion {
     /**
-     * text
+     * 识别文本
      * @see {@link https://script.deeke.cn/base/textAndRegion/textAndRegion.html DeekeScript Pro 文档}
      */
     text: string;
     /**
-     * rect
+     * 文字区域
      * @see {@link https://script.deeke.cn/base/textAndRegion/textAndRegion.html DeekeScript Pro 文档}
      */
     rect: Rect;
+    /**
+     * 置信度 0-1
+     * @see {@link https://script.deeke.cn/base/textAndRegion/textAndRegion.html DeekeScript Pro 文档}
+     */
+    confidence: number;
+}
+
+/**
+ * 找图匹配结果（含中心点与分数）
+ * @see {@link https://script.deeke.cn/base/imageMatch/imageMatch.html DeekeScript Pro 文档}
+ */
+interface ImageMatch {
+    /**
+     * 左上角 X
+     * @see {@link https://script.deeke.cn/base/imageMatch/imageMatch.html DeekeScript Pro 文档}
+     */
+    x: number;
+    /**
+     * 左上角 Y
+     * @see {@link https://script.deeke.cn/base/imageMatch/imageMatch.html DeekeScript Pro 文档}
+     */
+    y: number;
+    /**
+     * 中心 X
+     * @see {@link https://script.deeke.cn/base/imageMatch/imageMatch.html DeekeScript Pro 文档}
+     */
+    centerX: number;
+    /**
+     * 中心 Y
+     * @see {@link https://script.deeke.cn/base/imageMatch/imageMatch.html DeekeScript Pro 文档}
+     */
+    centerY: number;
+    /**
+     * 匹配分数 0-1
+     * @see {@link https://script.deeke.cn/base/imageMatch/imageMatch.html DeekeScript Pro 文档}
+     */
+    score: number;
+    /**
+     * 模板宽度
+     * @see {@link https://script.deeke.cn/base/imageMatch/imageMatch.html DeekeScript Pro 文档}
+     */
+    width: number;
+    /**
+     * 模板高度
+     * @see {@link https://script.deeke.cn/base/imageMatch/imageMatch.html DeekeScript Pro 文档}
+     */
+    height: number;
 }
 
 /**
@@ -4495,16 +5052,18 @@ interface UiObject {
      */
     bounds(): Rect;
     /**
-     * 在屏幕上框选本节点并闪烁（调试用）。后续参数均可省略。
-     * 默认约 2 秒、线宽 1dp、蓝色；会阻塞到结束。新一次会清掉上一次。
-     * 优先无障碍 Overlay，否则需悬浮窗权限。
-     * @param {number} [seconds=2] 闪烁秒数
-     * @param {number} [strokeDp=1] 线宽（dp）
-     * @param {string|number} [color='#FF3B82F6'] 边框颜色：#RGB/#RRGGBB/#AARRGGBB、rgba(r,g,b,a) 或数字 ARGB
+     * 框选本节点并闪烁（调试用）。后续参数均可省略。默认2秒、1dp、蓝色；阻塞到结束；新一次会清掉上一次。
+     * @param {number} seconds 闪烁秒数，默认2（可选）
+     * @param {number} strokeDp 线宽dp，默认1（可选）
+     * @param {string | number} color 边框颜色：#RGB/#RRGGBB/#AARRGGBB、rgba(r,g,b,a) 或数字ARGB（可选）
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/uiObject/uiObject.html#highlight-seconds-strokedp-color DeekeScript Pro 文档}
      */
     highlight(seconds?: number, strokeDp?: number, color?: string | number): boolean;
     /**
-     * 立刻清除当前屏幕上的节点高亮（若有）
+     * 立刻清除当前屏幕上的节点高亮
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/uiObject/uiObject.html#clearhighlight DeekeScript Pro 文档}
      */
     clearHighlight(): boolean;
     /**
@@ -4878,8 +5437,6 @@ interface WebSocket {
 }
 declare var WebSocket: WebSocket;
 
-
-
 /**
  * @see {@link https://script.deeke.cn/base/access/access.html DeekeScript Pro 文档}
  */
@@ -5068,6 +5625,40 @@ interface access {
      * @see {@link https://script.deeke.cn/base/access/access.html#issmspermissionpermanentlydenied DeekeScript Pro 文档}
      */
     isSmsPermissionPermanentlyDenied(): boolean;
+    /**
+     * 是否已授予摄像头权限（CAMERA）。Images.takePhoto 需要
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/access/access.html#hascamerapermission DeekeScript Pro 文档}
+     */
+    hasCameraPermission(): boolean;
+    /**
+     * 申请摄像头权限。异步，需在前台 Activity 调用
+     * @see {@link https://script.deeke.cn/base/access/access.html#requestcamerapermission DeekeScript Pro 文档}
+     */
+    requestCameraPermission(): void;
+    /**
+     * 摄像头权限是否被永久拒绝
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/access/access.html#iscamerapermissionpermanentlydenied DeekeScript Pro 文档}
+     */
+    isCameraPermissionPermanentlyDenied(): boolean;
+    /**
+     * 是否已授予麦克风权限（RECORD_AUDIO）。Audio.startRecord 需要
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/access/access.html#hasrecordaudiopermission DeekeScript Pro 文档}
+     */
+    hasRecordAudioPermission(): boolean;
+    /**
+     * 申请麦克风录音权限。异步，需在前台 Activity 调用
+     * @see {@link https://script.deeke.cn/base/access/access.html#requestrecordaudiopermission DeekeScript Pro 文档}
+     */
+    requestRecordAudioPermission(): void;
+    /**
+     * 麦克风权限是否被永久拒绝
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/access/access.html#isrecordaudiopermissionpermanentlydenied DeekeScript Pro 文档}
+     */
+    isRecordAudioPermissionPermanentlyDenied(): boolean;
     /**
      * 是否已允许修改系统设置（亮度等）
      * @returns {boolean} boolean
@@ -6082,6 +6673,179 @@ interface hid {
      * @see {@link https://script.deeke.cn/base/hid/hid.html#disconnect DeekeScript Pro 文档}
      */
     disconnect(): boolean;
+    /**
+     * 按住指定毫秒后抬起。
+     * @param {number} x X坐标
+     * @param {number} y Y坐标
+     * @param {number} durationMs 按住毫秒（默认约800）（可选）
+     * @returns {boolean} 是否成功
+     * @see {@link https://script.deeke.cn/base/hid/hid.html#press-x-y-durationms DeekeScript Pro 文档}
+     */
+    press(x: number, y: number, durationMs?: number): boolean;
+    /**
+     * 长按。
+     * @param {number} x X坐标
+     * @param {number} y Y坐标
+     * @returns {boolean} 是否成功
+     * @see {@link https://script.deeke.cn/base/hid/hid.html#longclick-x-y DeekeScript Pro 文档}
+     */
+    longClick(x: number, y: number): boolean;
+    /**
+     * 双击。
+     * @param {number} x X坐标
+     * @param {number} y Y坐标
+     * @returns {boolean} 是否成功
+     * @see {@link https://script.deeke.cn/base/hid/hid.html#doubletap-x-y DeekeScript Pro 文档}
+     */
+    doubleTap(x: number, y: number): boolean;
+    /**
+     * 带随机偏移点击。
+     * @param {number} x X坐标
+     * @param {number} y Y坐标
+     * @param {number} rx X随机半径（默认5）（可选）
+     * @param {number} ry Y随机半径（默认5）（可选）
+     * @returns {boolean} 是否成功
+     * @see {@link https://script.deeke.cn/base/hid/hid.html#taprandom-x-y-rx-ry DeekeScript Pro 文档}
+     */
+    tapRandom(x: number, y: number, rx?: number, ry?: number): boolean;
+    /**
+     * 整串输入。ASCII 尽量逐键，中文等走剪贴板粘贴。
+     * @param {string} text 文本
+     * @returns {boolean} 是否成功
+     * @see {@link https://script.deeke.cn/base/hid/hid.html#type-text DeekeScript Pro 文档}
+     */
+    type(text: string): boolean;
+    /**
+     * 写入剪贴板并粘贴。
+     * @param {string} text 文本
+     * @returns {boolean} 是否成功
+     * @see {@link https://script.deeke.cn/base/hid/hid.html#paste-text DeekeScript Pro 文档}
+     */
+    paste(text: string): boolean;
+    /**
+     * 全选并删除（清空输入框）。
+     * @returns {boolean} 是否成功
+     * @see {@link https://script.deeke.cn/base/hid/hid.html#clear DeekeScript Pro 文档}
+     */
+    clear(): boolean;
+    /**
+     * 截屏找图后点击中心。
+     * @param {string} templateFile 模板图路径
+     * @param {number} threshold 匹配阈值（默认0.8）（可选）
+     * @returns {ImageMatch | null} 匹配结果或 null
+     * @see {@link https://script.deeke.cn/base/hid/hid.html#tapimage-templatefile-threshold DeekeScript Pro 文档}
+     */
+    tapImage(templateFile: string, threshold?: number): ImageMatch | null;
+    /**
+     * 找图后长按。
+     * @param {string} templateFile 模板图路径
+     * @param {number} durationMs 按住毫秒（默认800）（可选）
+     * @param {number} threshold 匹配阈值（默认0.8）（可选）
+     * @returns {ImageMatch | null} 匹配结果或 null
+     * @see {@link https://script.deeke.cn/base/hid/hid.html#pressimage-templatefile-durationms-threshold DeekeScript Pro 文档}
+     */
+    pressImage(templateFile: string, durationMs?: number, threshold?: number): ImageMatch | null;
+    /**
+     * 截屏找色后点击色块中心。
+     * @param {string} color rgba/rgb/#RRGGBB
+     * @param {number} tolerance 通道容差（默认0）（可选）
+     * @returns {Point | null} 坐标或 null
+     * @see {@link https://script.deeke.cn/base/hid/hid.html#tapcolor-color-tolerance DeekeScript Pro 文档}
+     */
+    tapColor(color: string, tolerance?: number): Point | null;
+    /**
+     * 等待图出现。
+     * @param {string} templateFile 模板图路径
+     * @param {number} timeoutMs 超时毫秒（默认10000）（可选）
+     * @param {number} intervalMs 轮询间隔（默认500）（可选）
+     * @param {number} threshold 匹配阈值（默认0.8）（可选）
+     * @returns {ImageMatch | null} 匹配结果或 null
+     * @see {@link https://script.deeke.cn/base/hid/hid.html#waitimage-templatefile-timeoutms-intervalms-threshold DeekeScript Pro 文档}
+     */
+    waitImage(templateFile: string, timeoutMs?: number, intervalMs?: number, threshold?: number): ImageMatch | null;
+    /**
+     * 等待颜色出现。
+     * @param {string} color 颜色
+     * @param {number} timeoutMs 超时毫秒（默认10000）（可选）
+     * @param {number} intervalMs 轮询间隔（默认500）（可选）
+     * @param {number} tolerance 通道容差（默认0）（可选）
+     * @returns {Point | null} 坐标或 null
+     * @see {@link https://script.deeke.cn/base/hid/hid.html#waitcolor-color-timeoutms-intervalms-tolerance DeekeScript Pro 文档}
+     */
+    waitColor(color: string, timeoutMs?: number, intervalMs?: number, tolerance?: number): Point | null;
+    /**
+     * 等待图消失。
+     * @param {string} templateFile 模板图路径
+     * @param {number} timeoutMs 超时毫秒（默认10000）（可选）
+     * @param {number} intervalMs 轮询间隔（默认500）（可选）
+     * @param {number} threshold 匹配阈值（默认0.8）（可选）
+     * @returns {boolean} 是否在超时前消失
+     * @see {@link https://script.deeke.cn/base/hid/hid.html#waitimagegone-templatefile-timeoutms-intervalms-threshold DeekeScript Pro 文档}
+     */
+    waitImageGone(templateFile: string, timeoutMs?: number, intervalMs?: number, threshold?: number): boolean;
+    /**
+     * OCR 找字后点击。
+     * @param {string} keyword 关键字
+     * @param {number} timeoutMs 超时毫秒（默认10000）（可选）
+     * @param {string} mode contains|exact|regex（默认 contains）（可选）
+     * @returns {Rect | null} 点击的区域或 null
+     * @see {@link https://script.deeke.cn/base/hid/hid.html#clicktext-keyword-timeoutms-mode DeekeScript Pro 文档}
+     */
+    clickText(keyword: string, timeoutMs?: number, mode?: string): Rect | null;
+    /**
+     * 等待文字出现。
+     * @param {string} keyword keyword
+     * @param {number} timeoutMs timeoutMs（可选）
+     * @param {number} intervalMs intervalMs（可选）
+     * @param {string} mode mode（可选）
+     * @returns {TextAndRegion | null} TextAndRegion | null
+     * @see {@link https://script.deeke.cn/base/hid/hid.html#waittext-keyword-timeoutms-intervalms-mode DeekeScript Pro 文档}
+     */
+    waitText(keyword: string, timeoutMs?: number, intervalMs?: number, mode?: string): TextAndRegion | null;
+    /**
+     * 等待文字消失。
+     * @param {string} keyword keyword
+     * @param {number} timeoutMs timeoutMs（可选）
+     * @param {number} intervalMs intervalMs（可选）
+     * @param {string} mode mode（可选）
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/hid/hid.html#waittextgone-keyword-timeoutms-intervalms-mode DeekeScript Pro 文档}
+     */
+    waitTextGone(keyword: string, timeoutMs?: number, intervalMs?: number, mode?: string): boolean;
+    /**
+     * 连接并等待就绪。
+     * @param {boolean} autoconnect 是否自动连接（默认true）（可选）
+     * @param {number} index 设备索引（默认0）（可选）
+     * @param {number} timeoutMs 超时毫秒（默认10000）（可选）
+     * @returns {boolean} 是否已连接
+     * @see {@link https://script.deeke.cn/base/hid/hid.html#connectandwait-autoconnect-index-timeoutms DeekeScript Pro 文档}
+     */
+    connectAndWait(autoconnect?: boolean, index?: number, timeoutMs?: number): boolean;
+    /**
+     * 未连接则自动连接。
+     * @returns {boolean} 是否已连接
+     * @see {@link https://script.deeke.cn/base/hid/hid.html#ensureconnected DeekeScript Pro 文档}
+     */
+    ensureConnected(): boolean;
+    /**
+     * 是否已连接（真实布尔）。
+     * @returns {boolean} 是否已连接
+     * @see {@link https://script.deeke.cn/base/hid/hid.html#isconnected DeekeScript Pro 文档}
+     */
+    isConnected(): boolean;
+    /**
+     * 滑动直到出现目标图。
+     * @param {number} x1 起点X
+     * @param {number} y1 起点Y
+     * @param {number} x2 终点X
+     * @param {number} y2 终点Y
+     * @param {string} templateFile 模板图路径
+     * @param {number} maxTimes 最大滑动次数（默认10）（可选）
+     * @param {number} threshold 匹配阈值（默认0.8）（可选）
+     * @returns {ImageMatch | null} 匹配结果或 null
+     * @see {@link https://script.deeke.cn/base/hid/hid.html#swipeuntilimage-x1-y1-x2-y2-templatefile-maxtimes-threshold DeekeScript Pro 文档}
+     */
+    swipeUntilImage(x1: number, y1: number, x2: number, y2: number, templateFile: string, maxTimes?: number, threshold?: number): ImageMatch | null;
 }
 
 /**
