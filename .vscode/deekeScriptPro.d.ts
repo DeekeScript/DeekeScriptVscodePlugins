@@ -3299,14 +3299,14 @@ declare var Http: Http;
 
 /**
  * 截图、找图、找色、OCR。日常图色优先本模块。
- * @see {@link https://script.deeke.cn/advance/photoAndColor.html DeekeScript Pro 文档}
+ * @see {@link https://script.deeke.cn/photoAndColor/images.html DeekeScript Pro 文档}
  */
 interface Images {
     /**
      * 读取图片为 Mat
      * @param {string} imageFile imageFile
      * @returns {Mat} Mat
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#getmat-imagefile DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/images.html#getmat-imagefile DeekeScript Pro 文档}
      */
     getMat(imageFile: string): Mat;
     /**
@@ -3315,7 +3315,7 @@ interface Images {
      * @param {Mat | string} template template
      * @param {number} threshold threshold（可选）
      * @returns {Point | null} Point | null
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findone-source-template-threshold DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/images.html#findone-source-template-threshold DeekeScript Pro 文档}
      */
     findOne(source: Mat | string, template: Mat | string, threshold?: number): Point | null;
     /**
@@ -3324,7 +3324,7 @@ interface Images {
      * @param {string} templateFile templateFile
      * @param {number} threshold threshold（可选）
      * @returns {ImageMatch | null} ImageMatch | null
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findonematch-sourcefile-templatefile-threshold DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/images.html#findonematch-sourcefile-templatefile-threshold DeekeScript Pro 文档}
      */
     findOneMatch(sourceFile: string, templateFile: string, threshold?: number): ImageMatch | null;
     /**
@@ -3337,7 +3337,7 @@ interface Images {
      * @param {number} width width
      * @param {number} height height
      * @returns {ImageMatch | null} ImageMatch | null
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findoneinregion-sourcefile-templatefile-threshold-left-top-width-height DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/images.html#findoneinregion-sourcefile-templatefile-threshold-left-top-width-height DeekeScript Pro 文档}
      */
     findOneInRegion(sourceFile: string, templateFile: string, threshold: number, left: number, top: number, width: number, height: number): ImageMatch | null;
     /**
@@ -3346,7 +3346,7 @@ interface Images {
      * @param {Mat | string} template template
      * @param {number} threshold threshold
      * @returns {Point[]} Point[]
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#find-source-template-threshold DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/images.html#find-source-template-threshold DeekeScript Pro 文档}
      */
     find(source: Mat | string, template: Mat | string, threshold: number): Point[];
     /**
@@ -3355,20 +3355,20 @@ interface Images {
      * @param {string} templateFile templateFile
      * @param {number} threshold threshold
      * @returns {ImageMatch[]} ImageMatch[]
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findmatches-sourcefile-templatefile-threshold DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/images.html#findmatches-sourcefile-templatefile-threshold DeekeScript Pro 文档}
      */
     findMatches(sourceFile: string, templateFile: string, threshold: number): ImageMatch[];
     /**
      * 屏幕截图，返回图片路径（需 MediaProjection）
      * @returns {string} string
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#capture DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/images.html#capture DeekeScript Pro 文档}
      */
     capture(): string;
     /**
      * 后置摄像头静默拍照，需 CAMERA（Access.hasCameraPermission / requestCameraPermission）
      * @param {string} path path（可选）
      * @returns {string} string
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#takephoto-path DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/images.html#takephoto-path DeekeScript Pro 文档}
      */
     takePhoto(path?: string): string;
     /**
@@ -3377,7 +3377,7 @@ interface Images {
      * @param {number} pixelX pixelX
      * @param {number} pixelY pixelY
      * @returns {string} string
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#getcolor-imagefile-pixelx-pixely DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/colors.html#getcolor-imagefile-pixelx-pixely DeekeScript Pro 文档}
      */
     getColor(imageFile: string, pixelX: number, pixelY: number): string;
     /**
@@ -3386,7 +3386,7 @@ interface Images {
      * @param {number} pixelX pixelX
      * @param {number} pixelY pixelY
      * @returns {string} string
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#getcolorhex-imagefile-pixelx-pixely DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/colors.html#getcolorhex-imagefile-pixelx-pixely DeekeScript Pro 文档}
      */
     getColorHex(imageFile: string, pixelX: number, pixelY: number): string;
     /**
@@ -3395,7 +3395,7 @@ interface Images {
      * @param {string} color color
      * @param {number | string} toleranceOrEndColor toleranceOrEndColor（可选）
      * @returns {Point[]} Point[]
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findcolor-imagefile-color-toleranceorendcolor DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/colors.html#findcolor-imagefile-color-toleranceorendcolor DeekeScript Pro 文档}
      */
     findColor(imageFile: string, color: string, toleranceOrEndColor?: number | string): Point[];
     /**
@@ -3408,7 +3408,7 @@ interface Images {
      * @param {number} width width
      * @param {number} height height
      * @returns {Point[]} Point[]
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findcolorinregion-imagefile-color-tolerance-left-top-width-height DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/colors.html#findcolorinregion-imagefile-color-tolerance-left-top-width-height DeekeScript Pro 文档}
      */
     findColorInRegion(imageFile: string, color: string, tolerance: number, left: number, top: number, width: number, height: number): Point[];
     /**
@@ -3417,7 +3417,7 @@ interface Images {
      * @param {string} color color
      * @param {number} tolerance tolerance（可选）
      * @returns {Point | null} Point | null
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findcolorfirst-imagefile-color-tolerance DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/colors.html#findcolorfirst-imagefile-color-tolerance DeekeScript Pro 文档}
      */
     findColorFirst(imageFile: string, color: string, tolerance?: number): Point | null;
     /**
@@ -3426,7 +3426,7 @@ interface Images {
      * @param {string} color color
      * @param {number} tolerance tolerance（可选）
      * @returns {Point | null} Point | null
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findcolorcenter-imagefile-color-tolerance DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/colors.html#findcolorcenter-imagefile-color-tolerance DeekeScript Pro 文档}
      */
     findColorCenter(imageFile: string, color: string, tolerance?: number): Point | null;
     /**
@@ -3436,7 +3436,7 @@ interface Images {
      * @param {any} offsets offsets
      * @param {number} tolerance tolerance（可选）
      * @returns {Point | null} Point | null
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findmulticolors-imagefile-firstcolor-offsets-tolerance DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/colors.html#findmulticolors-imagefile-firstcolor-offsets-tolerance DeekeScript Pro 文档}
      */
     findMultiColors(imageFile: string, firstColor: string, offsets: any, tolerance?: number): Point | null;
     /**
@@ -3447,7 +3447,7 @@ interface Images {
      * @param {number} width width
      * @param {number} height height
      * @returns {string} string
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#crop-imagefile-left-top-width-height DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/images.html#crop-imagefile-left-top-width-height DeekeScript Pro 文档}
      */
     crop(imageFile: string, left: number, top: number, width: number, height: number): string;
     /**
@@ -3455,14 +3455,14 @@ interface Images {
      * @param {string} imageFile 图片文件路径
      * @param {number} multiple 缩放倍数
      * @returns {string} string
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#scale-imagefile-multiple DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/images.html#scale-imagefile-multiple DeekeScript Pro 文档}
      */
     scale(imageFile: string, multiple: number): string;
     /**
      * OCR：返回 text + rect + confidence
      * @param {string} imageFile imageFile
      * @returns {TextAndRegion[]} TextAndRegion[]
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#gettextandregion-imagefile DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/ocr.html#gettextandregion-imagefile DeekeScript Pro 文档}
      */
     getTextAndRegion(imageFile: string): TextAndRegion[];
     /**
@@ -3473,14 +3473,14 @@ interface Images {
      * @param {number} width width
      * @param {number} height height
      * @returns {TextAndRegion[]} TextAndRegion[]
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#gettextandregioninregion-imagefile-left-top-width-height DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/ocr.html#gettextandregioninregion-imagefile-left-top-width-height DeekeScript Pro 文档}
      */
     getTextAndRegionInRegion(imageFile: string, left: number, top: number, width: number, height: number): TextAndRegion[];
     /**
      * 拼接全部识别文字
      * @param {string} imageFile imageFile
      * @returns {string} string
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#gettext-imagefile DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/ocr.html#gettext-imagefile DeekeScript Pro 文档}
      */
     getText(imageFile: string): string;
     /**
@@ -3491,7 +3491,7 @@ interface Images {
      * @param {number} width width
      * @param {number} height height
      * @returns {string} string
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#gettextinregion-imagefile-left-top-width-height DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/ocr.html#gettextinregion-imagefile-left-top-width-height DeekeScript Pro 文档}
      */
     getTextInRegion(imageFile: string, left: number, top: number, width: number, height: number): string;
     /**
@@ -3501,7 +3501,7 @@ interface Images {
      * @param {number} width width（可选）
      * @param {number} height height（可选）
      * @returns {TextAndRegion[]} TextAndRegion[]
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#ocr-left-top-width-height DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/ocr.html#ocr-left-top-width-height DeekeScript Pro 文档}
      */
     ocr(left?: number, top?: number, width?: number, height?: number): TextAndRegion[];
     /**
@@ -3509,7 +3509,7 @@ interface Images {
      * @param {string} imageFile imageFile
      * @param {string} keyword keyword
      * @returns {boolean} boolean
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#hastext-imagefile-keyword DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/ocr.html#hastext-imagefile-keyword DeekeScript Pro 文档}
      */
     hasText(imageFile: string, keyword: string): boolean;
     /**
@@ -3517,7 +3517,7 @@ interface Images {
      * @param {string} imageFile imageFile
      * @param {string} keyword keyword
      * @returns {boolean} boolean
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#hastextexact-imagefile-keyword DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/ocr.html#hastextexact-imagefile-keyword DeekeScript Pro 文档}
      */
     hasTextExact(imageFile: string, keyword: string): boolean;
     /**
@@ -3525,7 +3525,7 @@ interface Images {
      * @param {string} imageFile imageFile
      * @param {string} regex regex
      * @returns {boolean} boolean
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#hastextmatches-imagefile-regex DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/ocr.html#hastextmatches-imagefile-regex DeekeScript Pro 文档}
      */
     hasTextMatches(imageFile: string, regex: string): boolean;
     /**
@@ -3534,7 +3534,7 @@ interface Images {
      * @param {string} keyword keyword
      * @param {string} mode mode（可选）
      * @returns {TextAndRegion[]} TextAndRegion[]
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findtext-imagefile-keyword-mode DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/ocr.html#findtext-imagefile-keyword-mode DeekeScript Pro 文档}
      */
     findText(imageFile: string, keyword: string, mode?: string): TextAndRegion[];
     /**
@@ -3542,7 +3542,7 @@ interface Images {
      * @param {string} imageFile imageFile
      * @param {string} keyword keyword
      * @returns {TextAndRegion[]} TextAndRegion[]
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findtextexact-imagefile-keyword DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/ocr.html#findtextexact-imagefile-keyword DeekeScript Pro 文档}
      */
     findTextExact(imageFile: string, keyword: string): TextAndRegion[];
     /**
@@ -3550,7 +3550,7 @@ interface Images {
      * @param {string} imageFile imageFile
      * @param {string} regex regex
      * @returns {TextAndRegion[]} TextAndRegion[]
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findtextmatches-imagefile-regex DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/ocr.html#findtextmatches-imagefile-regex DeekeScript Pro 文档}
      */
     findTextMatches(imageFile: string, regex: string): TextAndRegion[];
     /**
@@ -3559,7 +3559,7 @@ interface Images {
      * @param {string} keyword keyword
      * @param {string} mode mode（可选）
      * @returns {TextAndRegion | null} TextAndRegion | null
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findtextfirst-imagefile-keyword-mode DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/ocr.html#findtextfirst-imagefile-keyword-mode DeekeScript Pro 文档}
      */
     findTextFirst(imageFile: string, keyword: string, mode?: string): TextAndRegion | null;
     /**
@@ -3568,7 +3568,7 @@ interface Images {
      * @param {string} keyword keyword
      * @param {string} mode mode（可选）
      * @returns {Point | null} Point | null
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findtextcenter-imagefile-keyword-mode DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/ocr.html#findtextcenter-imagefile-keyword-mode DeekeScript Pro 文档}
      */
     findTextCenter(imageFile: string, keyword: string, mode?: string): Point | null;
     /**
@@ -3577,7 +3577,7 @@ interface Images {
      * @param {string} keyword keyword
      * @param {string} mode mode（可选）
      * @returns {Rect[]} Rect[]
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findtextposition-imagefile-keyword-mode DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/ocr.html#findtextposition-imagefile-keyword-mode DeekeScript Pro 文档}
      */
     findTextPosition(imageFile: string, keyword: string, mode?: string): Rect[];
     /**
@@ -3590,7 +3590,7 @@ interface Images {
      * @param {number} width width（可选）
      * @param {number} height height（可选）
      * @returns {string[] | TextAndRegion[]} string[] | TextAndRegion[]
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#findtextinregion-imagefile-keywordorleft-modeortop-leftorwidth-toporheight-width-height DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/ocr.html#findtextinregion-imagefile-keywordorleft-modeortop-leftorwidth-toporheight-width-height DeekeScript Pro 文档}
      */
     findTextInRegion(imageFile: string, keywordOrLeft: string | number, modeOrTop?: string | number, leftOrWidth?: number, topOrHeight?: number, width?: number, height?: number): string[] | TextAndRegion[];
     /**
@@ -3600,7 +3600,7 @@ interface Images {
      * @param {number} intervalMs intervalMs（可选）
      * @param {string} mode mode（可选）
      * @returns {TextAndRegion | null} TextAndRegion | null
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#waittext-keyword-timeoutms-intervalms-mode DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/ocr.html#waittext-keyword-timeoutms-intervalms-mode DeekeScript Pro 文档}
      */
     waitText(keyword: string, timeoutMs?: number, intervalMs?: number, mode?: string): TextAndRegion | null;
     /**
@@ -3610,7 +3610,7 @@ interface Images {
      * @param {number} intervalMs intervalMs（可选）
      * @param {string} mode mode（可选）
      * @returns {boolean} boolean
-     * @see {@link https://script.deeke.cn/advance/photoAndColor.html#waittextgone-keyword-timeoutms-intervalms-mode DeekeScript Pro 文档}
+     * @see {@link https://script.deeke.cn/photoAndColor/ocr.html#waittextgone-keyword-timeoutms-intervalms-mode DeekeScript Pro 文档}
      */
     waitTextGone(keyword: string, timeoutMs?: number, intervalMs?: number, mode?: string): boolean;
 }
