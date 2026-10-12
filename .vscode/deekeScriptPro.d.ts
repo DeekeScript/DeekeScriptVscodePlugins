@@ -7524,12 +7524,20 @@ type DeekeComponentInstanceWithData<TData extends Record<string, unknown>> = Omi
 
 /**
  * 注册页面逻辑（写在 page.js）
+ * TCustom 会并入 this，因此 Page({ snapshot(){}, persist(){ this.snapshot(); } }) 等自定义方法有提示、无下划线。
  * @see {@link https://script.deeke.cn/v2/page.html DeekeScript Pro 文档}
  */
-declare function Page<TData extends Record<string, unknown> = Record<string, unknown>>(options: Omit<DeekePageOptions, "data"> & { data?: TData } & ThisType<DeekePageInstanceWithData<TData>> & Record<string, unknown>): void;
+declare function Page<
+    TData extends Record<string, unknown> = Record<string, unknown>,
+    TCustom extends Record<string, any> = {}
+>(options: Omit<DeekePageOptions, "data"> & { data?: TData } & TCustom & ThisType<DeekePageInstanceWithData<TData> & TCustom>): void;
 
 /**
  * 注册自定义组件逻辑（写在 component.js）
+ * TCustom 会并入 this，自定义方法可互相 this.xxx 调用。
  * @see {@link https://script.deeke.cn/v2/component.html DeekeScript Pro 文档}
  */
-declare function Component<TData extends Record<string, unknown> = Record<string, unknown>>(options: Omit<DeekeComponentOptions, "data"> & { data?: TData } & ThisType<DeekeComponentInstanceWithData<TData>> & Record<string, unknown>): void;
+declare function Component<
+    TData extends Record<string, unknown> = Record<string, unknown>,
+    TCustom extends Record<string, any> = {}
+>(options: Omit<DeekeComponentOptions, "data"> & { data?: TData } & TCustom & ThisType<DeekeComponentInstanceWithData<TData> & TCustom>): void;
