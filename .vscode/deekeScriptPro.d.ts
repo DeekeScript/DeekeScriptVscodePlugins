@@ -3893,18 +3893,6 @@ interface UiSelector {
      */
     classNameMatches(className: string): UiSelector;
     /**
-     * @param {string} packageName packageName
-     * @returns {UiSelector} UiSelector
-     * @see {@link https://script.deeke.cn/base/uiSelector/uiSelector.html#packagename-packagename DeekeScript Pro 文档}
-     */
-    packageName(packageName: string): UiSelector;
-    /**
-     * @param {string} packageName packageName
-     * @returns {UiSelector} UiSelector
-     * @see {@link https://script.deeke.cn/base/uiSelector/uiSelector.html#packagenamematches-packagename DeekeScript Pro 文档}
-     */
-    packageNameMatches(packageName: string): UiSelector;
-    /**
      * @param {string} id 控件ID
      * @returns {UiSelector} UiSelector
      * @see {@link https://script.deeke.cn/base/uiSelector/uiSelector.html#id-id DeekeScript Pro 文档}

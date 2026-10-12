@@ -4231,22 +4231,6 @@ export const apiData: Record<string, GlobalDef> = {
                 returns: 'UiSelector',
             },
             {
-                name: 'packageName',
-                description: '',
-                params: [
-                    { name: 'packageName', type: 'string' },
-                ],
-                returns: 'UiSelector',
-            },
-            {
-                name: 'packageNameMatches',
-                description: '',
-                params: [
-                    { name: 'packageName', type: 'string' },
-                ],
-                returns: 'UiSelector',
-            },
-            {
                 name: 'id',
                 description: '@param id 控件ID',
                 params: [
