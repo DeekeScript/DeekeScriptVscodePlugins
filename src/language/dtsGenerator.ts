@@ -8,7 +8,7 @@ const DOC_LINK_LABEL = 'DeekeScript Pro 文档';
 /** 文档不在 /base/{slug}/{slug}.html 下的 API（路径以 script.deeke.cn 为准） */
 const DOC_URL_OVERRIDES: Record<string, string> = {
     Access: `${DOC_BASE}/access/access.html`,
-    Console: `${DOC_BASE}/base/console/console.html`,
+    Alipay: `${DOC_BASE}/base/alipay/alipay.html`,
     console: `${DOC_BASE}/base/console/console.html`,
     Cos: `${DOC_BASE}/base/cos/cos.html`,
     DeekeScript: `${DOC_BASE}/base/deekeScript/deekeScript.html`,
@@ -21,14 +21,15 @@ const DOC_URL_OVERRIDES: Record<string, string> = {
     Engines: `${DOC_BASE}/advance/engines/engines.html`,
     FloatDialogs: `${DOC_BASE}/advance/dialogs.html`,
     FloatWindow: `${DOC_BASE}/v2/floatWindow.html`,
+    FloatPage: `${DOC_BASE}/v2/floatPage.html`,
     ForegroundServiceBridge: `${DOC_BASE}/advance/foreground.html`,
     Hid: `${DOC_BASE}/hid/method.html`,
-    Images: `${DOC_BASE}/advance/photoAndColor.html`,
+    Images: `${DOC_BASE}/photoAndColor/images.html`,
     JavaImporter: `${DOC_BASE}/advance/extension/extension.html`,
     KeyBoards: `${DOC_BASE}/inputMethod/method.html`,
     NotificationBridge: `${DOC_BASE}/advance/notification.html`,
+    QrCode: `${DOC_BASE}/base/qrcode/qrcode.html`,
     SocketIoClient: `${DOC_BASE}/base/socket/client.html`,
-    socketIoClient: `${DOC_BASE}/base/socket/client.html`,
     System: `${DOC_BASE}/base/system/funcs.html`,
     Threads: `${DOC_BASE}/advance/threads.html`,
     setTimeout: `${DOC_BASE}/base/timer/timer.html`,
@@ -53,6 +54,46 @@ function buildFloatWindowMethodAnchor(method: MethodDef): string {
     return `floatwindow-${method.name.toLowerCase()}`;
 }
 
+const IMAGES_OCR_METHODS = new Set([
+    'getTextAndRegion',
+    'getTextAndRegionInRegion',
+    'getText',
+    'getTextInRegion',
+    'ocr',
+    'hasText',
+    'hasTextExact',
+    'hasTextMatches',
+    'findText',
+    'findTextExact',
+    'findTextMatches',
+    'findTextFirst',
+    'findTextCenter',
+    'findTextPosition',
+    'findTextInRegion',
+    'waitText',
+    'waitTextGone',
+]);
+
+const IMAGES_COLOR_METHODS = new Set([
+    'getColor',
+    'getColorHex',
+    'findColor',
+    'findColorInRegion',
+    'findColorFirst',
+    'findColorCenter',
+    'findMultiColors',
+]);
+
+function buildImagesDocUrl(method: MethodDef): string {
+    if (IMAGES_OCR_METHODS.has(method.name)) {
+        return `${DOC_BASE}/photoAndColor/ocr.html`;
+    }
+    if (IMAGES_COLOR_METHODS.has(method.name)) {
+        return `${DOC_BASE}/photoAndColor/colors.html`;
+    }
+    return `${DOC_BASE}/photoAndColor/images.html`;
+}
+
 /** VitePress 锚点：## launch(packageName) → #launch-packagename */
 function buildMethodAnchor(method: MethodDef): string {
     if (method.params.length === 0) {
@@ -62,6 +103,9 @@ function buildMethodAnchor(method: MethodDef): string {
 }
 
 function buildMethodDocUrl(globalName: string, method: MethodDef): string {
+    if (globalName === 'Images') {
+        return `${buildImagesDocUrl(method)}#${buildMethodAnchor(method)}`;
+    }
     const base = buildDocUrl(globalName);
     if (globalName === 'FloatWindow') {
         return `${base}#${buildFloatWindowMethodAnchor(method)}`;
