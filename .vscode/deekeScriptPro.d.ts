@@ -3989,6 +3989,84 @@ interface ScreenRecord {
 declare var ScreenRecord: ScreenRecord;
 
 /**
+ * 系统分享（文本 / 文件）。FileProvider + createChooser，可选微信 / QQ。不要对 Share 使用 typeof。
+ * @see {@link https://script.deeke.cn/base/share/share.html DeekeScript Pro 文档}
+ */
+interface Share {
+    /**
+     * 弹出系统分享面板分享纯文本
+     * @param {string} text 文本
+     * @returns {{ ok: boolean; message?: string; mode?: string }} { ok: boolean; message?: string; mode?: string }
+     * @see {@link https://script.deeke.cn/base/share/share.html#sharetext-text DeekeScript Pro 文档}
+     */
+    shareText(text: string): { ok: boolean; message?: string; mode?: string };
+    /**
+     * 弹出系统分享面板分享纯文本
+     * @param {string} text 文本
+     * @param {string} title 分享标题 / chooser 标题
+     * @returns {{ ok: boolean; message?: string; mode?: string }} { ok: boolean; message?: string; mode?: string }
+     * @see {@link https://script.deeke.cn/base/share/share.html#sharetext-text-title DeekeScript Pro 文档}
+     */
+    shareText(text: string, title: string): { ok: boolean; message?: string; mode?: string };
+    /**
+     * 弹出系统分享面板分享单个文件（FileProvider）
+     * @param {string} path 本地绝对路径
+     * @returns {{ ok: boolean; message?: string; mode?: string; path?: string; uri?: string; mimeType?: string }} { ok: boolean; message?: string; mode?: string; path?: string; uri?: string; mimeType?: string }
+     * @see {@link https://script.deeke.cn/base/share/share.html#sharefile-path DeekeScript Pro 文档}
+     */
+    shareFile(path: string): { ok: boolean; message?: string; mode?: string; path?: string; uri?: string; mimeType?: string };
+    /**
+     * 弹出系统分享面板分享单个文件
+     * @param {string} path 本地绝对路径
+     * @param {string} title 分享标题
+     * @returns {{ ok: boolean; message?: string; mode?: string; path?: string; uri?: string; mimeType?: string }} { ok: boolean; message?: string; mode?: string; path?: string; uri?: string; mimeType?: string }
+     * @see {@link https://script.deeke.cn/base/share/share.html#sharefile-path-title DeekeScript Pro 文档}
+     */
+    shareFile(path: string, title: string): { ok: boolean; message?: string; mode?: string; path?: string; uri?: string; mimeType?: string };
+    /**
+     * 弹出系统分享面板分享单个文件
+     * @param {string} path 本地绝对路径
+     * @param {string} title 分享标题
+     * @param {string} mimeType MIME，如 text/plain；可空自动推断
+     * @returns {{ ok: boolean; message?: string; mode?: string; path?: string; uri?: string; mimeType?: string }} { ok: boolean; message?: string; mode?: string; path?: string; uri?: string; mimeType?: string }
+     * @see {@link https://script.deeke.cn/base/share/share.html#sharefile-path-title-mimetype DeekeScript Pro 文档}
+     */
+    shareFile(path: string, title: string, mimeType: string): { ok: boolean; message?: string; mode?: string; path?: string; uri?: string; mimeType?: string };
+    /**
+     * 弹出系统分享面板分享多个文件
+     * @param {string[]} paths 路径数组
+     * @returns {{ ok: boolean; message?: string; mode?: string; count?: number; mimeType?: string }} { ok: boolean; message?: string; mode?: string; count?: number; mimeType?: string }
+     * @see {@link https://script.deeke.cn/base/share/share.html#sharefiles-paths DeekeScript Pro 文档}
+     */
+    shareFiles(paths: string[]): { ok: boolean; message?: string; mode?: string; count?: number; mimeType?: string };
+    /**
+     * 弹出系统分享面板分享多个文件
+     * @param {string[]} paths 路径数组
+     * @param {string} title 分享标题
+     * @returns {{ ok: boolean; message?: string; mode?: string; count?: number; mimeType?: string }} { ok: boolean; message?: string; mode?: string; count?: number; mimeType?: string }
+     * @see {@link https://script.deeke.cn/base/share/share.html#sharefiles-paths-title DeekeScript Pro 文档}
+     */
+    shareFiles(paths: string[], title: string): { ok: boolean; message?: string; mode?: string; count?: number; mimeType?: string };
+    /**
+     * 弹出系统分享面板分享多个文件
+     * @param {string[]} paths 路径数组
+     * @param {string} title 分享标题
+     * @param {string} mimeType MIME；可空
+     * @returns {{ ok: boolean; message?: string; mode?: string; count?: number; mimeType?: string }} { ok: boolean; message?: string; mode?: string; count?: number; mimeType?: string }
+     * @see {@link https://script.deeke.cn/base/share/share.html#sharefiles-paths-title-mimetype DeekeScript Pro 文档}
+     */
+    shareFiles(paths: string[], title: string, mimeType: string): { ok: boolean; message?: string; mode?: string; count?: number; mimeType?: string };
+    /**
+     * 综合分享入口：{ text|path|paths, title?, mimeType?, subject? }
+     * @param {object} options 选项对象
+     * @returns {{ ok: boolean; message?: string; [key: string]: any }} { ok: boolean; message?: string; [key: string]: any }
+     * @see {@link https://script.deeke.cn/base/share/share.html#share-options DeekeScript Pro 文档}
+     */
+    share(options: object): { ok: boolean; message?: string; [key: string]: any };
+}
+declare var Share: Share;
+
+/**
  * @see {@link https://script.deeke.cn/base/socket/client.html DeekeScript Pro 文档}
  */
 interface SocketIoClient {

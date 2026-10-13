@@ -4269,6 +4269,98 @@ export const apiData: Record<string, GlobalDef> = {
         ],
         funcReturns: '',
     },
+    'Share': {
+        kind: 'object',
+        description: '系统分享（文本 / 文件）。FileProvider + createChooser，可选微信 / QQ。不要对 Share 使用 typeof。',
+        methods: [
+            {
+                name: 'shareText',
+                description: '弹出系统分享面板分享纯文本\n@param text 文本',
+                params: [
+                    { name: 'text', type: 'string' },
+                ],
+                returns: '{ ok: boolean; message?: string; mode?: string }',
+            },
+            {
+                name: 'shareText',
+                description: '弹出系统分享面板分享纯文本\n@param text 文本\n@param title 分享标题 / chooser 标题',
+                params: [
+                    { name: 'text', type: 'string' },
+                    { name: 'title', type: 'string' },
+                ],
+                returns: '{ ok: boolean; message?: string; mode?: string }',
+            },
+            {
+                name: 'shareFile',
+                description: '弹出系统分享面板分享单个文件（FileProvider）\n@param path 本地绝对路径',
+                params: [
+                    { name: 'path', type: 'string' },
+                ],
+                returns: '{ ok: boolean; message?: string; mode?: string; path?: string; uri?: string; mimeType?: string }',
+            },
+            {
+                name: 'shareFile',
+                description: '弹出系统分享面板分享单个文件\n@param path 本地绝对路径\n@param title 分享标题',
+                params: [
+                    { name: 'path', type: 'string' },
+                    { name: 'title', type: 'string' },
+                ],
+                returns: '{ ok: boolean; message?: string; mode?: string; path?: string; uri?: string; mimeType?: string }',
+            },
+            {
+                name: 'shareFile',
+                description: '弹出系统分享面板分享单个文件\n@param path 本地绝对路径\n@param title 分享标题\n@param mimeType MIME，如 text/plain；可空自动推断',
+                params: [
+                    { name: 'path', type: 'string' },
+                    { name: 'title', type: 'string' },
+                    { name: 'mimeType', type: 'string' },
+                ],
+                returns: '{ ok: boolean; message?: string; mode?: string; path?: string; uri?: string; mimeType?: string }',
+            },
+            {
+                name: 'shareFiles',
+                description: '弹出系统分享面板分享多个文件\n@param paths 路径数组',
+                params: [
+                    { name: 'paths', type: 'string[]' },
+                ],
+                returns: '{ ok: boolean; message?: string; mode?: string; count?: number; mimeType?: string }',
+            },
+            {
+                name: 'shareFiles',
+                description: '弹出系统分享面板分享多个文件\n@param paths 路径数组\n@param title 分享标题',
+                params: [
+                    { name: 'paths', type: 'string[]' },
+                    { name: 'title', type: 'string' },
+                ],
+                returns: '{ ok: boolean; message?: string; mode?: string; count?: number; mimeType?: string }',
+            },
+            {
+                name: 'shareFiles',
+                description: '弹出系统分享面板分享多个文件\n@param paths 路径数组\n@param title 分享标题\n@param mimeType MIME；可空',
+                params: [
+                    { name: 'paths', type: 'string[]' },
+                    { name: 'title', type: 'string' },
+                    { name: 'mimeType', type: 'string' },
+                ],
+                returns: '{ ok: boolean; message?: string; mode?: string; count?: number; mimeType?: string }',
+            },
+            {
+                name: 'share',
+                description: '综合分享入口：{ text|path|paths, title?, mimeType?, subject? }\n@param options 选项对象',
+                params: [
+                    { name: 'options', type: 'object' },
+                ],
+                returns: '{ ok: boolean; message?: string; [key: string]: any }',
+            },
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+    },
     'SocketIoClient': {
         kind: 'object',
         description: '',

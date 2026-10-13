@@ -29,6 +29,7 @@ const DOC_URL_OVERRIDES: Record<string, string> = {
     KeyBoards: `${DOC_BASE}/inputMethod/method.html`,
     NotificationBridge: `${DOC_BASE}/advance/notification.html`,
     QrCode: `${DOC_BASE}/base/qrcode/qrcode.html`,
+    Share: `${DOC_BASE}/base/share/share.html`,
     SocketIoClient: `${DOC_BASE}/base/socket/client.html`,
     System: `${DOC_BASE}/base/system/funcs.html`,
     Threads: `${DOC_BASE}/advance/threads.html`,
