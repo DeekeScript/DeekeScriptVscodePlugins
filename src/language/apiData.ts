@@ -2160,7 +2160,7 @@ export const apiData: Record<string, GlobalDef> = {
     },
     'FloatWindow': {
         kind: 'object',
-        description: '项目悬浮球展开菜单（点「运行」进入项目后，或打包 App）。未配置 floatWindow.menus 时与开发器一致：连点两次停止任务。JSON 悬浮窗请用 FloatPage',
+        description: '项目悬浮球展开菜单（点「运行」进入项目后，或打包 App）。没写 floatWindow 不展示悬浮球；写了但没有菜单内容时连点两次停止任务。JSON 悬浮窗请用 FloatPage',
         methods: [
             {
                 name: 'setMenus',

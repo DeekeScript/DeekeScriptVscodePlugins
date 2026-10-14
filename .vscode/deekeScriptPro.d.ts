@@ -2074,14 +2074,20 @@ interface DeekeFloatWindowMenuPatch {
     onTap?: string | DeekeFloatWindowMenuHandler;
 }
 
-/** deekeScript.json → floatWindow @see {@link https://script.deeke.cn/v2/config.html DeekeScript Pro 文档} */
+/**
+ * deekeScript.json → floatWindow。
+ * 不写 floatWindow：不展示悬浮球。
+ * 写了但 menus 为空或未写：系统默认球，连点两次停止。
+ * menus 有内容：自定义菜单。
+ * @see {@link https://script.deeke.cn/v2/config.html DeekeScript Pro 文档}
+ */
 interface DeekeFloatWindowConfig {
-    /** 展开菜单项，最多 5 个；不写则连点两次停止任务 */
+    /** 展开菜单项，最多 5 个。有内容才走自定义菜单；空数组或不写则连点两次停止 */
     menus?: DeekeFloatWindowMenuItem[];
 }
 
 /**
- * 项目悬浮球展开菜单（点「运行」进入项目后，或打包 App）。未配置 floatWindow.menus 时与开发器一致：连点两次停止任务。JSON 悬浮窗请用 FloatPage
+ * 项目悬浮球展开菜单（点「运行」进入项目后，或打包 App）。没写 floatWindow 不展示悬浮球；写了但没有菜单内容时连点两次停止任务。JSON 悬浮窗请用 FloatPage
  * @see {@link https://script.deeke.cn/v2/floatWindow.html DeekeScript Pro 文档}
  */
 interface FloatWindow {
