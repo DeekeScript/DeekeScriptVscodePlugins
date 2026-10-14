@@ -2132,11 +2132,11 @@ interface FloatPage {
     /**
      * 显示悬浮窗。id 为实例名；可用 path 指定加载的 floats 目录（多开可共用同一套 page）。width/height 默认约 80% 屏宽、高 500px；opacity 默认 0.5；touchable:false 点击穿透
      * @param {string} floatId 悬浮窗实例 id
-     * @param {{ x?: number; y?: number; width?: number; height?: number; path?: string; opacity?: number; background?: string; draggable?: boolean; focusable?: boolean; touchable?: boolean }} options 可选：x,y,width,height,path,opacity,background,draggable,focusable,touchable（可选）
+     * @param {{ x?: number; y?: number; width?: number; height?: number; path?: string; opacity?: number; background?: string; draggable?: boolean; focusable?: boolean; touchable?: boolean; gestureTouchable?: boolean }} options 可选：x,y,width,height,path,opacity,background,draggable,focusable,touchable（可选）
      * @returns {boolean} boolean
      * @see {@link https://script.deeke.cn/v2/floatPage.html#show-floatid-options DeekeScript Pro 文档}
      */
-    show(floatId: string, options?: { x?: number; y?: number; width?: number; height?: number; path?: string; opacity?: number; background?: string; draggable?: boolean; focusable?: boolean; touchable?: boolean }): boolean;
+    show(floatId: string, options?: { x?: number; y?: number; width?: number; height?: number; path?: string; opacity?: number; background?: string; draggable?: boolean; focusable?: boolean; touchable?: boolean; gestureTouchable?: boolean }): boolean;
     /**
      * 隐藏悬浮窗，实例与数据保留
      * @param {string} floatId 悬浮窗 id
@@ -2255,6 +2255,18 @@ interface FloatPage {
      * @see {@link https://script.deeke.cn/v2/floatPage.html#istouchable-floatid DeekeScript Pro 文档}
      */
     isTouchable(floatId: string): boolean | null;
+    /**
+     * Gesture.click / swipe 等坐标手势能不能点到这个悬浮窗。默认 true。false 时这些手势穿透，手指点击仍按 touchable
+     * @param {string} floatId 悬浮窗 id
+     * @param {boolean} gestureTouchable 坐标手势是否可点
+     */
+    setGestureTouchable(floatId: string, gestureTouchable: boolean): void;
+    /**
+     * 坐标手势是否可点到这个悬浮窗
+     * @param {string} floatId 悬浮窗 id
+     * @returns {boolean | null} boolean | null
+     */
+    isGestureTouchable(floatId: string): boolean | null;
     /**
      * 设置是否可通过顶部细条拖动
      * @param {string} floatId 悬浮窗 id
@@ -3332,7 +3344,8 @@ interface Images {
 declare var Images: Images;
 
 /**
- * 统一事件总线（按键、亮灭屏、无障碍、窗口切换；可用 emit 自定义）
+ * 统一事件总线（按键、亮灭屏、无障碍、窗口切换；可用 emit 自定义）。
+ * 主脚本开始、停止会派发 script_start、script_stop，不要自己 emit。script_start 在任务正文前发出。
  * @see {@link https://script.deeke.cn/base/events/events.html DeekeScript Pro 文档}
  */
 interface Events {

@@ -2217,10 +2217,10 @@ export const apiData: Record<string, GlobalDef> = {
         methods: [
             {
                 name: 'show',
-                description: '显示悬浮窗。id 为实例名；可用 path 指定加载的 floats 目录（多开可共用同一套 page）。width/height 默认约 80% 屏宽、高 500px；opacity 默认 0.5；touchable:false 点击穿透\n@param floatId 悬浮窗实例 id\n@param options 可选：x,y,width,height,path,opacity,background,draggable,focusable,touchable',
+                description: '显示悬浮窗。id 为实例名；可用 path 指定加载的 floats 目录（多开可共用同一套 page）。width/height 默认约 80% 屏宽、高 500px；opacity 默认 0.5；touchable:false 点击穿透；gestureTouchable:false 时 Gesture 坐标手势穿透、手指仍可点\n@param floatId 悬浮窗实例 id\n@param options 可选：x,y,width,height,path,opacity,background,draggable,focusable,touchable,gestureTouchable',
                 params: [
                     { name: 'floatId', type: 'string' },
-                    { name: 'options', type: '{ x?: number; y?: number; width?: number; height?: number; path?: string; opacity?: number; background?: string; draggable?: boolean; focusable?: boolean; touchable?: boolean }', optional: true },
+                    { name: 'options', type: '{ x?: number; y?: number; width?: number; height?: number; path?: string; opacity?: number; background?: string; draggable?: boolean; focusable?: boolean; touchable?: boolean; gestureTouchable?: boolean }', optional: true },
                 ],
                 returns: 'boolean',
             },
@@ -2363,6 +2363,23 @@ export const apiData: Record<string, GlobalDef> = {
             {
                 name: 'isTouchable',
                 description: '是否接收点击\n@param floatId 悬浮窗 id',
+                params: [
+                    { name: 'floatId', type: 'string' },
+                ],
+                returns: 'boolean | null',
+            },
+            {
+                name: 'setGestureTouchable',
+                description: 'Gesture.click / swipe 等坐标手势能不能点到这个悬浮窗。默认 true。false 时这些手势穿透，手指点击仍按 touchable\n@param floatId 悬浮窗 id\n@param gestureTouchable 坐标手势是否可点',
+                params: [
+                    { name: 'floatId', type: 'string' },
+                    { name: 'gestureTouchable', type: 'boolean' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'isGestureTouchable',
+                description: '坐标手势是否可点到这个悬浮窗\n@param floatId 悬浮窗 id',
                 params: [
                     { name: 'floatId', type: 'string' },
                 ],
@@ -3617,7 +3634,7 @@ export const apiData: Record<string, GlobalDef> = {
     },
     'Events': {
         kind: 'object',
-        description: '统一事件总线（按键、亮灭屏、无障碍、窗口切换；可用 emit 自定义）',
+        description: '统一事件总线（按键、亮灭屏、无障碍、窗口切换；可用 emit 自定义）。主脚本开始、停止会派发 script_start、script_stop',
         methods: [
             { name: 'observeKey', description: '开始观察按键', params: [], returns: 'void' },
             { name: 'ignoreKey', description: '停止观察按键', params: [], returns: 'void' },
