@@ -4,10 +4,13 @@
         "target": "ES2022",
         "lib": [
             "es2022"
-        ]
+        ],
+        "baseUrl": ".",
+        "module": "commonjs"
     },
     "include": [
         ".vscode/*.d.ts",
-        "**/*.js"
+        "**/*.js",
+        ".vscode/deekeScriptPro.d.ts"
     ]
 }
