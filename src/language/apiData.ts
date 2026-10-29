@@ -1508,6 +1508,36 @@ export const apiData: Record<string, GlobalDef> = {
         ],
         funcReturns: '',
     },
+    'Helper': {
+        kind: 'object',
+        description: '去掉文本里的不可见字符。保留普通空格，去掉零宽字符、方向标记和特殊空格。',
+        methods: [
+            {
+                name: 'stripInvisible',
+                description: '去掉不可见字符，保留普通空格。入参为 null 时返回空字符串\n@param text 原始文本',
+                params: [
+                    { name: 'text', type: 'string' },
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'contains',
+                description: '去掉不可见字符后再判断是否包含关键词。文本或关键词为 null，或关键词清理后为空时返回 false\n@param text 原始文本\n@param keyword 关键词',
+                params: [
+                    { name: 'text', type: 'string' },
+                    { name: 'keyword', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+    },
     'Encrypt': {
         kind: 'object',
         description: '',
