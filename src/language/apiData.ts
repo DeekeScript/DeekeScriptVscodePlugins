@@ -373,6 +373,14 @@ export const apiData: Record<string, GlobalDef> = {
                 returns: 'boolean',
             },
             {
+                name: 'playAndRelease',
+                description: '加载并播放音频，播放结束后释放播放器\n@param source 音频资源路径\n@returns 是否成功',
+                params: [
+                    { name: 'source', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
                 name: 'play',
                 description: '播放当前已加载的音频\n@returns 是否成功',
                 params: [
@@ -743,6 +751,112 @@ export const apiData: Record<string, GlobalDef> = {
         funcReturns: '',
         typeOnly: true,
     },
+    'Colors': {
+        kind: 'object',
+        description: '基于 OpenCV 的颜色查找（Mat）。日常找色优先用 Images。',
+        methods: [
+            {
+                name: 'getMat',
+                description: '从项目存储目录读取图片为 Mat\n@param file 相对项目存储根的路径\n@return Mat',
+                params: [
+                    { name: 'file', type: 'string' },
+                ],
+                returns: 'Mat',
+            },
+            {
+                name: 'getMatByAssetsFile',
+                description: '从 assets 示例目录读取图片为 Mat\n@param file 文件名\n@return Mat',
+                params: [
+                    { name: 'file', type: 'string' },
+                ],
+                returns: 'Mat',
+            },
+            {
+                name: 'getMatByAssetFile',
+                description: '从 assets 路径读取图片为 Mat\n@param file assets 内路径\n@return Mat',
+                params: [
+                    { name: 'file', type: 'string' },
+                ],
+                returns: 'Mat',
+            },
+            {
+                name: 'find',
+                description: '在 Mat 中查找十六进制颜色（#RRGGBB 或 RRGGBB）。自动处理 BGR/RGBA。\n@param source 源图 Mat\n@param hexColor 颜色\n@param rect 可选搜索区域（Android Rect）\n@param tolerance 通道容差（默认0）\n@return 匹配点数组',
+                params: [
+                    { name: 'source', type: 'Mat' },
+                    { name: 'hexColor', type: 'string' },
+                    { name: 'rect', type: 'Rect', optional: true },
+                    { name: 'tolerance', type: 'number', optional: true },
+                ],
+                returns: 'Point[]',
+            },
+            {
+                name: 'show',
+                description: '调试输出 Mat 像素（打日志）\n@param image Mat',
+                params: [
+                    { name: 'image', type: 'Mat' },
+                ],
+                returns: 'void',
+            },
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+    },
+    'Cos': {
+        kind: 'object',
+        description: '腾讯云对象存储（COS）上传',
+        methods: [
+            {
+                name: 'setConfig',
+                description: '设置密钥并初始化客户端\n@param secretId SecretId\n@param secretKey SecretKey\n@param region 地域，如 ap-guangzhou\n@param bucket 桶名',
+                params: [
+                    { name: 'secretId', type: 'string' },
+                    { name: 'secretKey', type: 'string' },
+                    { name: 'region', type: 'string' },
+                    { name: 'bucket', type: 'string' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'upload',
+                description: '同步上传。返回 [url, error]，成功时 error 为 null\n@param localPath 本地文件路径\n@param cosKey COS 对象键（可选，省略则自动生成）\n@return [url, error]',
+                params: [
+                    { name: 'localPath', type: 'string' },
+                    { name: 'cosKey', type: 'string', optional: true },
+                ],
+                returns: '[string | null, string | null]',
+            },
+            {
+                name: 'uploadAsync',
+                description: '异步上传\n@param localPath 本地路径\n@param cosKeyOrCallback COS 键，或直接传 callback\n@param callback 含 success(url)、fail(error)',
+                params: [
+                    { name: 'localPath', type: 'string' },
+                    { name: 'cosKeyOrCallback', type: 'string | { success: (url: string) => void; fail: (error: string) => void }' },
+                    { name: 'callback', type: '{ success: (url: string) => void; fail: (error: string) => void }', optional: true },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'shutdown',
+                description: '关闭客户端，释放网络资源',
+                params: [
+                ],
+                returns: 'void',
+            },
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+    },
     'DeekeBounds': {
         kind: 'object',
         description: '',
@@ -852,6 +966,13 @@ export const apiData: Record<string, GlobalDef> = {
                 params: [
                 ],
                 returns: 'object',
+            },
+            {
+                name: 'clear',
+                description: '清除已缓存的 deekeScript.json',
+                params: [
+                ],
+                returns: 'void',
             },
         ],
         properties: [
@@ -1483,6 +1604,15 @@ export const apiData: Record<string, GlobalDef> = {
                 returns: 'string',
             },
             {
+                name: 'hmac_sha256',
+                description: 'HmacSHA256，返回十六进制字符串\n@param key 密钥\n@param data 数据',
+                params: [
+                    { name: 'key', type: 'string' },
+                    { name: 'data', type: 'string' },
+                ],
+                returns: 'string',
+            },
+            {
                 name: 'base64Encode',
                 description: 'base64 encode\n@param input',
                 params: [
@@ -1582,6 +1712,76 @@ export const apiData: Record<string, GlobalDef> = {
                 params: [
                 ],
                 returns: 'number',
+            },
+        ],
+        properties: [
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+    },
+    'Env': {
+        kind: 'object',
+        description: '应用目录句柄（返回 java.io.File）。日常路径字符串优先用 Files.getFilesPath 等。',
+        methods: [
+            {
+                name: 'getFilesDir',
+                description: '应用私有 files 目录\n@return java.io.File',
+                params: [
+                ],
+                returns: 'any',
+            },
+            {
+                name: 'getCacheDir',
+                description: '应用缓存目录\n@return java.io.File',
+                params: [
+                ],
+                returns: 'any',
+            },
+            {
+                name: 'getDataDir',
+                description: '应用 data 目录\n@return java.io.File',
+                params: [
+                ],
+                returns: 'any',
+            },
+            {
+                name: 'getExternalFilesDir',
+                description: '应用外部私有目录\n@param dir 子目录名，可为 null\n@return java.io.File',
+                params: [
+                    { name: 'dir', type: 'string | null' },
+                ],
+                returns: 'any',
+            },
+            {
+                name: 'getExternalCacheDir',
+                description: '应用外部缓存目录\n@return java.io.File',
+                params: [
+                ],
+                returns: 'any',
+            },
+            {
+                name: 'getExternalMediaDirs',
+                description: '应用外部媒体目录列表\n@return java.io.File[]',
+                params: [
+                ],
+                returns: 'any[]',
+            },
+            {
+                name: 'getDownloadDir',
+                description: '系统 Download 公共目录\n@return java.io.File',
+                params: [
+                ],
+                returns: 'any',
+            },
+            {
+                name: 'getDcimDir',
+                description: '系统 DCIM 公共目录\n@return java.io.File',
+                params: [
+                ],
+                returns: 'any',
             },
         ],
         properties: [
@@ -2132,6 +2332,28 @@ export const apiData: Record<string, GlobalDef> = {
                 ],
                 returns: 'boolean',
             },
+            {
+                name: 'pressQuick',
+                description: '派发按压后立即返回',
+                params: [
+                    { name: 'x', type: 'number' },
+                    { name: 'y', type: 'number' },
+                    { name: 'duration', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'swipeHuman',
+                description: '仿人手滑动',
+                params: [
+                    { name: 'sx', type: 'number' },
+                    { name: 'sy', type: 'number' },
+                    { name: 'ex', type: 'number' },
+                    { name: 'ey', type: 'number' },
+                    { name: 'duration', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
         ],
         properties: [
         ],
@@ -2485,6 +2707,13 @@ export const apiData: Record<string, GlobalDef> = {
                 returns: 'boolean',
             },
             {
+                name: 'isConnected',
+                description: '蓝牙是否已连接',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
                 name: 'sendData',
                 description: '发送数据到蓝牙设备。\n@param str 数据内容\n@returns 是否成功',
                 params: [
@@ -2554,6 +2783,34 @@ export const apiData: Record<string, GlobalDef> = {
                 params: [
                     { name: 'url', type: 'string' },
                     { name: 'headers', type: 'object' },
+                ],
+                returns: 'string | null',
+            },
+            {
+                name: 'getHeaders',
+                description: '带请求头的 GET\n@param url 请求地址\n@param header 请求头',
+                params: [
+                    { name: 'url', type: 'string' },
+                    { name: 'header', type: 'object' },
+                ],
+                returns: 'string | null',
+            },
+            {
+                name: 'postHeaders',
+                description: '带请求头的 POST\n@param url 请求地址\n@param json 请求内容\n@param header 请求头',
+                params: [
+                    { name: 'url', type: 'string' },
+                    { name: 'json', type: 'object' },
+                    { name: 'header', type: 'object' },
+                ],
+                returns: 'string | null',
+            },
+            {
+                name: 'getRedirectUrl',
+                description: '获取重定向地址。options.followRedirects 默认 true：true 返回最终地址，false 返回首个 Location\n@param url 原始地址\n@param options 可选，{ followRedirects?: boolean }',
+                params: [
+                    { name: 'url', type: 'string' },
+                    { name: 'options', type: '{ followRedirects?: boolean }', optional: true },
                 ],
                 returns: 'string | null',
             },
@@ -2952,6 +3209,24 @@ export const apiData: Record<string, GlobalDef> = {
                 returns: 'any[]',
             },
             {
+                name: 'getImagesByPath',
+                description: '按目录获取图片。支持 /storage/emulated/0/Pictures/WeiXin、Pictures/WeiXin、DCIM/Camera、Screenshots\n@param path 目录\n@return 图片信息数组',
+                params: [
+                    { name: 'path', type: 'string' },
+                ],
+                returns: 'any[]',
+            },
+            {
+                name: 'saveContentImageToGallery',
+                description: '把 content:// 图片复制进相册\n@param contentUriString 源 content Uri\n@param displayName 显示名称（可选）\n@param relativePath 相对目录（可选，默认 Pictures）\n@return 保存后的 Uri 或路径，失败返回 null',
+                params: [
+                    { name: 'contentUriString', type: 'string' },
+                    { name: 'displayName', type: 'string', optional: true },
+                    { name: 'relativePath', type: 'string', optional: true },
+                ],
+                returns: 'string | null',
+            },
+            {
                 name: 'saveImage',
                 description: '保存图片到相册\n@param sourcePath 源图片路径\n@param displayName 显示名称（可选）\n@param relativePath 相对路径（可选，如 "Pictures/MyApp"）\n@return 保存后的 content:// Uri 字符串，失败返回 null',
                 params: [
@@ -3301,6 +3576,13 @@ export const apiData: Record<string, GlobalDef> = {
                 ],
                 returns: 'void',
             },
+            {
+                name: 'closeAll',
+                description: '关闭全部 Socket.IO 连接',
+                params: [
+                ],
+                returns: 'void',
+            },
         ],
         properties: [
         ],
@@ -3450,6 +3732,14 @@ export const apiData: Record<string, GlobalDef> = {
             {
                 name: 'contains',
                 description: '判断是否包含键为key的数据\n@param key 键\n@return 返回boolean，表示是否存在该键',
+                params: [
+                    { name: 'key', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'exist',
+                description: '字符串键是否已写入\n@param key 键',
                 params: [
                     { name: 'key', type: 'string' },
                 ],
@@ -3618,6 +3908,20 @@ export const apiData: Record<string, GlobalDef> = {
                     { name: 'mode', type: 'string' },
                 ],
                 returns: 'void',
+            },
+            {
+                name: 'getAccessibilityMode',
+                description: '获取当前无障碍模式字符串。未设置时返回 fast。是否处于快速模式用 isAccessibilityQuick()',
+                params: [
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'isAccessibilityQuick',
+                description: '当前是否为无障碍快速模式',
+                params: [
+                ],
+                returns: 'boolean',
             },
             {
                 name: 'setKeepScreenOn',
@@ -4067,6 +4371,20 @@ export const apiData: Record<string, GlobalDef> = {
                 params: [
                 ],
                 returns: 'string',
+            },
+            {
+                name: 'isImportantForAccessibility',
+                description: '控件是否对无障碍重要。快速模式会过滤非重要控件',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'getAccessibilityNodeInfo',
+                description: '返回底层 AccessibilityNodeInfo',
+                params: [
+                ],
+                returns: 'any',
             },
         ],
         properties: [
@@ -5602,6 +5920,13 @@ export const apiData: Record<string, GlobalDef> = {
                 returns: 'boolean',
             },
             {
+                name: 'isConnected',
+                description: '蓝牙是否已连接',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
                 name: 'sendData',
                 description: '发送数据到蓝牙设备。\n@param str 数据内容\n@returns 是否成功',
                 params: [
@@ -5828,6 +6153,13 @@ export const apiData: Record<string, GlobalDef> = {
                 ],
                 returns: 'void',
             },
+            {
+                name: 'closeAll',
+                description: '关闭全部 Socket.IO 连接',
+                params: [
+                ],
+                returns: 'void',
+            },
         ],
         properties: [
         ],
@@ -5978,6 +6310,14 @@ export const apiData: Record<string, GlobalDef> = {
             {
                 name: 'contains',
                 description: '判断是否包含键为key的数据\n@param key 键\n@return 返回boolean，表示是否存在该键',
+                params: [
+                    { name: 'key', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'exist',
+                description: '字符串键是否已写入\n@param key 键',
                 params: [
                     { name: 'key', type: 'string' },
                 ],
