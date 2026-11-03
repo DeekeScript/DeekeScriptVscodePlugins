@@ -2667,15 +2667,8 @@ export const apiData: Record<string, GlobalDef> = {
                 returns: 'boolean',
             },
             {
-                name: 'getHidZcm',
-                description: '获取服务器HID激活码。\n@returns 激活码字符串\n@throws Error 当蓝牙未初始化时',
-                params: [
-                ],
-                returns: 'string',
-            },
-            {
                 name: 'ver',
-                description: '获取插件版本号。\n@returns 插件版本号',
+                description: '固件版本号。\n@returns 版本号',
                 params: [
                 ],
                 returns: 'number',
@@ -2753,9 +2746,8 @@ export const apiData: Record<string, GlobalDef> = {
             },
             {
                 name: 'initBluetooth',
-                description: '初始化蓝牙模块。\n@param ctx 上下文对象\n@returns 是否成功',
+                description: '检查本机蓝牙已打开且有连接权限。无参数',
                 params: [
-                    { name: 'ctx', type: 'any' },
                 ],
                 returns: 'boolean',
             },
@@ -2951,10 +2943,10 @@ export const apiData: Record<string, GlobalDef> = {
             },
             {
                 name: 'connect',
-                description: '连接蓝牙设备。\n@param autoconnect 是否自动连接\n@param index 设备索引\n@returns 是否成功',
+                description: '连接蓝牙设备。都不传时自动连接第 0 个已配对设备\n@param autoconnect 是否自动连接，默认 true\n@param index 设备索引，默认 0',
                 params: [
-                    { name: 'autoconnect', type: 'boolean' },
-                    { name: 'index', type: 'number' },
+                    { name: 'autoconnect', type: 'boolean', optional: true },
+                    { name: 'index', type: 'number', optional: true },
                 ],
                 returns: 'boolean',
             },
@@ -3077,12 +3069,12 @@ export const apiData: Record<string, GlobalDef> = {
             },
             {
                 name: 'tapImage',
-                description: '截屏找图后点击中心。\n@param templateFile 模板图路径\n@param threshold 匹配阈值（默认0.8）\n@returns 匹配结果或 null',
+                description: '截屏找图后点击中心。结果只有 x、y、centerX、centerY。\n@param templateFile 模板图路径\n@param threshold 匹配阈值（默认0.8）\n@returns 匹配结果或 null',
                 params: [
                     { name: 'templateFile', type: 'string' },
                     { name: 'threshold', type: 'number', optional: true },
                 ],
-                returns: 'ImageMatch | null',
+                returns: 'HidMatch | null',
             },
             {
                 name: 'pressImage',
@@ -3092,7 +3084,7 @@ export const apiData: Record<string, GlobalDef> = {
                     { name: 'durationMs', type: 'number', optional: true },
                     { name: 'threshold', type: 'number', optional: true },
                 ],
-                returns: 'ImageMatch | null',
+                returns: 'HidMatch | null',
             },
             {
                 name: 'tapColor',
@@ -3112,7 +3104,7 @@ export const apiData: Record<string, GlobalDef> = {
                     { name: 'intervalMs', type: 'number', optional: true },
                     { name: 'threshold', type: 'number', optional: true },
                 ],
-                returns: 'ImageMatch | null',
+                returns: 'HidMatch | null',
             },
             {
                 name: 'waitColor',
@@ -3204,7 +3196,7 @@ export const apiData: Record<string, GlobalDef> = {
                     { name: 'maxTimes', type: 'number', optional: true },
                     { name: 'threshold', type: 'number', optional: true },
                 ],
-                returns: 'ImageMatch | null',
+                returns: 'HidMatch | null',
             },
         ],
         properties: [
@@ -5224,6 +5216,24 @@ export const apiData: Record<string, GlobalDef> = {
             { name: 'text', type: 'string', description: '识别文本' },
             { name: 'rect', type: 'Rect', description: '文字区域' },
             { name: 'confidence', type: 'number', description: '置信度 0-1' },
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+        typeOnly: true,
+    },
+    'HidMatch': {
+        kind: 'object',
+        description: 'Hid 找图结果，只有左上角和中心点',
+        methods: [
+        ],
+        properties: [
+            { name: 'x', type: 'number', description: '左上角 X' },
+            { name: 'y', type: 'number', description: '左上角 Y' },
+            { name: 'centerX', type: 'number', description: '中心 X' },
+            { name: 'centerY', type: 'number', description: '中心 Y' },
         ],
         constructorParams: [
         ],
