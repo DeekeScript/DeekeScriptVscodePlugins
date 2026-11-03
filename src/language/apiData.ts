@@ -4597,21 +4597,6 @@ export const apiData: Record<string, GlobalDef> = {
         description: '控件选择器',
         methods: [
             {
-                name: 'setLevel',
-                description: '',
-                params: [
-                    { name: 'level', type: 'number' },
-                ],
-                returns: 'UiSelector',
-            },
-            {
-                name: 'getLevel',
-                description: '',
-                params: [
-                ],
-                returns: 'number',
-            },
-            {
                 name: 'UiSelector',
                 description: '',
                 params: [
@@ -4657,22 +4642,6 @@ export const apiData: Record<string, GlobalDef> = {
                 returns: 'UiSelector',
             },
             {
-                name: 'textStartsWith',
-                description: '',
-                params: [
-                    { name: 'text', type: 'string' },
-                ],
-                returns: 'UiSelector',
-            },
-            {
-                name: 'textEndsWith',
-                description: '',
-                params: [
-                    { name: 'text', type: 'string' },
-                ],
-                returns: 'UiSelector',
-            },
-            {
                 name: 'desc',
                 description: '@param desc 控件描述内容',
                 params: [
@@ -4697,50 +4666,10 @@ export const apiData: Record<string, GlobalDef> = {
                 returns: 'UiSelector',
             },
             {
-                name: 'descStartsWith',
-                description: '',
-                params: [
-                    { name: 'desc', type: 'string' },
-                ],
-                returns: 'UiSelector',
-            },
-            {
-                name: 'descEndsWith',
-                description: '',
-                params: [
-                    { name: 'desc', type: 'string' },
-                ],
-                returns: 'UiSelector',
-            },
-            {
                 name: 'className',
                 description: '@param className 控件类名',
                 params: [
                     { name: 'className', type: 'string' },
-                ],
-                returns: 'UiSelector',
-            },
-            {
-                name: 'classNameMatches',
-                description: '',
-                params: [
-                    { name: 'className', type: 'string' },
-                ],
-                returns: 'UiSelector',
-            },
-            {
-                name: 'packageName',
-                description: '',
-                params: [
-                    { name: 'packageName', type: 'string' },
-                ],
-                returns: 'UiSelector',
-            },
-            {
-                name: 'packageNameMatches',
-                description: '',
-                params: [
-                    { name: 'packageName', type: 'string' },
                 ],
                 returns: 'UiSelector',
             },
@@ -4937,18 +4866,53 @@ export const apiData: Record<string, GlobalDef> = {
         funcReturns: 'UiSelector',
     },
     'WebSocket': {
-        kind: 'object',
-        description: '',
+        kind: 'class',
+        description: 'WebSocket 客户端。用法：const ws = new WebSocket(url)；回调用赋值：ws.onOpen = function () {}',
         methods: [
             {
+                name: 'send',
+                description: '发送数据\n@param data',
+                params: [
+                    { name: 'data', type: 'string' },
+                ],
+                returns: 'void',
+            },
+            {
+                name: 'close',
+                description: '关闭当前连接',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
                 name: 'closeAll',
-                description: '',
+                description: '关闭全部 WebSocket 连接',
                 params: [
                 ],
                 returns: 'void',
             },
         ],
         properties: [
+            {
+                name: 'onOpen',
+                type: '(() => void) | null',
+                description: '连接成功回调（赋值函数）',
+            },
+            {
+                name: 'onMessage',
+                type: '((data: string) => void) | null',
+                description: '收到消息回调（赋值函数）',
+            },
+            {
+                name: 'onClose',
+                type: '((code: number, reason: string) => void) | null',
+                description: '连接关闭回调（赋值函数）',
+            },
+            {
+                name: 'onError',
+                type: '((errorMsg: string) => void) | null',
+                description: '连接出错回调（赋值函数）',
+            },
         ],
         constructorParams: [
             { name: 'url', type: 'string' },
@@ -6713,7 +6677,7 @@ export const apiData: Record<string, GlobalDef> = {
         methods: [
             {
                 name: 'onOpen',
-                description: '静态关闭所有连接 */\n    static closeAll(): void;\n\n    /**\n连接成功',
+                description: '连接成功',
                 params: [
                 ],
                 returns: 'void',
