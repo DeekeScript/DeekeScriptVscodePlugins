@@ -509,6 +509,14 @@ export const apiData: Record<string, GlobalDef> = {
                 returns: 'boolean',
             },
             {
+                name: 'playAndRelease',
+                description: '加载并播放音频，播放结束后释放播放器\n@param source 音频资源路径\n@returns 是否成功',
+                params: [
+                    { name: 'source', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
                 name: 'play',
                 description: '播放当前已加载的音频\n@returns 是否成功',
                 params: [
@@ -863,6 +871,13 @@ export const apiData: Record<string, GlobalDef> = {
                 params: [
                 ],
                 returns: 'object',
+            },
+            {
+                name: 'clear',
+                description: '清除已缓存的 deekeScript.json',
+                params: [
+                ],
+                returns: 'void',
             },
         ],
         properties: [
@@ -1563,6 +1578,15 @@ export const apiData: Record<string, GlobalDef> = {
                 description: 'sha256加密\n@param input',
                 params: [
                     { name: 'input', type: 'string' },
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'hmac_sha256',
+                description: 'HmacSHA256，返回十六进制字符串\n@param key 密钥\n@param data 数据',
+                params: [
+                    { name: 'key', type: 'string' },
+                    { name: 'data', type: 'string' },
                 ],
                 returns: 'string',
             },
@@ -3215,6 +3239,25 @@ export const apiData: Record<string, GlobalDef> = {
                 returns: 'string | null',
             },
             {
+                name: 'getHeaders',
+                description: '带请求头的 GET\n@param url 请求地址\n@param header 请求头',
+                params: [
+                    { name: 'url', type: 'string' },
+                    { name: 'header', type: 'object' },
+                ],
+                returns: 'string | null',
+            },
+            {
+                name: 'postHeaders',
+                description: '带请求头的 POST\n@param url 请求地址\n@param json 请求内容\n@param header 请求头',
+                params: [
+                    { name: 'url', type: 'string' },
+                    { name: 'json', type: 'object' },
+                    { name: 'header', type: 'object' },
+                ],
+                returns: 'string | null',
+            },
+            {
                 name: 'postFile',
                 description: '@param url 请求地址\n@param files \n@param params \n@param httpCallback',
                 params: [
@@ -3868,6 +3911,24 @@ export const apiData: Record<string, GlobalDef> = {
                 returns: 'any[]',
             },
             {
+                name: 'getImagesByPath',
+                description: '按目录获取图片。支持 /storage/emulated/0/Pictures/WeiXin、Pictures/WeiXin、DCIM/Camera、Screenshots\n@param path 目录\n@return 图片信息数组',
+                params: [
+                    { name: 'path', type: 'string' },
+                ],
+                returns: 'any[]',
+            },
+            {
+                name: 'saveContentImageToGallery',
+                description: '把 content:// 图片复制进相册\n@param contentUriString 源 content Uri\n@param displayName 显示名称（可选）\n@param relativePath 相对目录（可选，默认 Pictures）\n@return 保存后的 Uri 或路径，失败返回 null',
+                params: [
+                    { name: 'contentUriString', type: 'string' },
+                    { name: 'displayName', type: 'string', optional: true },
+                    { name: 'relativePath', type: 'string', optional: true },
+                ],
+                returns: 'string | null',
+            },
+            {
                 name: 'saveImage',
                 description: '保存图片到相册\n@param sourcePath 源图片路径\n@param displayName 显示名称（可选）\n@param relativePath 相对路径（可选，如 "Pictures/MyApp"）\n@return 保存后的 content:// Uri 字符串，失败返回 null',
                 params: [
@@ -4503,6 +4564,13 @@ export const apiData: Record<string, GlobalDef> = {
                 ],
                 returns: 'void',
             },
+            {
+                name: 'closeAll',
+                description: '关闭全部 Socket.IO 连接',
+                params: [
+                ],
+                returns: 'void',
+            },
         ],
         properties: [
         ],
@@ -4710,6 +4778,15 @@ export const apiData: Record<string, GlobalDef> = {
                 returns: 'Array',
             },
             {
+                name: 'scalar',
+                description: '执行查询并返回第一行第一列。无数据返回 null，适合 COUNT、SUM\n@param sql SELECT 语句，可用 ? 占位符\n@param args 可选绑定参数数组',
+                params: [
+                    { name: 'sql', type: 'string' },
+                    { name: 'args', type: 'Array', optional: true },
+                ],
+                returns: 'any',
+            },
+            {
                 name: 'exec',
                 description: '执行非查询 SQL（INSERT/UPDATE/DELETE/DDL 等）\n@param sql SQL 语句\n@param args 可选绑定参数数组\n@return 是否成功',
                 params: [
@@ -4886,6 +4963,14 @@ export const apiData: Record<string, GlobalDef> = {
                 ],
                 returns: 'boolean',
             },
+            {
+                name: 'exist',
+                description: '字符串键是否已写入\n@param key 键',
+                params: [
+                    { name: 'key', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
         ],
         properties: [
         ],
@@ -5023,6 +5108,20 @@ export const apiData: Record<string, GlobalDef> = {
                     { name: 'mode', type: 'string' },
                 ],
                 returns: 'void',
+            },
+            {
+                name: 'getAccessibilityMode',
+                description: '获取当前无障碍模式字符串。未设置时返回 fast。是否处于快速模式用 isAccessibilityQuick()',
+                params: [
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'isAccessibilityQuick',
+                description: '当前是否为无障碍快速模式',
+                params: [
+                ],
+                returns: 'boolean',
             },
             {
                 name: 'setKeepScreenOn',
@@ -5576,6 +5675,20 @@ export const apiData: Record<string, GlobalDef> = {
                 params: [
                 ],
                 returns: 'string',
+            },
+            {
+                name: 'isImportantForAccessibility',
+                description: '控件是否对无障碍重要。快速模式会过滤非重要控件',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'getAccessibilityNodeInfo',
+                description: '返回底层 AccessibilityNodeInfo',
+                params: [
+                ],
+                returns: 'any',
             },
         ],
         properties: [
