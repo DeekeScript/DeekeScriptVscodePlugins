@@ -1678,6 +1678,13 @@ export const apiData: Record<string, GlobalDef> = {
                 returns: 'void',
             },
             {
+                name: 'closeHook',
+                description: '关闭hooks脚本',
+                params: [
+                ],
+                returns: 'void',
+            },
+            {
                 name: 'childScriptCount',
                 description: '返回所有子脚本的数量',
                 params: [
