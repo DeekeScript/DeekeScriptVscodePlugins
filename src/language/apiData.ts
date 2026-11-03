@@ -2401,15 +2401,8 @@ export const apiData: Record<string, GlobalDef> = {
                 returns: 'boolean',
             },
             {
-                name: 'getHidZcm',
-                description: '获取服务器HID激活码。\n@returns 激活码字符串\n@throws Error 当蓝牙未初始化时',
-                params: [
-                ],
-                returns: 'string',
-            },
-            {
                 name: 'ver',
-                description: '获取插件版本号。\n@returns 插件版本号',
+                description: '固件版本号。\n@returns 版本号',
                 params: [
                 ],
                 returns: 'number',
@@ -2487,9 +2480,8 @@ export const apiData: Record<string, GlobalDef> = {
             },
             {
                 name: 'initBluetooth',
-                description: '初始化蓝牙模块。\n@param ctx 上下文对象\n@returns 是否成功',
+                description: '检查本机蓝牙已打开且有连接权限。无参数',
                 params: [
-                    { name: 'ctx', type: 'any' },
                 ],
                 returns: 'boolean',
             },
@@ -2685,10 +2677,10 @@ export const apiData: Record<string, GlobalDef> = {
             },
             {
                 name: 'connect',
-                description: '连接蓝牙设备。\n@param autoconnect 是否自动连接\n@param index 设备索引\n@returns 是否成功',
+                description: '连接蓝牙设备。都不传时自动连接第 0 个已配对设备\n@param autoconnect 是否自动连接，默认 true\n@param index 设备索引，默认 0',
                 params: [
-                    { name: 'autoconnect', type: 'boolean' },
-                    { name: 'index', type: 'number' },
+                    { name: 'autoconnect', type: 'boolean', optional: true },
+                    { name: 'index', type: 'number', optional: true },
                 ],
                 returns: 'boolean',
             },
@@ -2753,6 +2745,192 @@ export const apiData: Record<string, GlobalDef> = {
                 params: [
                 ],
                 returns: 'boolean',
+            },
+            {
+                name: 'press',
+                description: '按住指定毫秒后抬起。\n@param x X坐标\n@param y Y坐标\n@param durationMs 按住毫秒（默认约800）\n@returns 是否成功',
+                params: [
+                    { name: 'x', type: 'number' },
+                    { name: 'y', type: 'number' },
+                    { name: 'durationMs', type: 'number', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'longClick',
+                description: '长按。\n@param x X坐标\n@param y Y坐标\n@returns 是否成功',
+                params: [
+                    { name: 'x', type: 'number' },
+                    { name: 'y', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'doubleTap',
+                description: '双击。\n@param x X坐标\n@param y Y坐标\n@returns 是否成功',
+                params: [
+                    { name: 'x', type: 'number' },
+                    { name: 'y', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'tapRandom',
+                description: '带随机偏移点击。\n@param x X坐标\n@param y Y坐标\n@param rx X随机半径（默认5）\n@param ry Y随机半径（默认5）\n@returns 是否成功',
+                params: [
+                    { name: 'x', type: 'number' },
+                    { name: 'y', type: 'number' },
+                    { name: 'rx', type: 'number', optional: true },
+                    { name: 'ry', type: 'number', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'type',
+                description: '整串输入。ASCII 尽量逐键，中文等走剪贴板粘贴。\n@param text 文本\n@returns 是否成功',
+                params: [
+                    { name: 'text', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'paste',
+                description: '写入剪贴板并粘贴。\n@param text 文本\n@returns 是否成功',
+                params: [
+                    { name: 'text', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'clear',
+                description: '全选并删除（清空输入框）。\n@returns 是否成功',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'tapImage',
+                description: '截屏找图后点击中心。\n@param templateFile 模板图路径\n@param threshold 匹配阈值（默认0.8）\n@returns 匹配结果或 null',
+                params: [
+                    { name: 'templateFile', type: 'string' },
+                    { name: 'threshold', type: 'number', optional: true },
+                ],
+                returns: 'HidMatch | null',
+            },
+            {
+                name: 'pressImage',
+                description: '找图后长按。\n@param templateFile 模板图路径\n@param durationMs 按住毫秒（默认800）\n@param threshold 匹配阈值（默认0.8）\n@returns 匹配结果或 null',
+                params: [
+                    { name: 'templateFile', type: 'string' },
+                    { name: 'durationMs', type: 'number', optional: true },
+                    { name: 'threshold', type: 'number', optional: true },
+                ],
+                returns: 'HidMatch | null',
+            },
+            {
+                name: 'tapColor',
+                description: '截屏找色后点击色块中心。\n@param color rgba/rgb/#RRGGBB\n@param tolerance 通道容差（默认0）\n@returns 坐标或 null',
+                params: [
+                    { name: 'color', type: 'string' },
+                    { name: 'tolerance', type: 'number', optional: true },
+                ],
+                returns: 'Point | null',
+            },
+            {
+                name: 'waitImage',
+                description: '等待图出现。\n@param templateFile 模板图路径\n@param timeoutMs 超时毫秒（默认10000）\n@param intervalMs 轮询间隔（默认500）\n@param threshold 匹配阈值（默认0.8）\n@returns 匹配结果或 null',
+                params: [
+                    { name: 'templateFile', type: 'string' },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                    { name: 'intervalMs', type: 'number', optional: true },
+                    { name: 'threshold', type: 'number', optional: true },
+                ],
+                returns: 'HidMatch | null',
+            },
+            {
+                name: 'waitColor',
+                description: '等待颜色出现。\n@param color 颜色\n@param timeoutMs 超时毫秒（默认10000）\n@param intervalMs 轮询间隔（默认500）\n@param tolerance 通道容差（默认0）\n@returns 坐标或 null',
+                params: [
+                    { name: 'color', type: 'string' },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                    { name: 'intervalMs', type: 'number', optional: true },
+                    { name: 'tolerance', type: 'number', optional: true },
+                ],
+                returns: 'Point | null',
+            },
+            {
+                name: 'waitImageGone',
+                description: '等待图消失。\n@param templateFile 模板图路径\n@param timeoutMs 超时毫秒（默认10000）\n@param intervalMs 轮询间隔（默认500）\n@param threshold 匹配阈值（默认0.8）\n@returns 是否在超时前消失',
+                params: [
+                    { name: 'templateFile', type: 'string' },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                    { name: 'intervalMs', type: 'number', optional: true },
+                    { name: 'threshold', type: 'number', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'clickText',
+                description: 'OCR 找字后点击。\n@param keyword 关键字\n@param timeoutMs 超时毫秒（默认10000）\n@param mode contains|exact|regex（默认 contains）\n@returns 点击的区域或 null',
+                params: [
+                    { name: 'keyword', type: 'string' },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                    { name: 'mode', type: 'string', optional: true },
+                ],
+                returns: 'Rect | null',
+            },
+            {
+                name: 'waitText',
+                description: '等待文字出现。\n@param keyword 关键字\n@param timeoutMs 超时毫秒（默认10000）\n@param intervalMs 轮询间隔（默认500）\n@param mode contains|exact|regex\n@returns TextAndRegion 或 null',
+                params: [
+                    { name: 'keyword', type: 'string' },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                    { name: 'intervalMs', type: 'number', optional: true },
+                    { name: 'mode', type: 'string', optional: true },
+                ],
+                returns: 'TextAndRegion | null',
+            },
+            {
+                name: 'waitTextGone',
+                description: '等待文字消失。\n@param keyword 关键字\n@param timeoutMs 超时毫秒（默认10000）\n@param intervalMs 轮询间隔（默认500）\n@param mode contains|exact|regex\n@returns 是否在超时前消失',
+                params: [
+                    { name: 'keyword', type: 'string' },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                    { name: 'intervalMs', type: 'number', optional: true },
+                    { name: 'mode', type: 'string', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'connectAndWait',
+                description: '连接并等待就绪。\n@param autoconnect 是否自动连接（默认true）\n@param index 设备索引（默认0）\n@param timeoutMs 超时毫秒（默认10000）\n@returns 是否已连接',
+                params: [
+                    { name: 'autoconnect', type: 'boolean', optional: true },
+                    { name: 'index', type: 'number', optional: true },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'ensureConnected',
+                description: '未连接则自动连接。\n@returns 是否已连接',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'swipeUntilImage',
+                description: '滑动直到出现目标图。\n@param x1 起点X\n@param y1 起点Y\n@param x2 终点X\n@param y2 终点Y\n@param templateFile 模板图路径\n@param maxTimes 最大滑动次数（默认10）\n@param threshold 匹配阈值（默认0.8）\n@returns 匹配结果或 null',
+                params: [
+                    { name: 'x1', type: 'number' },
+                    { name: 'y1', type: 'number' },
+                    { name: 'x2', type: 'number' },
+                    { name: 'y2', type: 'number' },
+                    { name: 'templateFile', type: 'string' },
+                    { name: 'maxTimes', type: 'number', optional: true },
+                    { name: 'threshold', type: 'number', optional: true },
+                ],
+                returns: 'HidMatch | null',
             },
         ],
         properties: [
@@ -3949,6 +4127,24 @@ export const apiData: Record<string, GlobalDef> = {
         funcParams: [
         ],
         funcReturns: '',
+    },
+    'HidMatch': {
+        kind: 'object',
+        description: 'Hid 找图结果，只有左上角和中心点',
+        methods: [
+        ],
+        properties: [
+            { name: 'x', type: 'number', description: '左上角 X' },
+            { name: 'y', type: 'number', description: '左上角 Y' },
+            { name: 'centerX', type: 'number', description: '中心 X' },
+            { name: 'centerY', type: 'number', description: '中心 Y' },
+        ],
+        constructorParams: [
+        ],
+        funcParams: [
+        ],
+        funcReturns: '',
+        typeOnly: true,
     },
     'TextAndRegion': {
         kind: 'object',
@@ -5614,15 +5810,8 @@ export const apiData: Record<string, GlobalDef> = {
                 returns: 'boolean',
             },
             {
-                name: 'getHidZcm',
-                description: '获取服务器HID激活码。\n@returns 激活码字符串\n@throws Error 当蓝牙未初始化时',
-                params: [
-                ],
-                returns: 'string',
-            },
-            {
                 name: 'ver',
-                description: '获取插件版本号。\n@returns 插件版本号',
+                description: '固件版本号。\n@returns 版本号',
                 params: [
                 ],
                 returns: 'number',
@@ -5700,9 +5889,8 @@ export const apiData: Record<string, GlobalDef> = {
             },
             {
                 name: 'initBluetooth',
-                description: '初始化蓝牙模块。\n@param ctx 上下文对象\n@returns 是否成功',
+                description: '检查本机蓝牙已打开且有连接权限。无参数',
                 params: [
-                    { name: 'ctx', type: 'any' },
                 ],
                 returns: 'boolean',
             },
@@ -5898,10 +6086,10 @@ export const apiData: Record<string, GlobalDef> = {
             },
             {
                 name: 'connect',
-                description: '连接蓝牙设备。\n@param autoconnect 是否自动连接\n@param index 设备索引\n@returns 是否成功',
+                description: '连接蓝牙设备。都不传时自动连接第 0 个已配对设备\n@param autoconnect 是否自动连接，默认 true\n@param index 设备索引，默认 0',
                 params: [
-                    { name: 'autoconnect', type: 'boolean' },
-                    { name: 'index', type: 'number' },
+                    { name: 'autoconnect', type: 'boolean', optional: true },
+                    { name: 'index', type: 'number', optional: true },
                 ],
                 returns: 'boolean',
             },
@@ -5966,6 +6154,192 @@ export const apiData: Record<string, GlobalDef> = {
                 params: [
                 ],
                 returns: 'boolean',
+            },
+            {
+                name: 'press',
+                description: '按住指定毫秒后抬起。\n@param x X坐标\n@param y Y坐标\n@param durationMs 按住毫秒（默认约800）\n@returns 是否成功',
+                params: [
+                    { name: 'x', type: 'number' },
+                    { name: 'y', type: 'number' },
+                    { name: 'durationMs', type: 'number', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'longClick',
+                description: '长按。\n@param x X坐标\n@param y Y坐标\n@returns 是否成功',
+                params: [
+                    { name: 'x', type: 'number' },
+                    { name: 'y', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'doubleTap',
+                description: '双击。\n@param x X坐标\n@param y Y坐标\n@returns 是否成功',
+                params: [
+                    { name: 'x', type: 'number' },
+                    { name: 'y', type: 'number' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'tapRandom',
+                description: '带随机偏移点击。\n@param x X坐标\n@param y Y坐标\n@param rx X随机半径（默认5）\n@param ry Y随机半径（默认5）\n@returns 是否成功',
+                params: [
+                    { name: 'x', type: 'number' },
+                    { name: 'y', type: 'number' },
+                    { name: 'rx', type: 'number', optional: true },
+                    { name: 'ry', type: 'number', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'type',
+                description: '整串输入。ASCII 尽量逐键，中文等走剪贴板粘贴。\n@param text 文本\n@returns 是否成功',
+                params: [
+                    { name: 'text', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'paste',
+                description: '写入剪贴板并粘贴。\n@param text 文本\n@returns 是否成功',
+                params: [
+                    { name: 'text', type: 'string' },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'clear',
+                description: '全选并删除（清空输入框）。\n@returns 是否成功',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'tapImage',
+                description: '截屏找图后点击中心。\n@param templateFile 模板图路径\n@param threshold 匹配阈值（默认0.8）\n@returns 匹配结果或 null',
+                params: [
+                    { name: 'templateFile', type: 'string' },
+                    { name: 'threshold', type: 'number', optional: true },
+                ],
+                returns: 'HidMatch | null',
+            },
+            {
+                name: 'pressImage',
+                description: '找图后长按。\n@param templateFile 模板图路径\n@param durationMs 按住毫秒（默认800）\n@param threshold 匹配阈值（默认0.8）\n@returns 匹配结果或 null',
+                params: [
+                    { name: 'templateFile', type: 'string' },
+                    { name: 'durationMs', type: 'number', optional: true },
+                    { name: 'threshold', type: 'number', optional: true },
+                ],
+                returns: 'HidMatch | null',
+            },
+            {
+                name: 'tapColor',
+                description: '截屏找色后点击色块中心。\n@param color rgba/rgb/#RRGGBB\n@param tolerance 通道容差（默认0）\n@returns 坐标或 null',
+                params: [
+                    { name: 'color', type: 'string' },
+                    { name: 'tolerance', type: 'number', optional: true },
+                ],
+                returns: 'Point | null',
+            },
+            {
+                name: 'waitImage',
+                description: '等待图出现。\n@param templateFile 模板图路径\n@param timeoutMs 超时毫秒（默认10000）\n@param intervalMs 轮询间隔（默认500）\n@param threshold 匹配阈值（默认0.8）\n@returns 匹配结果或 null',
+                params: [
+                    { name: 'templateFile', type: 'string' },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                    { name: 'intervalMs', type: 'number', optional: true },
+                    { name: 'threshold', type: 'number', optional: true },
+                ],
+                returns: 'HidMatch | null',
+            },
+            {
+                name: 'waitColor',
+                description: '等待颜色出现。\n@param color 颜色\n@param timeoutMs 超时毫秒（默认10000）\n@param intervalMs 轮询间隔（默认500）\n@param tolerance 通道容差（默认0）\n@returns 坐标或 null',
+                params: [
+                    { name: 'color', type: 'string' },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                    { name: 'intervalMs', type: 'number', optional: true },
+                    { name: 'tolerance', type: 'number', optional: true },
+                ],
+                returns: 'Point | null',
+            },
+            {
+                name: 'waitImageGone',
+                description: '等待图消失。\n@param templateFile 模板图路径\n@param timeoutMs 超时毫秒（默认10000）\n@param intervalMs 轮询间隔（默认500）\n@param threshold 匹配阈值（默认0.8）\n@returns 是否在超时前消失',
+                params: [
+                    { name: 'templateFile', type: 'string' },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                    { name: 'intervalMs', type: 'number', optional: true },
+                    { name: 'threshold', type: 'number', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'clickText',
+                description: 'OCR 找字后点击。\n@param keyword 关键字\n@param timeoutMs 超时毫秒（默认10000）\n@param mode contains|exact|regex（默认 contains）\n@returns 点击的区域或 null',
+                params: [
+                    { name: 'keyword', type: 'string' },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                    { name: 'mode', type: 'string', optional: true },
+                ],
+                returns: 'Rect | null',
+            },
+            {
+                name: 'waitText',
+                description: '等待文字出现。\n@param keyword 关键字\n@param timeoutMs 超时毫秒（默认10000）\n@param intervalMs 轮询间隔（默认500）\n@param mode contains|exact|regex\n@returns TextAndRegion 或 null',
+                params: [
+                    { name: 'keyword', type: 'string' },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                    { name: 'intervalMs', type: 'number', optional: true },
+                    { name: 'mode', type: 'string', optional: true },
+                ],
+                returns: 'TextAndRegion | null',
+            },
+            {
+                name: 'waitTextGone',
+                description: '等待文字消失。\n@param keyword 关键字\n@param timeoutMs 超时毫秒（默认10000）\n@param intervalMs 轮询间隔（默认500）\n@param mode contains|exact|regex\n@returns 是否在超时前消失',
+                params: [
+                    { name: 'keyword', type: 'string' },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                    { name: 'intervalMs', type: 'number', optional: true },
+                    { name: 'mode', type: 'string', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'connectAndWait',
+                description: '连接并等待就绪。\n@param autoconnect 是否自动连接（默认true）\n@param index 设备索引（默认0）\n@param timeoutMs 超时毫秒（默认10000）\n@returns 是否已连接',
+                params: [
+                    { name: 'autoconnect', type: 'boolean', optional: true },
+                    { name: 'index', type: 'number', optional: true },
+                    { name: 'timeoutMs', type: 'number', optional: true },
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'ensureConnected',
+                description: '未连接则自动连接。\n@returns 是否已连接',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'swipeUntilImage',
+                description: '滑动直到出现目标图。\n@param x1 起点X\n@param y1 起点Y\n@param x2 终点X\n@param y2 终点Y\n@param templateFile 模板图路径\n@param maxTimes 最大滑动次数（默认10）\n@param threshold 匹配阈值（默认0.8）\n@returns 匹配结果或 null',
+                params: [
+                    { name: 'x1', type: 'number' },
+                    { name: 'y1', type: 'number' },
+                    { name: 'x2', type: 'number' },
+                    { name: 'y2', type: 'number' },
+                    { name: 'templateFile', type: 'string' },
+                    { name: 'maxTimes', type: 'number', optional: true },
+                    { name: 'threshold', type: 'number', optional: true },
+                ],
+                returns: 'HidMatch | null',
             },
         ],
         properties: [
