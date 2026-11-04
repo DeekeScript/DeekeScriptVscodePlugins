@@ -8,6 +8,7 @@ const DOC_LINK_LABEL = 'DeekeScript Pro 文档';
 /** 文档不在 /base/{slug}/{slug}.html 下的 API（路径以 script.deeke.cn 为准） */
 const DOC_URL_OVERRIDES: Record<string, string> = {
     Access: `${DOC_BASE}/access/access.html`,
+    Adb: `${DOC_BASE}/adb/method.html`,
     Alipay: `${DOC_BASE}/base/alipay/alipay.html`,
     console: `${DOC_BASE}/base/console/console.html`,
     Cos: `${DOC_BASE}/base/cos/cos.html`,

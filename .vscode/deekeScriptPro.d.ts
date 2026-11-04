@@ -256,6 +256,771 @@ interface Access {
 declare var Access: Access;
 
 /**
+ * Android 11+ 无线调试：本机配对 adbd 后执行 shell、点击、授权、装包等。首次 pairWithCode；日常 connectSaved。不要对 Adb 使用 typeof。
+ * @see {@link https://script.deeke.cn/adb/method.html DeekeScript Pro 文档}
+ */
+interface Adb {
+    /**
+     * 是否支持无线调试（API ≥ 30）
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/adb/method.html#issupported DeekeScript Pro 文档}
+     */
+    isSupported(): boolean;
+    /**
+     * 连接与端口等状态摘要
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#status DeekeScript Pro 文档}
+     */
+    status(): object;
+    /**
+     * 当前是否已连上 adbd
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/adb/method.html#isconnected DeekeScript Pro 文档}
+     */
+    isConnected(): boolean;
+    /**
+     * 同 isConnected，兼容旧写法
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/adb/method.html#getconnectstate DeekeScript Pro 文档}
+     */
+    getConnectState(): boolean;
+    /**
+     * 已保存的连接 host
+     * @returns {string} string
+     * @see {@link https://script.deeke.cn/adb/method.html#gethost DeekeScript Pro 文档}
+     */
+    getHost(): string;
+    /**
+     * 已保存的连接端口
+     * @returns {number} number
+     * @see {@link https://script.deeke.cn/adb/method.html#getport DeekeScript Pro 文档}
+     */
+    getPort(): number;
+    /**
+     * 设置默认 host 并持久化
+     * @param {string} host host
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/adb/method.html#sethost-host DeekeScript Pro 文档}
+     */
+    setHost(host: string): boolean;
+    /**
+     * 设置默认连接端口并持久化
+     * @param {number} port port
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/adb/method.html#setport-port DeekeScript Pro 文档}
+     */
+    setPort(port: number): boolean;
+    /**
+     * 设置连接超时（毫秒）
+     * @param {number} connectTimeout connectTimeout
+     * @param {number} socketTimeout socketTimeout（可选）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#settimeouts-connecttimeout-sockettimeout DeekeScript Pro 文档}
+     */
+    setTimeouts(connectTimeout: number, socketTimeout?: number): object;
+    /**
+     * 读取超时配置
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#gettimeouts DeekeScript Pro 文档}
+     */
+    getTimeouts(): object;
+    /**
+     * 系统是否开启 USB/无线调试总开关
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/adb/method.html#isadbenabled DeekeScript Pro 文档}
+     */
+    isAdbEnabled(): boolean;
+    /**
+     * 无线调试开关是否打开
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/adb/method.html#iswirelessdebuggingenabled DeekeScript Pro 文档}
+     */
+    isWirelessDebuggingEnabled(): boolean;
+    /**
+     * 开发者选项是否打开
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/adb/method.html#isdeveloperoptionsenabled DeekeScript Pro 文档}
+     */
+    isDeveloperOptionsEnabled(): boolean;
+    /**
+     * 跳转开发者选项
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/adb/method.html#opendeveloperoptions DeekeScript Pro 文档}
+     */
+    openDeveloperOptions(): boolean;
+    /**
+     * 跳转系统「无线调试」页
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/adb/method.html#openwirelessdebuggingsettings DeekeScript Pro 文档}
+     */
+    openWirelessDebuggingSettings(): boolean;
+    /**
+     * 确保本机 Adb 密钥与证书已生成
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#ensureidentity DeekeScript Pro 文档}
+     */
+    ensureIdentity(): object;
+    /**
+     * 重新生成密钥（需重新配对）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#rotateidentity DeekeScript Pro 文档}
+     */
+    rotateIdentity(): object;
+    /**
+     * 清除本机 Adb 密钥
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/adb/method.html#clearidentity DeekeScript Pro 文档}
+     */
+    clearIdentity(): boolean;
+    /**
+     * 私钥文件路径
+     * @returns {string} string
+     * @see {@link https://script.deeke.cn/adb/method.html#keyfilepath DeekeScript Pro 文档}
+     */
+    keyFilePath(): string;
+    /**
+     * 本机局域网 IPv4 列表（含 127.0.0.1）
+     * @returns {string[]} string[]
+     * @see {@link https://script.deeke.cn/adb/method.html#localipaddresses DeekeScript Pro 文档}
+     */
+    localIpAddresses(): string[];
+    /**
+     * 推荐首次配对：只填 6 位码；也可传 {code, timeoutMs, pairPort, connectPort}。保持「使用配对码配对设备」弹窗。
+     * @param {string | object} codeOrOptions codeOrOptions
+     * @param {number} timeoutMs timeoutMs（可选）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#pairwithcode-codeoroptions-timeoutms DeekeScript Pro 文档}
+     */
+    pairWithCode(codeOrOptions: string | object, timeoutMs?: number): object;
+    /**
+     * pairWithCode 别名
+     * @param {string | object} codeOrOptions codeOrOptions
+     * @param {number} timeoutMs timeoutMs（可选）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#paircode-codeoroptions-timeoutms DeekeScript Pro 文档}
+     */
+    pairCode(codeOrOptions: string | object, timeoutMs?: number): object;
+    /**
+     * pairWithCode 别名
+     * @param {string | object} codeOrOptions codeOrOptions
+     * @param {number} timeoutMs timeoutMs（可选）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#easypair-codeoroptions-timeoutms DeekeScript Pro 文档}
+     */
+    easyPair(codeOrOptions: string | object, timeoutMs?: number): object;
+    /**
+     * 手动配对：pair(port, code) | pair(host, port, code) | pair({host,port,code})
+     * @param {string | number | object} hostOrPortOrOptions hostOrPortOrOptions
+     * @param {number | string} portOrCode portOrCode（可选）
+     * @param {string} code code（可选）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#pair-hostorportoroptions-portorcode-code DeekeScript Pro 文档}
+     */
+    pair(hostOrPortOrOptions: string | number | object, portOrCode?: number | string, code?: string): object;
+    /**
+     * 连接 adbd。无参=connectSaved；connect(port)；connect(host, port)；connect("ip:port")；connect({host,port})。本机自动试 Wi‑Fi IP
+     * @param {string | number | object} hostOrPortOrOptions hostOrPortOrOptions（可选）
+     * @param {number} port port（可选）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#connect-hostorportoroptions-port DeekeScript Pro 文档}
+     */
+    connect(hostOrPortOrOptions?: string | number | object, port?: number): object;
+    /**
+     * 用已保存 host/port 重连；已连接直接成功；失败会短时自动发现连接端口。失败时先 connect(连接端口)，不要直接 pairWithCode
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#connectsaved DeekeScript Pro 文档}
+     */
+    connectSaved(): object;
+    /**
+     * 只扫本机连接端口并 connect（已配对过）
+     * @param {number} timeoutMs timeoutMs（可选）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#connectbydiscovery-timeoutms DeekeScript Pro 文档}
+     */
+    connectByDiscovery(timeoutMs?: number): object;
+    /**
+     * connectByDiscovery 别名
+     * @param {number} timeoutMs timeoutMs（可选）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#discoverconnect-timeoutms DeekeScript Pro 文档}
+     */
+    discoverConnect(timeoutMs?: number): object;
+    /**
+     * 尝试连接，失败返回错误对象而不抛
+     * @param {string | number} hostOrPort hostOrPort（可选）
+     * @param {number} port port（可选）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#tryconnect-hostorport-port DeekeScript Pro 文档}
+     */
+    tryConnect(hostOrPort?: string | number, port?: number): object;
+    /**
+     * 断开后按上次 host/port 再连
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#reconnect DeekeScript Pro 文档}
+     */
+    reconnect(): object;
+    /**
+     * 断开当前 Adb 连接
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/adb/method.html#disconnect DeekeScript Pro 文档}
+     */
+    disconnect(): boolean;
+    /**
+     * 断开并用 connectSaved 重连
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/adb/method.html#resetconnection DeekeScript Pro 文档}
+     */
+    resetConnection(): boolean;
+    /**
+     * 启动 mDNS 发现配对/连接端口
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/adb/method.html#startdiscovery DeekeScript Pro 文档}
+     */
+    startDiscovery(): boolean;
+    /**
+     * 停止 mDNS 发现
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/adb/method.html#stopdiscovery DeekeScript Pro 文档}
+     */
+    stopDiscovery(): boolean;
+    /**
+     * 当前发现状态与设备列表
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#discoverystate DeekeScript Pro 文档}
+     */
+    discoveryState(): object;
+    /**
+     * 等到发现至少一个端点
+     * @param {boolean} wantPair wantPair（可选）
+     * @param {number} timeoutMs timeoutMs（可选）
+     * @param {number} pollMs pollMs（可选）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#waitdiscovery-wantpair-timeoutms-pollms DeekeScript Pro 文档}
+     */
+    waitDiscovery(wantPair?: boolean, timeoutMs?: number, pollMs?: number): object;
+    /**
+     * 等到本机配对端口
+     * @param {number} timeoutMs timeoutMs（可选）
+     * @param {number} pollMs pollMs（可选）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#waitpairingendpoint-timeoutms-pollms DeekeScript Pro 文档}
+     */
+    waitPairingEndpoint(timeoutMs?: number, pollMs?: number): object;
+    /**
+     * 等到本机连接端口
+     * @param {number} timeoutMs timeoutMs（可选）
+     * @param {number} pollMs pollMs（可选）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#waitconnectendpoint-timeoutms-pollms DeekeScript Pro 文档}
+     */
+    waitConnectEndpoint(timeoutMs?: number, pollMs?: number): object;
+    /**
+     * 轮询直到已连接或超时
+     * @param {number} timeoutMs timeoutMs（可选）
+     * @param {number} intervalMs intervalMs（可选）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#waitconnected-timeoutms-intervalms DeekeScript Pro 文档}
+     */
+    waitConnected(timeoutMs?: number, intervalMs?: number): object;
+    /**
+     * 执行一次性 shell（底层 exec:），返回 {ok, result, all, code, ...}
+     * @param {string} command command
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#shell-command DeekeScript Pro 文档}
+     */
+    shell(command: string): object;
+    /**
+     * shell 别名
+     * @param {string} command command
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#exec-command DeekeScript Pro 文档}
+     */
+    exec(command: string): object;
+    /**
+     * shell 别名
+     * @param {string} command command
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#execute-command DeekeScript Pro 文档}
+     */
+    execute(command: string): object;
+    /**
+     * 打开原始 Adb service（进阶）
+     * @param {string} destination destination
+     * @param {string} writeUtf8 writeUtf8（可选）
+     * @param {number} maxBytes maxBytes（可选）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#service-destination-writeutf8-maxbytes DeekeScript Pro 文档}
+     */
+    service(destination: string, writeUtf8?: string, maxBytes?: number): object;
+    /**
+     * 打开 Adb service 并返回字节
+     * @param {string} destination destination
+     * @param {number} maxBytes maxBytes（可选）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#servicebytes-destination-maxbytes DeekeScript Pro 文档}
+     */
+    serviceBytes(destination: string, maxBytes?: number): object;
+    /**
+     * 推送本地文件到设备路径
+     * @param {string} localPath localPath
+     * @param {string} remotePath remotePath
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#push-localpath-remotepath DeekeScript Pro 文档}
+     */
+    push(localPath: string, remotePath: string): object;
+    /**
+     * 从设备拉取文件到本地
+     * @param {string} remotePath remotePath
+     * @param {string} localPath localPath
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#pull-remotepath-localpath DeekeScript Pro 文档}
+     */
+    pull(remotePath: string, localPath: string): object;
+    /**
+     * 安装 apk（可带额外 pm 参数）
+     * @param {string} apkPath apkPath
+     * @param {string} extraArgs extraArgs（可选）（剩余参数）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#install-apkpath-extraargs DeekeScript Pro 文档}
+     */
+    install(apkPath: string, ...extraArgs?: string): object;
+    /**
+     * 多包 / 分包安装
+     * @param {string[]} apkPaths apkPaths
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#installmultiple-apkpaths DeekeScript Pro 文档}
+     */
+    installMultiple(apkPaths: string[]): object;
+    /**
+     * 卸载包名
+     * @param {string} packageName packageName
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#uninstall-packagename DeekeScript Pro 文档}
+     */
+    uninstall(packageName: string): object;
+    /**
+     * 推送 apk 并安装
+     * @param {string} apkPath apkPath
+     * @param {string} extraArgs extraArgs（可选）（剩余参数）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#pushandinstall-apkpath-extraargs DeekeScript Pro 文档}
+     */
+    pushAndInstall(apkPath: string, ...extraArgs?: string): object;
+    /**
+     * 点击坐标
+     * @param {number} x x
+     * @param {number} y y
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#tap-x-y DeekeScript Pro 文档}
+     */
+    tap(x: number, y: number): object;
+    /**
+     * 滑动
+     * @param {number} x1 x1
+     * @param {number} y1 y1
+     * @param {number} x2 x2
+     * @param {number} y2 y2
+     * @param {number} durationMs durationMs（可选）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#swipe-x1-y1-x2-y2-durationms DeekeScript Pro 文档}
+     */
+    swipe(x1: number, y1: number, x2: number, y2: number, durationMs?: number): object;
+    /**
+     * 拖拽（同 swipe，默认时长更长）
+     * @param {number} x1 x1
+     * @param {number} y1 y1
+     * @param {number} x2 x2
+     * @param {number} y2 y2
+     * @param {number} durationMs durationMs（可选）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#drag-x1-y1-x2-y2-durationms DeekeScript Pro 文档}
+     */
+    drag(x1: number, y1: number, x2: number, y2: number, durationMs?: number): object;
+    /**
+     * 长按，默认 800ms
+     * @param {number} x x
+     * @param {number} y y
+     * @param {number} durationMs durationMs（可选）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#longpress-x-y-durationms DeekeScript Pro 文档}
+     */
+    longPress(x: number, y: number, durationMs?: number): object;
+    /**
+     * longPress 别名
+     * @param {number} x x
+     * @param {number} y y
+     * @param {number} durationMs durationMs（可选）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#press-x-y-durationms DeekeScript Pro 文档}
+     */
+    press(x: number, y: number, durationMs?: number): object;
+    /**
+     * 发送按键（键值或名称）
+     * @param {number | string} codeOrName codeOrName
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#keyevent-codeorname DeekeScript Pro 文档}
+     */
+    keyEvent(codeOrName: number | string): object;
+    /**
+     * keyEvent 别名
+     * @param {number | string} codeOrName codeOrName
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#key-codeorname DeekeScript Pro 文档}
+     */
+    key(codeOrName: number | string): object;
+    /**
+     * 输入文字（input text）
+     * @param {string} value value
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#text-value DeekeScript Pro 文档}
+     */
+    text(value: string): object;
+    /**
+     * text 别名
+     * @param {string} value value
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#type-value DeekeScript Pro 文档}
+     */
+    type(value: string): object;
+    /**
+     * Home 键
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#home DeekeScript Pro 文档}
+     */
+    home(): object;
+    /**
+     * 返回键
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#back DeekeScript Pro 文档}
+     */
+    back(): object;
+    /**
+     * 最近任务
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#recents DeekeScript Pro 文档}
+     */
+    recents(): object;
+    /**
+     * 电源键
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#power DeekeScript Pro 文档}
+     */
+    power(): object;
+    /**
+     * 音量加
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#volumeup DeekeScript Pro 文档}
+     */
+    volumeUp(): object;
+    /**
+     * 音量减
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#volumedown DeekeScript Pro 文档}
+     */
+    volumeDown(): object;
+    /**
+     * 静音键
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#mute DeekeScript Pro 文档}
+     */
+    mute(): object;
+    /**
+     * 回车
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#enter DeekeScript Pro 文档}
+     */
+    enter(): object;
+    /**
+     * 退格
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#del DeekeScript Pro 文档}
+     */
+    del(): object;
+    /**
+     * 菜单键
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#menu DeekeScript Pro 文档}
+     */
+    menu(): object;
+    /**
+     * 唤醒
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#wake DeekeScript Pro 文档}
+     */
+    wake(): object;
+    /**
+     * 休眠
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#sleep DeekeScript Pro 文档}
+     */
+    sleep(): object;
+    /**
+     * 截图到本地路径
+     * @param {string} localPath localPath
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#screenshot-localpath DeekeScript Pro 文档}
+     */
+    screenshot(localPath: string): object;
+    /**
+     * screenshot 别名
+     * @param {string} localPath localPath
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#screencap-localpath DeekeScript Pro 文档}
+     */
+    screencap(localPath: string): object;
+    /**
+     * 截图返回字节
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#screenshotbytes DeekeScript Pro 文档}
+     */
+    screenshotBytes(): object;
+    /**
+     * 启动应用；可只传包名或包名+Activity
+     * @param {string} packageName packageName
+     * @param {string} activity activity（可选）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#startapp-packagename-activity DeekeScript Pro 文档}
+     */
+    startApp(packageName: string, activity?: string): object;
+    /**
+     * 强停应用
+     * @param {string} packageName packageName
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#forcestop-packagename DeekeScript Pro 文档}
+     */
+    forceStop(packageName: string): object;
+    /**
+     * 清除应用数据
+     * @param {string} packageName packageName
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#clearapp-packagename DeekeScript Pro 文档}
+     */
+    clearApp(packageName: string): object;
+    /**
+     * 授予运行时权限
+     * @param {string} packageName packageName
+     * @param {string} permission permission
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#grant-packagename-permission DeekeScript Pro 文档}
+     */
+    grant(packageName: string, permission: string): object;
+    /**
+     * 撤销运行时权限
+     * @param {string} packageName packageName
+     * @param {string} permission permission
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#revoke-packagename-permission DeekeScript Pro 文档}
+     */
+    revoke(packageName: string, permission: string): object;
+    /**
+     * 列出包名；filter 可选
+     * @param {string} filter filter（可选）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#listpackages-filter DeekeScript Pro 文档}
+     */
+    listPackages(filter?: string): object;
+    /**
+     * 读系统属性
+     * @param {string} key key
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#getprop-key DeekeScript Pro 文档}
+     */
+    getProp(key: string): object;
+    /**
+     * 写系统属性（设备允许时）
+     * @param {string} key key
+     * @param {string} value value
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#setprop-key-value DeekeScript Pro 文档}
+     */
+    setProp(key: string, value: string): object;
+    /**
+     * 窗口尺寸
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#wmsize DeekeScript Pro 文档}
+     */
+    wmSize(): object;
+    /**
+     * 窗口密度
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#wmdensity DeekeScript Pro 文档}
+     */
+    wmDensity(): object;
+    /**
+     * dumpsys 某服务
+     * @param {string} service service
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#dumpsys-service DeekeScript Pro 文档}
+     */
+    dumpsys(service: string): object;
+    /**
+     * 当前 Activity 栈摘要
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#activitytop DeekeScript Pro 文档}
+     */
+    activityTop(): object;
+    /**
+     * 当前焦点窗口
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#currentfocus DeekeScript Pro 文档}
+     */
+    currentFocus(): object;
+    /**
+     * 发送广播
+     * @param {string} action action
+     * @param {string} extras extras（可选）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#broadcast-action-extras DeekeScript Pro 文档}
+     */
+    broadcast(action: string, extras?: string): object;
+    /**
+     * 读 settings（namespace 默认 secure）
+     * @param {string} namespace namespace（可选）
+     * @param {string} key key
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#settingsget-namespace-key DeekeScript Pro 文档}
+     */
+    settingsGet(namespace?: string, key: string): object;
+    /**
+     * 写 settings
+     * @param {string} namespace namespace
+     * @param {string} key key
+     * @param {string} value value
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#settingsput-namespace-key-value DeekeScript Pro 文档}
+     */
+    settingsPut(namespace: string, key: string, value: string): object;
+    /**
+     * 删 settings 项
+     * @param {string} namespace namespace
+     * @param {string} key key
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#settingsdelete-namespace-key DeekeScript Pro 文档}
+     */
+    settingsDelete(namespace: string, key: string): object;
+    /**
+     * 写入剪贴板
+     * @param {string} text text
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#clipput-text DeekeScript Pro 文档}
+     */
+    clipPut(text: string): object;
+    /**
+     * 轮询 shell 直到输出包含期望字符串
+     * @param {string} command command
+     * @param {string} expectContains expectContains
+     * @param {number} timeoutMs timeoutMs（可选）
+     * @param {number} intervalMs intervalMs（可选）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#waitforshell-command-expectcontains-timeoutms-intervalms DeekeScript Pro 文档}
+     */
+    waitForShell(command: string, expectContains: string, timeoutMs?: number, intervalMs?: number): object;
+    /**
+     * 端口转发相关（能力有限，见返回提示）
+     * @param {number} hostPort hostPort
+     * @param {number} targetPort targetPort
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#tcpforward-hostport-targetport DeekeScript Pro 文档}
+     */
+    tcpForward(hostPort: number, targetPort: number): object;
+    /**
+     * tcpForward 别名
+     * @param {number} hostPort hostPort
+     * @param {number} targetPort targetPort
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#forward-hostport-targetport DeekeScript Pro 文档}
+     */
+    forward(hostPort: number, targetPort: number): object;
+    /**
+     * 请求 adbd root（仅设备允许时）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#root DeekeScript Pro 文档}
+     */
+    root(): object;
+    /**
+     * 退出 adbd root
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#unroot DeekeScript Pro 文档}
+     */
+    unroot(): object;
+    /**
+     * 列出目录
+     * @param {string} path path（可选）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#ls-path DeekeScript Pro 文档}
+     */
+    ls(path?: string): object;
+    /**
+     * 读文件内容
+     * @param {string} path path
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#cat-path DeekeScript Pro 文档}
+     */
+    cat(path: string): object;
+    /**
+     * 删除路径；recursive 可选
+     * @param {string} path path
+     * @param {boolean} recursive recursive（可选）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#rm-path-recursive DeekeScript Pro 文档}
+     */
+    rm(path: string, recursive?: boolean): object;
+    /**
+     * 确保目录存在
+     * @param {string} path path
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#ensuredir-path DeekeScript Pro 文档}
+     */
+    ensureDir(path: string): object;
+    /**
+     * 写入文本文件
+     * @param {string} path path
+     * @param {string} content content
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#echotofile-path-content DeekeScript Pro 文档}
+     */
+    echoToFile(path: string, content: string): object;
+    /**
+     * 执行 id
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#id DeekeScript Pro 文档}
+     */
+    id(): object;
+    /**
+     * 执行 whoami
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#whoami DeekeScript Pro 文档}
+     */
+    whoami(): object;
+    /**
+     * 执行 uname
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#uname DeekeScript Pro 文档}
+     */
+    uname(): object;
+    /**
+     * 重启；mode 可选
+     * @param {string} mode mode（可选）
+     * @returns {object} object
+     * @see {@link https://script.deeke.cn/adb/method.html#reboot-mode DeekeScript Pro 文档}
+     */
+    reboot(mode?: string): object;
+    /**
+     * 按行输出可用方法说明到控制台
+     * @returns {string} string
+     * @see {@link https://script.deeke.cn/adb/method.html#help DeekeScript Pro 文档}
+     */
+    help(): string;
+    /**
+     * help 别名
+     * @returns {string} string
+     * @see {@link https://script.deeke.cn/adb/method.html#methods DeekeScript Pro 文档}
+     */
+    methods(): string;
+}
+declare var Adb: Adb;
+
+/**
  * @see {@link https://script.deeke.cn/base/app/app.html DeekeScript Pro 文档}
  */
 interface App {
@@ -414,6 +1179,13 @@ interface Audio {
      * @see {@link https://script.deeke.cn/base/audio/audio.html#play-source DeekeScript Pro 文档}
      */
     play(source: string): boolean;
+    /**
+     * 加载并播放音频，播放结束后释放播放器
+     * @param {string} source 音频资源路径
+     * @returns {boolean} 是否成功
+     * @see {@link https://script.deeke.cn/base/audio/audio.html#playandrelease-source DeekeScript Pro 文档}
+     */
+    playAndRelease(source: string): boolean;
     /**
      * 播放当前已加载的音频
      * @returns {boolean} 是否成功
@@ -703,6 +1475,11 @@ interface DeekeScriptJson {
      * @see {@link https://script.deeke.cn/base/deekeScriptJson/deekeScriptJson.html#tojson DeekeScript Pro 文档}
      */
     toJson(): object;
+    /**
+     * 清除已缓存的 deekeScript.json
+     * @see {@link https://script.deeke.cn/base/deekeScriptJson/deekeScriptJson.html#clear DeekeScript Pro 文档}
+     */
+    clear(): void;
 }
 declare var DeekeScriptJson: DeekeScriptJson;
 
@@ -1511,6 +2288,29 @@ interface Dialogs {
 declare var Dialogs: Dialogs;
 
 /**
+ * 去掉文本里的不可见字符。保留普通空格，去掉零宽字符、方向标记和特殊空格。
+ * @see {@link https://script.deeke.cn/base/helper/helper.html DeekeScript Pro 文档}
+ */
+interface Helper {
+    /**
+     * 去掉不可见字符，保留普通空格。入参为 null 时返回空字符串
+     * @param {string} text 原始文本
+     * @returns {string} string
+     * @see {@link https://script.deeke.cn/base/helper/helper.html#stripinvisible-text DeekeScript Pro 文档}
+     */
+    stripInvisible(text: string): string;
+    /**
+     * 去掉不可见字符后再判断是否包含关键词。文本或关键词为 null，或关键词清理后为空时返回 false
+     * @param {string} text 原始文本
+     * @param {string} keyword 关键词
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/helper/helper.html#contains-text-keyword DeekeScript Pro 文档}
+     */
+    contains(text: string, keyword: string): boolean;
+}
+declare var Helper: Helper;
+
+/**
  * @see {@link https://script.deeke.cn/advance/encryption.html DeekeScript Pro 文档}
  */
 interface Encrypt {
@@ -1535,6 +2335,14 @@ interface Encrypt {
      * @see {@link https://script.deeke.cn/advance/encryption.html#sha256-input DeekeScript Pro 文档}
      */
     sha256(input: string): string;
+    /**
+     * HmacSHA256，返回十六进制字符串
+     * @param {string} key 密钥
+     * @param {string} data 数据
+     * @returns {string} string
+     * @see {@link https://script.deeke.cn/advance/encryption.html#hmac_sha256-key-data DeekeScript Pro 文档}
+     */
+    hmac_sha256(key: string, data: string): string;
     /**
      * base64 encode
      * @param {string|byte[]} input input
@@ -2130,9 +2938,9 @@ declare var FloatWindow: FloatWindow;
  */
 interface FloatPage {
     /**
-     * 显示悬浮窗。id 为实例名；可用 path 指定加载的 floats 目录（多开可共用同一套 page）。width/height 默认约 80% 屏宽、高 500px；opacity 默认 0.5；touchable:false 点击穿透
+     * 显示悬浮窗。id 为实例名；可用 path 指定加载的 floats 目录（多开可共用同一套 page）。width/height 默认约 80% 屏宽、高 500px；opacity 默认 0.5；touchable:false 点击穿透；gestureTouchable:false 时 Gesture 坐标手势穿透、手指仍可点
      * @param {string} floatId 悬浮窗实例 id
-     * @param {{ x?: number; y?: number; width?: number; height?: number; path?: string; opacity?: number; background?: string; draggable?: boolean; focusable?: boolean; touchable?: boolean; gestureTouchable?: boolean }} options 可选：x,y,width,height,path,opacity,background,draggable,focusable,touchable（可选）
+     * @param {{ x?: number; y?: number; width?: number; height?: number; path?: string; opacity?: number; background?: string; draggable?: boolean; focusable?: boolean; touchable?: boolean; gestureTouchable?: boolean }} options 可选：x,y,width,height,path,opacity,background,draggable,focusable,touchable,gestureTouchable（可选）
      * @returns {boolean} boolean
      * @see {@link https://script.deeke.cn/v2/floatPage.html#show-floatid-options DeekeScript Pro 文档}
      */
@@ -2259,12 +3067,14 @@ interface FloatPage {
      * Gesture.click / swipe 等坐标手势能不能点到这个悬浮窗。默认 true。false 时这些手势穿透，手指点击仍按 touchable
      * @param {string} floatId 悬浮窗 id
      * @param {boolean} gestureTouchable 坐标手势是否可点
+     * @see {@link https://script.deeke.cn/v2/floatPage.html#setgesturetouchable-floatid-gesturetouchable DeekeScript Pro 文档}
      */
     setGestureTouchable(floatId: string, gestureTouchable: boolean): void;
     /**
      * 坐标手势是否可点到这个悬浮窗
      * @param {string} floatId 悬浮窗 id
      * @returns {boolean | null} boolean | null
+     * @see {@link https://script.deeke.cn/v2/floatPage.html#isgesturetouchable-floatid DeekeScript Pro 文档}
      */
     isGestureTouchable(floatId: string): boolean | null;
     /**
@@ -2452,14 +3262,8 @@ interface Hid {
      */
     swipex(x1: number, y1: number, x2: number, y2: number, radian?: number, step?: number, downTimeout?: number, upTimeout?: number, timeout?: number, upDownTimes?: number): boolean;
     /**
-     * 获取服务器HID激活码。
-     * @returns {string} 激活码字符串
-     * @see {@link https://script.deeke.cn/hid/method.html#gethidzcm DeekeScript Pro 文档}
-     */
-    getHidZcm(): string;
-    /**
-     * 获取插件版本号。
-     * @returns {number} 插件版本号
+     * 固件版本号。
+     * @returns {number} 版本号
      * @see {@link https://script.deeke.cn/hid/method.html#ver DeekeScript Pro 文档}
      */
     ver(): number;
@@ -2526,12 +3330,11 @@ interface Hid {
      */
     tap(x: number, y: number): boolean;
     /**
-     * 初始化蓝牙模块。
-     * @param {any} ctx 上下文对象
-     * @returns {boolean} 是否成功
-     * @see {@link https://script.deeke.cn/hid/method.html#initbluetooth-ctx DeekeScript Pro 文档}
+     * 检查本机蓝牙已打开且有连接权限。无参数
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/hid/method.html#initbluetooth DeekeScript Pro 文档}
      */
-    initBluetooth(ctx: any): boolean;
+    initBluetooth(): boolean;
     /**
      * 获取已连接蓝牙设备名称。
      * @returns {string} 设备名称
@@ -2698,13 +3501,13 @@ interface Hid {
      */
     setBattery(lv: number): boolean;
     /**
-     * 连接蓝牙设备。
-     * @param {boolean} autoconnect 是否自动连接
-     * @param {number} index 设备索引
-     * @returns {boolean} 是否成功
+     * 连接蓝牙设备。都不传时自动连接第 0 个已配对设备
+     * @param {boolean} autoconnect 是否自动连接，默认 true（可选）
+     * @param {number} index 设备索引，默认 0（可选）
+     * @returns {boolean} boolean
      * @see {@link https://script.deeke.cn/hid/method.html#connect-autoconnect-index DeekeScript Pro 文档}
      */
-    connect(autoconnect: boolean, index: number): boolean;
+    connect(autoconnect?: boolean, index?: number): boolean;
     /**
      * 获取已连接的蓝牙设备。
      * @returns {any} 蓝牙设备对象或null
@@ -2809,22 +3612,22 @@ interface Hid {
      */
     clear(): boolean;
     /**
-     * 截屏找图后点击中心。
+     * 截屏找图后点击中心。结果只有 x、y、centerX、centerY。
      * @param {string} templateFile 模板图路径
      * @param {number} threshold 匹配阈值（默认0.8）（可选）
-     * @returns {ImageMatch | null} 匹配结果或 null
+     * @returns {HidMatch | null} 匹配结果或 null
      * @see {@link https://script.deeke.cn/hid/method.html#tapimage-templatefile-threshold DeekeScript Pro 文档}
      */
-    tapImage(templateFile: string, threshold?: number): ImageMatch | null;
+    tapImage(templateFile: string, threshold?: number): HidMatch | null;
     /**
      * 找图后长按。
      * @param {string} templateFile 模板图路径
      * @param {number} durationMs 按住毫秒（默认800）（可选）
      * @param {number} threshold 匹配阈值（默认0.8）（可选）
-     * @returns {ImageMatch | null} 匹配结果或 null
+     * @returns {HidMatch | null} 匹配结果或 null
      * @see {@link https://script.deeke.cn/hid/method.html#pressimage-templatefile-durationms-threshold DeekeScript Pro 文档}
      */
-    pressImage(templateFile: string, durationMs?: number, threshold?: number): ImageMatch | null;
+    pressImage(templateFile: string, durationMs?: number, threshold?: number): HidMatch | null;
     /**
      * 截屏找色后点击色块中心。
      * @param {string} color rgba/rgb/#RRGGBB
@@ -2839,10 +3642,10 @@ interface Hid {
      * @param {number} timeoutMs 超时毫秒（默认10000）（可选）
      * @param {number} intervalMs 轮询间隔（默认500）（可选）
      * @param {number} threshold 匹配阈值（默认0.8）（可选）
-     * @returns {ImageMatch | null} 匹配结果或 null
+     * @returns {HidMatch | null} 匹配结果或 null
      * @see {@link https://script.deeke.cn/hid/method.html#waitimage-templatefile-timeoutms-intervalms-threshold DeekeScript Pro 文档}
      */
-    waitImage(templateFile: string, timeoutMs?: number, intervalMs?: number, threshold?: number): ImageMatch | null;
+    waitImage(templateFile: string, timeoutMs?: number, intervalMs?: number, threshold?: number): HidMatch | null;
     /**
      * 等待颜色出现。
      * @param {string} color 颜色
@@ -2922,10 +3725,10 @@ interface Hid {
      * @param {string} templateFile 模板图路径
      * @param {number} maxTimes 最大滑动次数（默认10）（可选）
      * @param {number} threshold 匹配阈值（默认0.8）（可选）
-     * @returns {ImageMatch | null} 匹配结果或 null
+     * @returns {HidMatch | null} 匹配结果或 null
      * @see {@link https://script.deeke.cn/hid/method.html#swipeuntilimage-x1-y1-x2-y2-templatefile-maxtimes-threshold DeekeScript Pro 文档}
      */
-    swipeUntilImage(x1: number, y1: number, x2: number, y2: number, templateFile: string, maxTimes?: number, threshold?: number): ImageMatch | null;
+    swipeUntilImage(x1: number, y1: number, x2: number, y2: number, templateFile: string, maxTimes?: number, threshold?: number): HidMatch | null;
 }
 declare var Hid: Hid;
 
@@ -2950,6 +3753,23 @@ interface Http {
      * @see {@link https://script.deeke.cn/base/http/http.html#get-url-headers DeekeScript Pro 文档}
      */
     get(url: string, headers: object): string | null;
+    /**
+     * 带请求头的 GET
+     * @param {string} url 请求地址
+     * @param {object} header 请求头
+     * @returns {string | null} string | null
+     * @see {@link https://script.deeke.cn/base/http/http.html#getheaders-url-header DeekeScript Pro 文档}
+     */
+    getHeaders(url: string, header: object): string | null;
+    /**
+     * 带请求头的 POST
+     * @param {string} url 请求地址
+     * @param {object} json 请求内容
+     * @param {object} header 请求头
+     * @returns {string | null} string | null
+     * @see {@link https://script.deeke.cn/base/http/http.html#postheaders-url-json-header DeekeScript Pro 文档}
+     */
+    postHeaders(url: string, json: object, header: object): string | null;
     /**
      * @param {string} url 请求地址
      * @param {string[]} files files
@@ -3344,8 +4164,7 @@ interface Images {
 declare var Images: Images;
 
 /**
- * 统一事件总线（按键、亮灭屏、无障碍、窗口切换；可用 emit 自定义）。
- * 主脚本开始、停止会派发 script_start、script_stop，不要自己 emit。script_start 在任务正文前发出。
+ * 统一事件总线（按键、亮灭屏、无障碍、窗口切换；可用 emit 自定义）。主脚本开始、停止会派发 script_start、script_stop
  * @see {@link https://script.deeke.cn/base/events/events.html DeekeScript Pro 文档}
  */
 interface Events {
@@ -3619,6 +4438,22 @@ interface MediaStore {
      * @see {@link https://script.deeke.cn/base/mediaStore/mediaStore.html#getimages DeekeScript Pro 文档}
      */
     getImages(): any[];
+    /**
+     * 按目录获取图片。支持 /storage/emulated/0/Pictures/WeiXin、Pictures/WeiXin、DCIM/Camera、Screenshots
+     * @param {string} path 目录
+     * @returns {any[]} 图片信息数组
+     * @see {@link https://script.deeke.cn/base/mediaStore/mediaStore.html#getimagesbypath-path DeekeScript Pro 文档}
+     */
+    getImagesByPath(path: string): any[];
+    /**
+     * 把 content:// 图片复制进相册
+     * @param {string} contentUriString 源 content Uri
+     * @param {string} displayName 显示名称（可选）（可选）
+     * @param {string} relativePath 相对目录（可选，默认 Pictures）（可选）
+     * @returns {string | null} 保存后的 Uri 或路径，失败返回 null
+     * @see {@link https://script.deeke.cn/base/mediaStore/mediaStore.html#savecontentimagetogallery-contenturistring-displayname-relativepath DeekeScript Pro 文档}
+     */
+    saveContentImageToGallery(contentUriString: string, displayName?: string, relativePath?: string): string | null;
     /**
      * 保存图片到相册
      * @param {string} sourcePath 源图片路径
@@ -4160,6 +4995,11 @@ interface SocketIoClient {
      * @see {@link https://script.deeke.cn/base/socket/client.html#setreconnect-bool DeekeScript Pro 文档}
      */
     setReconnect(bool: boolean): void;
+    /**
+     * 关闭全部 Socket.IO 连接
+     * @see {@link https://script.deeke.cn/base/socket/client.html#closeall DeekeScript Pro 文档}
+     */
+    closeAll(): void;
 }
 declare var SocketIoClient: SocketIoClient;
 
@@ -4335,6 +5175,14 @@ interface Sqlite {
      */
     query(sql: string, args?: Array): Array;
     /**
+     * 执行查询并返回第一行第一列。无数据返回 null，适合 COUNT、SUM
+     * @param {string} sql SELECT 语句，可用 ? 占位符
+     * @param {Array} args 可选绑定参数数组（可选）
+     * @returns {any} any
+     * @see {@link https://script.deeke.cn/base/sqlite/sqlite.html#scalar-sql-args DeekeScript Pro 文档}
+     */
+    scalar(sql: string, args?: Array): any;
+    /**
      * 执行非查询 SQL（INSERT/UPDATE/DELETE/DDL 等）
      * @param {string} sql SQL 语句
      * @param {Array} args 可选绑定参数数组（可选）
@@ -4484,6 +5332,13 @@ interface Storage {
      * @see {@link https://script.deeke.cn/base/storage/storage.html#contains-key DeekeScript Pro 文档}
      */
     contains(key: string): boolean;
+    /**
+     * 字符串键是否已写入
+     * @param {string} key 键
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/storage/storage.html#exist-key DeekeScript Pro 文档}
+     */
+    exist(key: string): boolean;
 }
 declare var Storage: Storage;
 
@@ -4592,6 +5447,18 @@ interface System {
      * @see {@link https://script.deeke.cn/base/system/funcs.html#setaccessibilitymode-mode DeekeScript Pro 文档}
      */
     setAccessibilityMode(mode: string): void;
+    /**
+     * 获取当前无障碍模式字符串。未设置时返回 fast。是否处于快速模式用 isAccessibilityQuick()
+     * @returns {string} string
+     * @see {@link https://script.deeke.cn/base/system/funcs.html#getaccessibilitymode DeekeScript Pro 文档}
+     */
+    getAccessibilityMode(): string;
+    /**
+     * 当前是否为无障碍快速模式
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/system/funcs.html#isaccessibilityquick DeekeScript Pro 文档}
+     */
+    isAccessibilityQuick(): boolean;
     /**
      * 设置屏幕是否保持常亮
      * @param {boolean} keepOn 是否保持屏幕常亮
@@ -4716,6 +5583,33 @@ interface TextAndRegion {
      * @see {@link https://script.deeke.cn/base/textAndRegion/textAndRegion.html DeekeScript Pro 文档}
      */
     confidence: number;
+}
+
+/**
+ * Hid 找图结果，只有左上角和中心点
+ * @see {@link https://script.deeke.cn/base/hidMatch/hidMatch.html DeekeScript Pro 文档}
+ */
+interface HidMatch {
+    /**
+     * 左上角 X
+     * @see {@link https://script.deeke.cn/base/hidMatch/hidMatch.html DeekeScript Pro 文档}
+     */
+    x: number;
+    /**
+     * 左上角 Y
+     * @see {@link https://script.deeke.cn/base/hidMatch/hidMatch.html DeekeScript Pro 文档}
+     */
+    y: number;
+    /**
+     * 中心 X
+     * @see {@link https://script.deeke.cn/base/hidMatch/hidMatch.html DeekeScript Pro 文档}
+     */
+    centerX: number;
+    /**
+     * 中心 Y
+     * @see {@link https://script.deeke.cn/base/hidMatch/hidMatch.html DeekeScript Pro 文档}
+     */
+    centerY: number;
 }
 
 /**
@@ -5109,6 +6003,18 @@ interface UiObject {
      * @see {@link https://script.deeke.cn/base/uiObject/uiObject.html#gethinttext DeekeScript Pro 文档}
      */
     getHintText(): string;
+    /**
+     * 控件是否对无障碍重要。快速模式会过滤非重要控件
+     * @returns {boolean} boolean
+     * @see {@link https://script.deeke.cn/base/uiObject/uiObject.html#isimportantforaccessibility DeekeScript Pro 文档}
+     */
+    isImportantForAccessibility(): boolean;
+    /**
+     * 返回底层 AccessibilityNodeInfo
+     * @returns {any} any
+     * @see {@link https://script.deeke.cn/base/uiObject/uiObject.html#getaccessibilitynodeinfo DeekeScript Pro 文档}
+     */
+    getAccessibilityNodeInfo(): any;
 }
 
 /**
