@@ -4473,7 +4473,7 @@ export const apiData: Record<string, GlobalDef> = {
             },
             {
                 name: 'findTextInRegion',
-                description: '区域内识别到的文字列表',
+                description: '区域内识别到的文字字符串列表（不含坐标）。按关键字找坐标请用 findTextRegionsInRegion。',
                 params: [
                     { name: 'imageFile', type: 'string' },
                     { name: 'left', type: 'number' },
