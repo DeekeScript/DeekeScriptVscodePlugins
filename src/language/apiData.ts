@@ -1179,6 +1179,48 @@ export const apiData: Record<string, GlobalDef> = {
                 returns: 'void',
             },
             {
+                name: 'notifyInput',
+                description: '在通知栏直接回复，并阻塞到用户提交或取消。不会把本应用拉回前台。取消、划掉或超时返回空字符串。没有通知权限时抛出异常。一次通知只有一个输入框。\n@param title 标题\n@param content 正文',
+                params: [
+                    { name: 'title', type: 'string' },
+                    { name: 'content', type: 'string' },
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'notifyInput',
+                description: '在通知栏直接回复，并阻塞到用户提交或取消。不会把本应用拉回前台。\n@param title 标题\n@param content 正文\n@param hint 「输入」按钮里的提示',
+                params: [
+                    { name: 'title', type: 'string' },
+                    { name: 'content', type: 'string' },
+                    { name: 'hint', type: 'string' },
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'notifyInput',
+                description: '通知发出后、开始等待之前调用 afterPosted（例如先跳到无线调试）。\n@param title 标题\n@param content 正文\n@param hint 「输入」按钮里的提示\n@param afterPosted 通知发出后的回调',
+                params: [
+                    { name: 'title', type: 'string' },
+                    { name: 'content', type: 'string' },
+                    { name: 'hint', type: 'string' },
+                    { name: 'afterPosted', type: '() => void' },
+                ],
+                returns: 'string',
+            },
+            {
+                name: 'notifyInput',
+                description: '在通知栏直接回复。timeoutMs 小于等于 0 表示一直等到回复或取消。\n@param title 标题\n@param content 正文\n@param hint 「输入」按钮里的提示\n@param timeoutMs 等待毫秒\n@param afterPosted 通知发出后的回调',
+                params: [
+                    { name: 'title', type: 'string' },
+                    { name: 'content', type: 'string' },
+                    { name: 'hint', type: 'string' },
+                    { name: 'timeoutMs', type: 'number' },
+                    { name: 'afterPosted', type: '() => void' },
+                ],
+                returns: 'string',
+            },
+            {
                 name: 'getAppVersionName',
                 description: '通过包名，获取某个App的版本名称\n@param packageName 包名',
                 params: [
