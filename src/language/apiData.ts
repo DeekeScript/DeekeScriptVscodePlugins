@@ -3194,7 +3194,7 @@ export const apiData: Record<string, GlobalDef> = {
             },
             {
                 name: 'findTextInRegion',
-                description: '获取某个区域内的文字列表\n@param imageFile 图片文件路径\n@param left 区域左边界\n@param top 区域上边界\n@param width 区域宽度\n@param height 区域高度\n@returns 识别出的文本数组\n@throws Error 当图像识别失败或参数非法时',
+                description: '区域内识别到的文字字符串列表（不含坐标）。按关键字找坐标请用 findTextRegionsInRegion。\n@param imageFile 图片文件路径\n@param left 区域左边界\n@param top 区域上边界\n@param width 区域宽度\n@param height 区域高度\n@returns 识别出的文本数组\n@throws Error 当图像识别失败或参数非法时',
                 params: [
                     { name: 'imageFile', type: 'string' },
                     { name: 'left', type: 'number' },
