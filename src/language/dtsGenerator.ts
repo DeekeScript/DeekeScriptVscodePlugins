@@ -72,7 +72,6 @@ const IMAGES_OCR_METHODS = new Set([
     'findTextCenter',
     'findTextPosition',
     'findTextInRegion',
-    'findTextRegionsInRegion',
     'waitText',
     'waitTextGone',
 ]);
