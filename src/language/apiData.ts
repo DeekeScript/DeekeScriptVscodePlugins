@@ -725,7 +725,7 @@ export const apiData: Record<string, GlobalDef> = {
             },
             {
                 name: 'keyEvent',
-                description: '发送按键（键值或名称）',
+                description: '发送按键。名字全集见文档「按键名」；其它键传 Android KeyEvent 数字码',
                 params: [{ name: 'codeOrName', type: 'number | string' }],
                 returns: 'object',
             },
@@ -767,7 +767,7 @@ export const apiData: Record<string, GlobalDef> = {
             },
             {
                 name: 'power',
-                description: '电源键',
+                description: '亮屏。点亮已经息屏的屏幕',
                 params: [],
                 returns: 'object',
             },
@@ -809,13 +809,13 @@ export const apiData: Record<string, GlobalDef> = {
             },
             {
                 name: 'wake',
-                description: '唤醒',
+                description: '亮屏。点亮已经息屏的屏幕',
                 params: [],
                 returns: 'object',
             },
             {
                 name: 'sleep',
-                description: '休眠',
+                description: '息屏。关掉屏幕',
                 params: [],
                 returns: 'object',
             },
