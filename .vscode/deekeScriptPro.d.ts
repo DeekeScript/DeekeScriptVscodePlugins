@@ -4128,18 +4128,41 @@ interface Images {
      */
     findTextPosition(imageFile: string, keyword: string, mode?: string): Rect[];
     /**
-     * 旧：四参区域返回 string[]；新：带 keyword 返回 TextAndRegion[]
+     * 区域内识别到的文字字符串列表（不含坐标）。按关键字找坐标请用 findTextRegionsInRegion。
      * @param {string} imageFile imageFile
-     * @param {string | number} keywordOrLeft keywordOrLeft
-     * @param {string | number} modeOrTop modeOrTop（可选）
-     * @param {number} leftOrWidth leftOrWidth（可选）
-     * @param {number} topOrHeight topOrHeight（可选）
-     * @param {number} width width（可选）
-     * @param {number} height height（可选）
-     * @returns {string[] | TextAndRegion[]} string[] | TextAndRegion[]
-     * @see {@link https://script.deeke.cn/photoAndColor/ocr.html#findtextinregion-imagefile-keywordorleft-modeortop-leftorwidth-toporheight-width-height DeekeScript Pro 文档}
+     * @param {number} left left
+     * @param {number} top top
+     * @param {number} width width
+     * @param {number} height height
+     * @returns {string[]} string[]
+     * @see {@link https://script.deeke.cn/photoAndColor/ocr.html#findtextinregion-imagefile-left-top-width-height DeekeScript Pro 文档}
      */
-    findTextInRegion(imageFile: string, keywordOrLeft: string | number, modeOrTop?: string | number, leftOrWidth?: number, topOrHeight?: number, width?: number, height?: number): string[] | TextAndRegion[];
+    findTextInRegion(imageFile: string, left: number, top: number, width: number, height: number): string[];
+    /**
+     * 区域内按关键字查找。mode 默认 contains
+     * @param {string} imageFile imageFile
+     * @param {string} keyword keyword
+     * @param {number} left left
+     * @param {number} top top
+     * @param {number} width width
+     * @param {number} height height
+     * @returns {TextAndRegion[]} TextAndRegion[]
+     * @see {@link https://script.deeke.cn/photoAndColor/ocr.html#findtextregionsinregion-imagefile-keyword-left-top-width-height DeekeScript Pro 文档}
+     */
+    findTextRegionsInRegion(imageFile: string, keyword: string, left: number, top: number, width: number, height: number): TextAndRegion[];
+    /**
+     * 区域内按关键字查找。mode: contains|exact|regex
+     * @param {string} imageFile imageFile
+     * @param {string} keyword keyword
+     * @param {string} mode mode
+     * @param {number} left left
+     * @param {number} top top
+     * @param {number} width width
+     * @param {number} height height
+     * @returns {TextAndRegion[]} TextAndRegion[]
+     * @see {@link https://script.deeke.cn/photoAndColor/ocr.html#findtextregionsinregion-imagefile-keyword-mode-left-top-width-height DeekeScript Pro 文档}
+     */
+    findTextRegionsInRegion(imageFile: string, keyword: string, mode: string, left: number, top: number, width: number, height: number): TextAndRegion[];
     /**
      * 截屏等待文字出现
      * @param {string} keyword keyword
