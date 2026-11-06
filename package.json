@@ -203,8 +203,8 @@
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
     "test": "vscode-test",
-    "vscode:package": "vsce package",
-    "vscode:publish": "vsce publish"
+    "vscode:package": "node scripts/patch-slow-buffer.js && vsce package",
+    "vscode:publish": "node scripts/patch-slow-buffer.js && vsce publish"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.6",
