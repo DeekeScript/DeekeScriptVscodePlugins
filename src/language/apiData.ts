@@ -323,6 +323,12 @@ export const apiData: Record<string, GlobalDef> = {
                 returns: 'boolean',
             },
             {
+                name: 'supported',
+                description: 'isSupported 别名',
+                params: [],
+                returns: 'boolean',
+            },
+            {
                 name: 'supportsFeature',
                 description: '探测当前连接是否接受该 feature 名。未连接或名为空时返回 false',
                 params: [{ name: 'feature', type: 'string' }],
@@ -416,6 +422,12 @@ export const apiData: Record<string, GlobalDef> = {
                 returns: 'boolean',
             },
             {
+                name: 'openWirelessDebugging',
+                description: 'openWirelessDebuggingSettings 别名',
+                params: [],
+                returns: 'boolean',
+            },
+            {
                 name: 'ensureIdentity',
                 description: '确保本机 Adb 密钥与证书已生成',
                 params: [],
@@ -442,6 +454,12 @@ export const apiData: Record<string, GlobalDef> = {
             {
                 name: 'localIpAddresses',
                 description: '本机局域网 IPv4 列表（含 127.0.0.1）',
+                params: [],
+                returns: 'string[]',
+            },
+            {
+                name: 'localIps',
+                description: 'localIpAddresses 别名',
                 params: [],
                 returns: 'string[]',
             },
@@ -539,6 +557,12 @@ export const apiData: Record<string, GlobalDef> = {
             {
                 name: 'startDiscovery',
                 description: '启动 mDNS 发现配对/连接端口',
+                params: [],
+                returns: 'boolean',
+            },
+            {
+                name: 'discover',
+                description: 'startDiscovery 别名',
                 params: [],
                 returns: 'boolean',
             },
@@ -758,13 +782,13 @@ export const apiData: Record<string, GlobalDef> = {
             },
             {
                 name: 'text',
-                description: '输入文字（input text）',
+                description: '向当前焦点输入文字。别名 type。纯 ASCII 走 input text（空格转 %s）；中文等非 ASCII 先 clipPut 再 CTRL+V（失败则 KEYCODE_PASTE）',
                 params: [{ name: 'value', type: 'string' }],
                 returns: 'object',
             },
             {
                 name: 'type',
-                description: 'text 别名',
+                description: 'text 别名。纯 ASCII 走 input text；中文走剪贴板 + CTRL+V',
                 params: [{ name: 'value', type: 'string' }],
                 returns: 'object',
             },
@@ -987,7 +1011,7 @@ export const apiData: Record<string, GlobalDef> = {
             },
             {
                 name: 'clipPut',
-                description: '写入剪贴板',
+                description: '写入系统剪贴板。Adb.text 对中文会自动 clipPut 再 CTRL+V；也可自行 clipPut 后粘贴',
                 params: [{ name: 'text', type: 'string' }],
                 returns: 'object',
             },
@@ -6531,10 +6555,31 @@ export const apiData: Record<string, GlobalDef> = {
             },
             {
                 name: 'isScrollable',
-                description: '判断控件是否可以滚动',
+                description: '判断控件是否标记为可滚动。具体能不能向前/向后滑看 canScrollForward() / canScrollBackward()',
                 params: [
                 ],
                 returns: 'boolean',
+            },
+            {
+                name: 'canScrollForward',
+                description: '节点是否声明无障碍 ACTION_SCROLL_FORWARD。为 true 时再调 scrollForward() 更稳',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'canScrollBackward',
+                description: '节点是否声明无障碍 ACTION_SCROLL_BACKWARD。判断方式同 canScrollForward()',
+                params: [
+                ],
+                returns: 'boolean',
+            },
+            {
+                name: 'actions',
+                description: '当前节点支持的无障碍动作名，如 ACTION_CLICK、ACTION_SCROLL_FORWARD。未识别 id 为 0x 加十六进制',
+                params: [
+                ],
+                returns: 'string[]',
             },
             {
                 name: 'isVisibleToUser',
