@@ -2,7 +2,16 @@ import { apiData, GlobalDef, MethodDef, ParamDef, PropertyDef } from './apiData'
 
 const DOC_BASE = 'https://doc.deeke.cn';
 
+/** 文档不在 /base/{slug}/{slug}.html 下的 API */
+const DOC_URL_OVERRIDES: Record<string, string> = {
+    Adb: 'https://script.deeke.cn/adb/method.html',
+};
+
 function buildDocUrl(globalName: string): string {
+    const override = DOC_URL_OVERRIDES[globalName];
+    if (override) {
+        return override;
+    }
     const slug = globalName.charAt(0).toLowerCase() + globalName.slice(1);
     return `${DOC_BASE}/base/${slug}/${slug}.html`;
 }
